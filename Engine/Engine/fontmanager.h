@@ -42,8 +42,7 @@ struct GlyphInfo {
 
 	unsigned int x, y; // Position of glyph on texture map in pixels.
 	float left, right;
-	FIBITMAP * dib;
-	unsigned char * img;
+	std::vector<unsigned char> img;
 };
 
 
@@ -69,8 +68,8 @@ public:
 
 private:
 	int GetNextPow2(int a);
-	void StitchGlyph(const GlyphInfo, unsigned int px, unsigned int py, unsigned int total_width, unsigned int max_height, unsigned char * charmap);
-	void StitchGlyph(FT_Bitmap * bitmap, int px, int py, unsigned int fontColor, unsigned int backgroundColor, unsigned int total_width, unsigned int max_height, unsigned char * video);
+	void StitchGlyph(const GlyphInfo g, unsigned int px, unsigned int py, unsigned char * charmap);
+	void flip(unsigned char * buffer, unsigned width, unsigned height);
 	bool CreateShaderResourceView(unsigned int width, unsigned int height, unsigned int pitch, const unsigned char * buffer);
 	
 	template <typename input_type, typename output_type>

@@ -99,7 +99,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	if (FT_New_Memory_Face(p_library, m_buffer, m_length, 0, &m_face))
 		return false;
 
-	if (FT_Set_Pixel_Sizes(m_face, 0, ceilf(ui::ScaleX(18))))
+	if (FT_Set_Pixel_Sizes(m_face, 0, ceilf(ui::ScaleX(16))))
 		return false;
 
 	float x = 0, y = 0, sx = 1, sy = 1;
@@ -117,6 +117,8 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 			continue;
 		}
 		auto glyphInfo = GlyphInfo();
+
+		// Advance is in 1/64 pixels, so bitshift by 6 to get value in pixels (2^6 = 64).
 		glyphInfo.ax = m_face->glyph->advance.x >> 6;
 		glyphInfo.ay = m_face->glyph->advance.y >> 6;
 
@@ -126,30 +128,15 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 		glyphInfo.bl = m_face->glyph->bitmap_left;
 		glyphInfo.bt = m_face->glyph->bitmap_top;
 
-		const int size = glyphInfo.bw*glyphInfo.bh;
-		std::vector<unsigned char> outputBuffer;
-		outputBuffer.assign(
+		flip(
 			m_face->glyph->bitmap.buffer,
-			m_face->glyph->bitmap.buffer + size
+			glyphInfo.bw, glyphInfo.bh
 		);
-		//outputBuffer.resize(size);
-		//GenerateSigendDistanceFieldFrom(
-		//	m_face->glyph->bitmap.buffer, 
-		//	glyphInfo.bw, glyphInfo.bh,
-		//	outputBuffer.data(), true
-		//);
-		//memcpy(
-		//	&glyphInfo.img,
-		//	&m_face->glyph->bitmap.buffer,
-		//	sizeof(m_face->glyph->bitmap.buffer)
-		//);
-		glyphInfo.img = outputBuffer.data();
-
-		glyphInfo.dib = FreeImage_ConvertFromRawBits(
-			outputBuffer.data(), 
-			m_face->glyph->bitmap.width, m_face->glyph->bitmap.rows,
-			m_face->glyph->bitmap.pitch, 8, 0, 0, 0
+		std::vector<byte> outputBuffer(
+			m_face->glyph->bitmap.buffer,
+			m_face->glyph->bitmap.buffer + glyphInfo.bw * glyphInfo.bh
 		);
+		glyphInfo.img = outputBuffer;
 
 		glyphInfo.left = glyphInfo.x = glyphInfo.bl + x;
 		glyphInfo.y = glyphInfo.bh - glyphInfo.bt;
@@ -165,54 +152,26 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	m_width = GetNextPow2(total_width);
 	m_height = GetNextPow2(max_height);
 
-	const unsigned int size= m_width * m_height;
-	//unsigned char  charmap[32];
-	//unsigned char charmap = std::vector<unsigned char>(m_width * m_height * 8)[0];
-	unsigned char * charmap = new unsigned char[m_width * m_height]();
-	std::fill(charmap, charmap  + m_width * m_height, 0);
-	FIBITMAP *dst = FreeImage_Allocate(m_width, m_height, 8);
-	if (!dst) 
-		return false;
+	byte * charmap = new byte[m_width * m_height]();
+	std::fill(charmap, charmap + m_width * m_height, 0);
 
-	for (int j = 0; j < m_glyphSlots.size(); j++)
+	for (uint j = 0; j < m_glyphSlots.size(); j++)
 	{
- 		//FreeImage_Paste(dst, m_glyphSlots[j].dib, 
-		// 	m_glyphSlots[j].x, -m_glyphSlots[j].y + max_height / 2, 255);
-		FreeImage_Unload(m_glyphSlots[j].dib);
 		StitchGlyph(
 			m_glyphSlots[j],
-			//&m_face->glyph->bitmap,
 			m_glyphSlots[j].x,
-			-m_glyphSlots[j].y + max_height / 2, 
-			//0xffffffu, 0x0u, 
-			m_width, m_height,
+			m_height / 4 - m_glyphSlots[j].y, 
 			charmap
 		);
+		m_glyphSlots[j].img.empty();
 		m_glyphSlots[j].left /= m_width;
 		m_glyphSlots[j].right /= m_width;
 	}
 	
-		dst = FreeImage_ConvertFromRawBits(
-			charmap, m_width, m_height, m_width, 8, 0, 0, 0
-		);
-	unsigned int rowPitch = FreeImage_GetPitch(dst);
-	unsigned char* imageData = FreeImage_GetBits(dst);
-
-	if ((imageData == 0) || (m_width == 0) || (m_height == 0))
-		return false;
-
-	// Release the texture resource.
-	if (m_texture)
-	{
-		m_texture->Release();
-		m_texture = 0;
-	}
-
-	CreateShaderResourceView(m_width, m_height, rowPitch, imageData);
+	flip(charmap, m_width, m_height);
 	CreateShaderResourceView(m_width, m_height, m_width, charmap);
 
-	FreeImage_Save(FIF_BMP, dst, "charmap.bmp");
-	FreeImage_Unload(dst);
+	delete[] charmap;
 	FT_Done_Face(m_face);
 
  	return true;
@@ -230,74 +189,37 @@ inline int Font::GetNextPow2(int a)
 }
 
 
-void Font::StitchGlyph(const GlyphInfo g,
-	unsigned int px, unsigned int py, unsigned int total_width,
-	unsigned int max_height, unsigned char * charmap)
+void Font::StitchGlyph(
+	const GlyphInfo g,
+	uint px,
+	uint py,
+	byte * charmap)
 {
-	auto WIDTH = total_width, HEIGHT = max_height;
+	if (px + g.bw > m_width || py + g.bh > m_height)
+		return; 
 
-	for (int y = 0; y < g.bh; y++)
+	for (uint y = 0; y < g.bh; y++)
 	{
-		for (int x = 0; x < g.bw; x++)
+		for (uint x = 0; x < g.bw; x++)
 		{
-			//if (x >= WIDTH || y >= HEIGHT)
-			//	continue; 
-
-			charmap[(py + y) * WIDTH + (px + x)] = g.img[y * g.bw + x];
+			charmap[(py + y) * m_width + (px + x)] = g.img[y * g.bw + x];
 		}
 	}
 }
 
-
-void Font::StitchGlyph(FT_Bitmap* bitmap, int px, int py, unsigned int fontColor,
-	unsigned int backgroundColor, unsigned int total_width,
-	unsigned int max_height, unsigned char * video)
+void Font::flip(byte * buffer, unsigned width, unsigned height)
 {
-	unsigned int fontColorR = ((fontColor & 0x00FF0000) >> 16);
-	unsigned int fontColorG = ((fontColor & 0x0000FF00) >> 8);
-	unsigned int fontColorB = (fontColor & 0x000000FF);
+	unsigned rows = height / 2; // Iterate only half the buffer to get a full flip
+	byte * tempRow = (byte *)malloc(width * sizeof(byte));
 
-	unsigned int backgroundColorR = ((backgroundColor & 0x00FF0000) >> 16);
-	unsigned int backgroundColorG = ((backgroundColor & 0x0000FF00) >> 8);
-	unsigned int backgroundColorB = (backgroundColor & 0x000000FF);
-
-	float opacity;
-
-	auto WIDTH = total_width, HEIGHT = max_height;
-
-	for (int y = 0; y < bitmap->rows; y++)
+	for (unsigned rowIndex = 0; rowIndex < rows; rowIndex++)
 	{
-		for (int x = 0; x < bitmap->width; x++)
-		{
-			if (x >= WIDTH || y >= HEIGHT)
-				continue;
-
-			int i = (py + y) * WIDTH + (px + x);
-			if (bitmap->buffer[y * bitmap->width + x] == 0)
-			{
-				/* Render background color. */
-				video[i + 0] = backgroundColorR;
-				video[i + 1] = backgroundColorG;
-				video[i + 2] = backgroundColorB;
-				video[i + 3] = 0xFF;
-			}
-			else
-			{
-				/* Calculate alpha (opacity). */
-				opacity = bitmap->buffer[y * bitmap->width + x] / 255;
-
-				video[i + 0] = fontColorR * opacity +
-					(1 - opacity) * backgroundColorR;
-
-				video[i + 1] = fontColorG * opacity +
-					(1 - opacity) * backgroundColorG;
-
-				video[i + 2] = fontColorB * opacity +
-					(1 - opacity) * backgroundColorB;
-				video[i + 3] = 0xFF;
-			}
-		}
+		memcpy(tempRow, buffer + rowIndex * width, width * sizeof(byte));
+		memcpy(buffer + rowIndex * width, buffer + (height - rowIndex - 1) * width, width * sizeof(byte));
+		memcpy(buffer + (height - rowIndex - 1) * width, tempRow, width * sizeof(byte));
 	}
+
+	free(tempRow);
 }
 
 
