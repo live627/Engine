@@ -158,7 +158,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 		x += (glyphInfo.ax) * sx; // Bitshift by 6 to get value in pixels (2^6 = 64)
 		y += (glyphInfo.ay) * sy;
 		total_width = x + glyphInfo.bw;
-		max_height = max(max_height, glyphInfo.bt + glyphInfo.bh);
+		max_height = std::max<uint>(max_height, glyphInfo.bt + glyphInfo.bh);
 		glyphInfo.right = glyphInfo.x + glyphInfo.bw;
 		m_glyphSlots.push_back(glyphInfo);
 	}

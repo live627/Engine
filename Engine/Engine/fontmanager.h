@@ -5,28 +5,35 @@
 #define _FontManager_H_
 
 
+///////////////////////////////
+// PRE-PROCESSING DIRECTIVES //
+///////////////////////////////
+// Windows is too helpful sometimes.
+#define NOMINMAX
+
+
 ///////////////////////
 // INCLUDES //
 ///////////////////////
 #include <map>
 #include <queue>
+#include "ft2build.h"
+#include FT_FREETYPE_H
+#include <wrl\client.h>
 
 
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "textureshaderclass.h"
-#include "vec2.h"
-#include "ft2build.h"
-#include FT_FREETYPE_H
-#include <FreeImage.h>
-#include "ui.h"
+#include "game.h"
 
 
 struct GlyphInfo {
 	unsigned int ax; // advance.x
 	unsigned int ay; // advance.y
 
+	unsigned int bp; // bitmap.width;
 	unsigned int bw; // bitmap.width;
 	unsigned int bh; // bitmap.rows;
 
