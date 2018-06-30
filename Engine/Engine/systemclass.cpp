@@ -73,9 +73,9 @@ bool SystemClass::Initialize()
 		}
 	}
 	file.close();
-	
+
 	// Allow the autosave loop to start.
-	keep_saving_file.store(true);
+	m_keepSavingFile.store(true);
 
 	return true;
 }
@@ -84,7 +84,7 @@ bool SystemClass::Initialize()
 void SystemClass::Shutdown()
 {
 	// End the autosave loop.
-	keep_saving_file.store(false);
+	m_keepSavingFile.store(false);
 
 	// All GameObjects must be ended.
 	for (auto gameObject : m_gameObjects)
@@ -99,7 +99,7 @@ void SystemClass::Shutdown()
 		m_Graphics->Shutdown();
 		delete m_Graphics;
 		m_Graphics = 0;
-	}    
+	}
 
 	// Shutdown the window.
 	ShutdownWindows();
@@ -288,7 +288,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 }
 
 
-void SystemClass::InitializeScaling() 
+void SystemClass::InitializeScaling()
 {
 	HDC screen = GetDC(0);
 	ui::scaleX = GetDeviceCaps(screen, LOGPIXELSX) / 96.0;
@@ -345,7 +345,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 	case WM_KEYDOWN:
 	{
 		// If a key is pressed send it to the input object so it can record that state.
-		m_Input->KeyDown((unsigned int)wparam);
+		m_Input->KeyDown((uint)wparam);
 		return 0;
 	}
 
@@ -439,25 +439,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void SystemClass::Autosave()
 {
-	auto minutes = 5;
-	const std::chrono::duration<int> duration(1); // seconds
+	bool canRetry = false;
+	const uint retryTime = 1;
+	const uint spinTime = 5;
+	ofstream file;
+	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 
-	do
+	while (m_keepSavingFile)
 	{
-		std::this_thread::sleep_for(duration);
-		if (keep_saving_file)
+		std::this_thread::sleep_for(
+			std::chrono::duration<uint>(canRetry ? retryTime : spinTime)
+		);
+		canRetry = false;
+		try
 		{
-			ofstream file;
 			file.open("autosave.bin", ios_base::binary);
-			if (file.is_open())
-			{
-				for (auto gameObject : m_gameObjects)
-				{
-					gameObject.second->Save(file);
-				}
-			}
+			for (auto gameObject : m_gameObjects)
+				gameObject.second->Save(file);
 			file.close();
 		}
+		catch (const std::ios_base::failure &e)
+		{
+			switch (MessageBoxA(
+				m_hwnd, e.what(), "Autosave error",
+				MB_ABORTRETRYIGNORE | MB_ICONERROR | MB_DEFBUTTON2
+			))
+			{
+			case IDABORT:
+				m_keepSavingFile = false;
+				break;
+
+			case IDRETRY:
+				canRetry = true;
+				break;
+			}
+		}
 	} 
-	while (keep_saving_file);
 }

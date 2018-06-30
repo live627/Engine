@@ -108,9 +108,7 @@ private:
 	GraphicsClass* m_Graphics;
 
 	std::unordered_map<std::wstring, GameObject*> m_gameObjects; 
-
-	std::string path_to_file = "whatever";
-	std::atomic<bool> keep_saving_file;
+	std::atomic<bool> m_keepSavingFile;
 
 	bool m_isGameActive = false;
 	bool m_isGameHalted = false;
