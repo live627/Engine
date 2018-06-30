@@ -203,14 +203,16 @@ private:
 		}
 
 	}
+
 private:
 	ID3D11Device * m_device;
 	ID3D11DeviceContext * m_deviceContext;
 	FT_Face m_face;
 	std::vector<GlyphInfo> m_glyphSlots;
-	ID3D11ShaderResourceView * m_texture = 0;
-	int m_width;
-	int m_height;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture = 0;
+	size_t
+		m_width,
+		m_height;
 };
 
 class FontManager

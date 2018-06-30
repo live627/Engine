@@ -198,7 +198,7 @@ bool Font::CreateShaderResourceView(
 	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-	ID3D11Texture2D* texture2D;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2D;
 
 	D3D11_SUBRESOURCE_DATA resourceData = { buffer, pitch, 0 };
 
@@ -212,11 +212,9 @@ bool Font::CreateShaderResourceView(
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
-	HRESULT result = m_device->CreateShaderResourceView(texture2D, &shaderResourceViewDesc, &m_texture);
+	HRESULT result = m_device->CreateShaderResourceView(texture2D.Get(), &shaderResourceViewDesc, &m_texture);
 	if (FAILED(result))
 		return false;
-
-	texture2D->Release();
 
 	return true;
 }
@@ -224,23 +222,23 @@ bool Font::CreateShaderResourceView(
 
 ID3D11ShaderResourceView* Font::GetShaderResourceView()
 {
-	return m_texture;
+	return m_texture.Get();
 }
 
 
 void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, float drawY)
 {
 	VertexType* vertexPtr;
-	int index = 0;
+	uint index = 0;
 
 
 	// Coerce the input vertices into a VertexType structure.
 	vertexPtr = (VertexType*)vertices;
 
 	// Draw each letter onto a quad.
-	for (int i = 0; i < strlen(sentence); i++)
+	for (uint i = 0; i < strlen(sentence); i++)
 	{
-		int letter = static_cast<int>(sentence[i]) - 32;
+		uint letter = static_cast<uint>(sentence[i]) - 32;
 
 		if (letter > m_glyphSlots.size())
 			continue;

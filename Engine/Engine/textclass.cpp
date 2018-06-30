@@ -99,7 +99,6 @@ void TextClass::Shutdown()
 	// Release the font shader object.
 	if (m_FontShader)
 	{
-		m_FontShader->Shutdown();
 		delete m_FontShader;
 		m_FontShader = 0;
 	}

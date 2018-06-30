@@ -4,28 +4,6 @@
 #include "fontshaderclass.h"
 
 
-FontShaderClass::FontShaderClass(bool p_isFont = false)
-{
-	m_isFont = p_isFont;
-	m_vertexShader = 0;
-	m_pixelShader = 0;
-	m_layout = 0;
-	m_constantBuffer = 0;
-	m_sampleState = 0;
-	m_pixelBuffer = 0;
-}
-
-
-FontShaderClass::FontShaderClass(const FontShaderClass& other)
-{
-}
-
-
-FontShaderClass::~FontShaderClass()
-{
-}
-
-
 bool FontShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
 	bool result;
@@ -39,15 +17,6 @@ bool FontShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 	}
 
 	return true;
-}
-
-
-void FontShaderClass::Shutdown()
-{
-	// Shutdown the vertex and pixel shaders as well as the related objects.
-	ShutdownShader();
-
-	return;
 }
 
 
@@ -74,27 +43,22 @@ bool FontShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount,
 bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	HRESULT result;
-	ID3D10Blob* errorMessage;
-	ID3D10Blob* vertexShaderBuffer;
-	ID3D10Blob* pixelShaderBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob>
+		errorMessage,
+		vertexShaderBuffer,
+		pixelShaderBuffer;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC constantBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC pixelBufferDesc;
 
-
-	// Initialize the pointers this function will use to null.
-	errorMessage = 0;
-	vertexShaderBuffer = 0;
-	pixelShaderBuffer = 0;
-
 	// Compile the vertex shader code.
 	result = D3DX11CompileFromMemory(vertexShader, strlen(vertexShader), NULL, NULL, NULL, "TextureVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
 		&vertexShaderBuffer, &errorMessage, NULL);
 	if (FAILED(result) && errorMessage)
 	{
-		OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
+		OutputShaderErrorMessage(errorMessage.Get(), hwnd, vsFilename);
 
 		return false;
 	}
@@ -105,7 +69,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 		&pixelShaderBuffer, &errorMessage, NULL);
 	if (FAILED(result) && errorMessage)
 	{
-		OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
+		OutputShaderErrorMessage(errorMessage.Get(), hwnd, psFilename);
 
 		return false;
 	}
@@ -154,13 +118,6 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 	{
 		return false;
 	}
-
-	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = 0;
-
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = 0;
 
 	// Setup the description of the dynamic constant buffer that is in the vertex shader.
 	constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -218,59 +175,11 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 }
 
 
-void FontShaderClass::ShutdownShader()
-{
-	// Release the pixel constant buffer.
-	if (m_pixelBuffer)
-	{
-		m_pixelBuffer->Release();
-		m_pixelBuffer = 0;
-	}
-
-	// Release the sampler state.
-	if (m_sampleState)
-	{
-		m_sampleState->Release();
-		m_sampleState = 0;
-	}
-
-	// Release the constant buffer.
-	if (m_constantBuffer)
-	{
-		m_constantBuffer->Release();
-		m_constantBuffer = 0;
-	}
-
-	// Release the layout.
-	if (m_layout)
-	{
-		m_layout->Release();
-		m_layout = 0;
-	}
-
-	// Release the pixel shader.
-	if (m_pixelShader)
-	{
-		m_pixelShader->Release();
-		m_pixelShader = 0;
-	}
-
-	// Release the vertex shader.
-	if (m_vertexShader)
-	{
-		m_vertexShader->Release();
-		m_vertexShader = 0;
-	}
-
-	return;
-}
-
-
 void FontShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
 	char* compileErrors;
 	unsigned long bufferSize, i;
-	ofstream fout;
+	std::ofstream fout;
 
 
 	// Get a pointer to the error message text buffer.
@@ -291,10 +200,6 @@ void FontShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hw
 	// Close the file.
 	fout.close();
 
-	// Release the error message.
-	errorMessage->Release();
-	errorMessage = 0;
-
 	// Pop a message up on the screen to notify the user to check the text file for compile errors.
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 
@@ -302,7 +207,8 @@ void FontShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hw
 }
 
 
-bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix,
+bool FontShaderClass::SetShaderParameters(
+	ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix,
 	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixelColor)
 {
 	HRESULT result;
@@ -313,7 +219,7 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 
 
 	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(m_constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
@@ -337,19 +243,19 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	//dataPtr->projection = projectionMatrix;
 
 	// Unlock the constant buffer.
-	deviceContext->Unmap(m_constantBuffer, 0);
+	deviceContext->Unmap(m_constantBuffer.Get(), 0);
 
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 
 	// Now set the constant buffer in the vertex shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_constantBuffer);
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, m_constantBuffer.GetAddressOf());
 
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 
 	// Lock the pixel constant buffer so it can be written to.
-	result = deviceContext->Map(m_pixelBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(m_pixelBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
@@ -365,13 +271,13 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	//dataPtr2->textureWidth = screenWidth;
 
 	// Unlock the pixel constant buffer.
-	deviceContext->Unmap(m_pixelBuffer, 0);
+	deviceContext->Unmap(m_pixelBuffer.Get(), 0);
 
 	// Set the position of the pixel constant buffer in the pixel shader.
 	bufferNumber = 0;
 
 	// Now set the pixel constant buffer in the pixel shader with the updated value.
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_pixelBuffer);
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, m_pixelBuffer.GetAddressOf());
 
 	return true;
 }
@@ -380,11 +286,11 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 void FontShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(m_layout);
+	deviceContext->IASetInputLayout(m_layout.Get());
 
 	// Set the vertex and pixel shaders that will be used to render the triangles.
-	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+	deviceContext->VSSetShader(m_vertexShader.Get(), NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader.Get(), NULL, 0);
 
 	// Set the sampler state in the pixel shader.
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);

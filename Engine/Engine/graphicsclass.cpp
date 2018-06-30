@@ -54,7 +54,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// Create the font object.
 	m_Font = new FontManager(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
-	result = m_Font->Initialize(hwnd);
+	result = m_Font->Initialize();
 	if (!result)
 	{
 		return false;
