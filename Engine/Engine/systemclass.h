@@ -68,7 +68,6 @@
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "game.h"
-#include "ui.h"
 
 #include "inputclass.h"
 #include "cameraclass.h"

@@ -54,9 +54,6 @@
     <ClCompile Include="fontmanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitmapclass.h">
@@ -95,9 +92,6 @@
     <ClInclude Include="cpuclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vec2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="fontmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,12 +99,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shaders.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,7 +17,7 @@
 #include "fontmanager.h"
 #include "fontshaderclass.h"
 #include "bitmapclass.h"
-#include "ui.h"
+#include "game.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ private:
 	struct SentenceType
 	{
 		ID3D11Buffer *vertexBuffer, *indexBuffer;
-		int vertexCount, indexCount, maxLength;
+		size_t vertexCount, indexCount, maxLength;
 		D3DXVECTOR4 color;
 	};
 

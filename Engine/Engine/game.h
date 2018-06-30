@@ -28,6 +28,20 @@ public:
 };
 
 
+class ui
+{
+public:
+	// how much to scale a design that assumes 96-DPI pixels
+	static double scaleX;
+	static double scaleY;
+
+	static const double ScaleX(const double argX)
+	{
+		return argX * scaleX;
+	}
+};
+
+
 #include <vector>    
 #include <algorithm> 
 #include <functional>

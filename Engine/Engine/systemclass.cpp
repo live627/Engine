@@ -476,3 +476,7 @@ void SystemClass::Autosave()
 		}
 	} 
 }
+
+
+double ui::scaleX = 0;
+double ui::scaleY = 0;

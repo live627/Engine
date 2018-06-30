@@ -95,12 +95,10 @@
     <ClCompile Include="textclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
     <ClCompile Include="textureshaderclass.cpp" />
-    <ClCompile Include="ui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitmapclass.h" />
     <ClInclude Include="cameraclass.h" />
-    <ClInclude Include="config.h" />
     <ClInclude Include="cpuclass.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="fontclass.h" />
@@ -114,8 +112,6 @@
     <ClInclude Include="textclass.h" />
     <ClInclude Include="textureclass.h" />
     <ClInclude Include="textureshaderclass.h" />
-    <ClInclude Include="ui.h" />
-    <ClInclude Include="vec2.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="font.ps" />
