@@ -16,10 +16,8 @@ bool FontManager::Initialize()
 FontManager::~FontManager()
 {
 	while (!m_fonts.empty())
-	{
-		delete m_fonts.front();
 		m_fonts.erase(m_fonts.begin());
-	}
+	
 	FT_Done_FreeType(m_library);
 }
 
@@ -50,31 +48,21 @@ bool FontManager::LoadFonts(const char* filename)
 
 bool FontManager::LoadFont(FT_Byte* m_buffer, long long m_length)
 {
-	Font* font = new Font(m_device, m_deviceContext);
+	auto font = std::make_unique<Font>(m_device, m_deviceContext);
 	if (!font)
 		return false;
 
 	if (!font->LoadTTF(m_library, m_buffer, m_length))
-	{
-		delete font;
 		return false;
-	}
 
-	// sets text (tmp)
-	//font->RenderFont("ASDASD", Vec2<int>(200,  300));
 	m_fonts.push_back(font);
 
 	return true;
 }
 
-Font* FontManager::GetFont(int idx)
+Font* FontManager::GetFont(uint idx)
 {
-	return m_fonts[idx];
-}
-
-
-Font::~Font()
-{
+	return m_fonts[idx].get();
 }
 
 
