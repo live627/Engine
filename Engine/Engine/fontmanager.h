@@ -60,14 +60,27 @@ private:
 	};
 
 public:
-	Font(ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext);
-	~Font();
+	Font(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
+	:
+		m_device(p_device),
+		m_deviceContext(p_deviceContext)
+	{}
+
 	bool LoadTTF(FT_Library p_library, FT_Byte * m_buffer, long long m_length);
 	ID3D11ShaderResourceView* GetShaderResourceView();
 	void BuildVertexArray(void * vertices, const char * sentence, float drawX, float drawY);
 
 private:
-	int GetNextPow2(int a);
+	int GetNextPow2(int a)
+	{
+		int rval = 2;
+
+		while (rval < a)
+			rval <<= 1;
+
+		return rval;
+	}
+
 	void StitchGlyph(const GlyphInfo g, unsigned int px, unsigned int py, unsigned char * charmap);
 	void flip(unsigned char * buffer, unsigned width, unsigned height);
 	bool CreateShaderResourceView(unsigned int width, unsigned int height, unsigned int pitch, const unsigned char * buffer);
@@ -203,8 +216,13 @@ private:
 class FontManager
 {
 public:
-	FontManager(ID3D11Device * p_device, ID3D11DeviceContext *);
-	bool Initialize(HWND);
+	FontManager(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
+		:
+		m_device(p_device),
+		m_deviceContext(p_deviceContext)
+	{}
+
+	bool Initialize();
 	~FontManager();
 	bool LoadFonts(const char * filename);
 	bool LoadFont(FT_Byte * m_buffer, long long m_length);

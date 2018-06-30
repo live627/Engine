@@ -4,20 +4,11 @@
 #include "fontmanager.h"
 
 
-FontManager::FontManager(ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext)
+bool FontManager::Initialize()
 {
-	m_device = p_device;
-	m_deviceContext = pdeviceContext;
-}
-
-
-bool FontManager::Initialize(HWND hwnd)
-{
-	bool result;
-
-
 	FT_Init_FreeType(&m_library);
 	LoadFonts("data\\fonts.dat");
+
 	return true;
 }
 
@@ -79,13 +70,6 @@ bool FontManager::LoadFont(FT_Byte* m_buffer, long long m_length)
 Font* FontManager::GetFont(int idx)
 {
 	return m_fonts[idx];
-}
-
-
-Font::Font(ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext)
-{
-	m_device = p_device;
-	m_deviceContext = pdeviceContext;
 }
 
 
@@ -175,17 +159,6 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	FT_Done_Face(m_face);
 
  	return true;
-}
-
-
-inline int Font::GetNextPow2(int a)
-{
-	int rval = 1;
-
-	while (rval < a)
-		rval <<= 1;
-
-	return rval;
 }
 
 
