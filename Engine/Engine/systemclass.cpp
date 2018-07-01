@@ -47,9 +47,9 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
-	m_gameObjects.insert(make_pair(L"cpu", new CpuClass));
-	m_gameObjects.insert(make_pair(L"input", m_Input));
-	m_gameObjects.insert(make_pair(L"camera", camera));
+	m_gameObjects.insert(std::make_pair(L"cpu", new CpuClass));
+	m_gameObjects.insert(std::make_pair(L"input", m_Input));
+	m_gameObjects.insert(std::make_pair(L"camera", camera));
 
 	for (auto gameObject : m_gameObjects)
 	{
@@ -63,8 +63,8 @@ bool SystemClass::Initialize()
 			return false;
 		}
 	}
-	ifstream file;
-	file.open("autosave.bin", ios_base::binary);
+	std::ifstream file;
+	file.open("autosave.bin", std::ios_base::binary);
 	if (file.is_open())
 	{
 		for (auto gameObject : m_gameObjects)
@@ -438,7 +438,7 @@ void SystemClass::Autosave()
 	bool canRetry = false;
 	const uint retryTime = 1;
 	const uint spinTime = 5;
-	ofstream file;
+	std::ofstream file;
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 
 	while (m_keepSavingFile)
@@ -449,7 +449,7 @@ void SystemClass::Autosave()
 		canRetry = false;
 		try
 		{
-			file.open("autosave.bin", ios_base::binary);
+			file.open("autosave.bin", std::ios_base::binary);
 			for (auto gameObject : m_gameObjects)
 				gameObject.second->Save(file);
 			file.close();

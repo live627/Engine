@@ -389,7 +389,7 @@ bool TextClass::SetFps(int fps, float frameTime)
 {
 	char buf[24];
 	char * msg = "FPS: %d (t=%.fms)";
-	sprintf_s(buf, 24, msg, min(fps, 9999), frameTime);
+	sprintf_s(buf, 24, msg, std::min(fps, 9999), frameTime);
 
 	// The green found in DirectXColors.h is too dark here.
 	const DirectX::XMVECTORF32 green = { 0.0f, 1.0f, 0.0f };
