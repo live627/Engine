@@ -61,7 +61,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Create the texture shader object.
-	m_TextureShader = new TextureShaderClass;
+	m_TextureShader = new FontShaderClass;
 	if (!m_TextureShader)
 	{
 		return false;
@@ -122,7 +122,6 @@ void GraphicsClass::Shutdown()
 	// Release the texture shader object.
 	if (m_TextureShader)
 	{
-		m_TextureShader->Shutdown();
 		delete m_TextureShader;
 		m_TextureShader = 0;
 	}
@@ -222,7 +221,7 @@ bool GraphicsClass::Render()
 
 	// Render the bitmap with the texture shader.
 	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), 
-		worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+		worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture(), {});
 	if (!result)
 	{
 		return false;

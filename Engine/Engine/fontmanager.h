@@ -25,7 +25,7 @@
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
-#include "textureshaderclass.h"
+#include "fontshaderclass.h"
 #include "game.h"
 
 
