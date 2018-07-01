@@ -107,20 +107,20 @@ private:
 		{
 			for (int ix = 0; ix < width; ++ix)
 			{
-				int index = iy * width + ix;
+				uint index = iy * width + ix;
 				unsigned char value = inputBuffer[index];
-				int indexMax = width * height;
-				int indexMin = 0;
-				int dfar = width > height ? width : height;
+				uint indexMax = width * height;
+				uint indexMin = 0;
+				uint dfar = width > height ? width : height;
 				bool found = false;
-				for (int distance = 1; distance < dfar; ++distance)
+				for (uint distance = 1; distance < dfar; ++distance)
 				{
-					int xmin = (ix - distance) >= 0 ? ix - distance : 0;
-					int ymin = (iy - distance) >= 0 ? iy - distance : 0;
-					int xmax = (ix + distance) < width ? ix + distance + 1 : width;
-					int ymax = (iy + distance) < height ? iy + distance + 1 : height;
-					int x = xmin;
-					int y = ymin;
+					uint xmin = (ix - distance) >= 0 ? ix - distance : 0;
+					uint ymin = (iy - distance) >= 0 ? iy - distance : 0;
+					uint xmax = (ix + distance) < width ? ix + distance + 1 : width;
+					uint ymax = (iy + distance) < height ? iy + distance + 1 : height;
+					uint x = xmin;
+					uint y = ymin;
 					auto fCompareAndFill = [&]() -> bool
 					{
 						if (value != inputBuffer[y*width + x])
@@ -182,26 +182,25 @@ private:
 
 		} // for( int iy = 0; iy < height; ++iy )
 
-		if (normalize && inputBuffer != nullptr)
-		{
-			float min = outputBuffer[0];
-			float max = outputBuffer[0];
-			for (int i = 0; i < width*height; ++i)
-			{
-				if (outputBuffer[i] < min)
-					min = outputBuffer[i];
-				if (outputBuffer[i] > max)
-					max = outputBuffer[i];
-			}
-			float denominator = (max - min);
-			float newMin = min / denominator;
-			for (int i = 0; i < width*height; ++i)
-			{
-				outputBuffer[i] /= denominator;
-				outputBuffer[i] -= newMin;
-			}
-		}
-
+		//if (normalize && inputBuffer != nullptr)
+		//{
+		//	float min = outputBuffer[0];
+		//	float max = outputBuffer[0];
+		//	for (int i = 0; i < width*height; ++i)
+		//	{
+		//		if (outputBuffer[i] < min)
+		//			min = outputBuffer[i];
+		//		if (outputBuffer[i] > max)
+		//			max = outputBuffer[i];
+		//	}
+		//	float denominator = (max - min);
+		//	float newMin = min / denominator;
+		//	for (int i = 0; i < width*height; ++i)
+		//	{
+		//		outputBuffer[i] /= denominator;
+		//		outputBuffer[i] -= newMin;
+		//	}
+		//}
 	}
 
 private:

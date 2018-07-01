@@ -31,7 +31,7 @@ bool FontManager::LoadFonts(const char* filename)
 	char numFonts = 0;
 	file.read(&numFonts, sizeof(char));
 
-  	for (int i = 1; i < (int)numFonts; i++)
+  	for (uint i = 1; i < (uint)numFonts; i++)
 	{
 		long long fontLength = 0;
 		file.read(reinterpret_cast<char*>(&fontLength), sizeof(long long));
@@ -74,12 +74,12 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	if (FT_Set_Pixel_Sizes(m_face, 0, ceilf(ui::ScaleX(16))))
 		return false;
 
-	float x = 0, y = 0, sx = 1, sy = 1;
+	uint x = 0, y = 0, sx = 1, sy = 1;
 
 	// Get total width
-	int total_width = 0;
-	int max_height = 0;
-	for (int i = 32; i < 127; i++) {
+	uint total_width = 0;
+	uint max_height = 0;
+	for (uint i = 32; i < 127; i++) {
 		FT_UInt glyph_index = FT_Get_Char_Index(m_face, i);
 		// Have to use FT_LOAD_RENDER.
 		// If use FT_LOAD_DEFAULT, the actual glyph bitmap won't be loaded,
@@ -185,8 +185,8 @@ void Font::flip(byte * buffer, unsigned width, unsigned height)
 
 
 bool Font::CreateShaderResourceView(
-	unsigned int width, unsigned int height,
-	unsigned int pitch, const unsigned char * buffer)
+	uint width, uint height,
+	uint pitch, const byte * buffer)
 {
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = width;
