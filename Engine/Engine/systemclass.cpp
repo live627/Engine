@@ -327,21 +327,21 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 {
 	switch (umsg)
 	{
-	/*case WM_CREATE:
-	{
-		RAWINPUTDEVICE Rid[2];
+		/*case WM_CREATE:
+		{
+			RAWINPUTDEVICE Rid[2];
 
-		Rid[0].usUsagePage = 0x01;
-		Rid[0].usUsage = 0x02;
-		Rid[0].dwFlags = RIDEV_NOLEGACY;   // adds HID mouse and also ignores legacy mouse messages
-		Rid[0].hwndTarget = hwnd;
-		
-		if (!RegisterRawInputDevices(&Rid[0], 1, sizeof(RAWINPUTDEVICE)))
-			return -1;
-	}
-	return 0;*/
+			Rid[0].usUsagePage = 0x01;
+			Rid[0].usUsage = 0x02;
+			Rid[0].dwFlags = RIDEV_NOLEGACY;   // adds HID mouse and also ignores legacy mouse messages
+			Rid[0].hwndTarget = hwnd;
 
-	// Check if a key has been pressed on the keyboard.
+			if (!RegisterRawInputDevices(&Rid[0], 1, sizeof(RAWINPUTDEVICE)))
+				return -1;
+		}
+		return 0;*/
+
+		// Check if a key has been pressed on the keyboard.
 	case WM_KEYDOWN:
 	{
 		// If a key is pressed send it to the input object so it can record that state.
@@ -371,7 +371,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 	//case WM_ACTIVATE:
 	case WM_ACTIVATEAPP:
 		m_isGameActive = wparam != 0;
-		break;
+		return 0;
 
 	case WM_EXITSIZEMOVE:
 		if (!m_isGameHalted)
@@ -381,37 +381,33 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 
 			m_Graphics->ResizeBuffers(rc.right - rc.left, rc.bottom - rc.top);
 		}
-		break;
+		return 0;
 
-	//case WM_SIZE:
-	//	if (!m_isGameHalted)
-	//	{
-	//		RECT rc;
-	//		GetClientRect(hwnd, &rc);
+		//case WM_SIZE:
+		//	if (!m_isGameHalted)
+		//	{
+		//		RECT rc;
+		//		GetClientRect(hwnd, &rc);
 
-	//		m_Graphics->ResizeBuffers(LOWORD(lparam), HIWORD(lparam));
-	//	}
-	//	break;
+		//		m_Graphics->ResizeBuffers(LOWORD(lparam), HIWORD(lparam));
+		//	}
+		//	break;
 
 	case WM_SYSCOMMAND:
 		switch (wparam)
 		{
-		case SC_MINIMIZE: {
+		case SC_MINIMIZE: 
 			m_isGameHalted = true;
 			break;
-		}
-		case SC_RESTORE: {
+		case SC_RESTORE: 
 			m_isGameHalted = false;
 			break;
 		}
-	}
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
 
-	// Any other messages send to the default message handler as our application won't make use of them.
+		// Any other messages send to the default message handler as our application won't make use of them.
 	default:
-	{
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
-	}
 	}
 }
 
