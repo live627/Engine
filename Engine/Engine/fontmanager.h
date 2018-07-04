@@ -226,7 +226,7 @@ public:
 	bool Initialize();
 	~FontManager();
 	bool LoadFonts(const char * filename);
-	bool LoadFont(FT_Byte * m_buffer, long long m_length);
+	bool LoadFont(FT_Byte * m_buffer, long long m_length, int);
 	Font* GetFont(int);
 
 private:

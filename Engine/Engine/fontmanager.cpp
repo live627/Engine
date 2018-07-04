@@ -25,9 +25,8 @@ bool FontManager::LoadFonts(const char* filename)
 {
 	bool result;
 
-
 	std::ifstream file(filename, std::ios::binary);
-
+	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 	char numFonts = 0;
 	file.read(&numFonts, sizeof(char));
 
@@ -38,7 +37,7 @@ bool FontManager::LoadFonts(const char* filename)
 
 		std::vector<FT_Byte> buffer(fontLength);
 		file.read(reinterpret_cast<char*>(&buffer[0]), fontLength);
-		result |= LoadFont(buffer.data(), fontLength);
+		result |= LoadFont(buffer.data(), fontLength, i);
 	}
 
 	file.close();
@@ -46,12 +45,16 @@ bool FontManager::LoadFonts(const char* filename)
 	return result;
 }
 
-bool FontManager::LoadFont(FT_Byte* m_buffer, long long m_length)
+bool FontManager::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 {
 	auto font = Font(m_device, m_deviceContext);
 
 	if (!font.LoadTTF(m_library, m_buffer, m_length))
-		return false;
+	{
+		char buf[24];
+		sprintf(buf, "Could not load font %d", p_idx);
+		throw std::runtime_error(buf);
+	}
 
 	m_fonts.push_back(std::make_unique<Font>(font));
 
