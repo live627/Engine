@@ -47,23 +47,23 @@ bool FontManager::LoadFonts(const char* filename)
 
 bool FontManager::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 {
-	auto font = Font(m_device, m_deviceContext);
+	auto font = new Font(m_device, m_deviceContext);
 
-	if (!font.LoadTTF(m_library, m_buffer, m_length))
+	if (!font->LoadTTF(m_library, m_buffer, m_length))
 	{
 		char buf[24];
 		sprintf(buf, "Could not load font %d", p_idx);
 		throw std::runtime_error(buf);
 	}
 
-	m_fonts.push_back(std::make_unique<Font>(font));
+	m_fonts.push_back(font);
 
-	return true;
+	return true; 
 }
 
 Font* FontManager::GetFont(int idx)
 {
-	return m_fonts[idx].get();
+	return m_fonts[idx];
 }
 
 
