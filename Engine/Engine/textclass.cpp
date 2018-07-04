@@ -39,14 +39,14 @@ bool TextClass::Initialize(HWND hwnd, int screenWidth, int screenHeight,
 	m_Font = p_fontManager->GetFont(1);
 
 	// Create the font shader object.
-	m_FontShader = new FontShaderClass(true);
+	m_FontShader = new ShaderClass(device, deviceContext, true);
 	if (!m_FontShader)
 	{
 		return false;
 	}
 
 	// Initialize the font shader object.
-	result = m_FontShader->Initialize(device, hwnd);
+	result = m_FontShader->Initialize();
 	if (!result)
 	{
 		throw std::runtime_error("Could not initialize the font shader object.");
@@ -64,7 +64,7 @@ bool TextClass::Initialize(HWND hwnd, int screenWidth, int screenHeight,
 	result = m_Bitmap->Initialize(device, screenWidth, screenHeight, L"");
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the pixel object.", L"Error", MB_OK);
+		throw std::runtime_error("Could not initialize the pixel object.");
 		return false;
 	}
 
@@ -130,7 +130,7 @@ bool TextClass::Render(D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix)
 	D3DXVECTOR4 pixelColor = DirectX::Colors::AntiqueWhite;
 
 	// Render the text using the font shader.
-	return m_FontShader->Render(deviceContext, m_Bitmap->GetIndexCount(), worldMatrix, m_baseViewMatrix,
+	return m_FontShader->Render(m_Bitmap->GetIndexCount(), worldMatrix, m_baseViewMatrix,
 		orthoMatrix, m_Bitmap->GetTexture(), pixelColor);
 
 	return result;
@@ -351,7 +351,7 @@ bool TextClass::RenderSentence(SentenceType* sentence, D3DXMATRIX worldMatrix,
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Render the text using the font shader.
-	return m_FontShader->Render(deviceContext, sentence->indexCount, worldMatrix, m_baseViewMatrix,
+	return m_FontShader->Render(sentence->indexCount, worldMatrix, m_baseViewMatrix,
 		orthoMatrix, m_Font->GetShaderResourceView(), sentence->color);
 }
 

@@ -66,7 +66,7 @@ private:
 	ID3D11DeviceContext * deviceContext;
 	FontManager* m_FontManager;
 	Font* m_Font;
-	FontShaderClass* m_FontShader;
+	ShaderClass* m_FontShader;
 	int m_screenWidth, m_screenHeight;
 	D3DXMATRIX m_baseViewMatrix;
 	BitmapClass* m_Bitmap;

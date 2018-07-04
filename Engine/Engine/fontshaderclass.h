@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: fontshaderclass.h
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef _FONTSHADERCLASS_H_
-#define _FONTSHADERCLASS_H_
+#ifndef _SHADERCLASS_H_
+#define _SHADERCLASS_H_
 
 
 //////////////
@@ -23,9 +23,9 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: FontShaderClass
+// Class name: ShaderClass
 ////////////////////////////////////////////////////////////////////////////////
-class FontShaderClass
+class ShaderClass
 {
 private:
 	struct ConstantBufferType
@@ -42,23 +42,26 @@ private:
 	};
 
 public:
-	FontShaderClass(bool p_isFont = false)
+	ShaderClass(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext, bool p_isFont = false)
 		:
+		m_device(p_device),
+		m_deviceContext(p_deviceContext),
 		m_isFont(p_isFont)
-	{
-	}
+	{}
 
-	bool Initialize(ID3D11Device*, HWND);
-	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, D3DXVECTOR4);
-
-private:
-	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
-	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
-
-	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, D3DXVECTOR4);
-	void RenderShader(ID3D11DeviceContext*, int);
+	bool Initialize();
+	bool Render(int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, D3DXVECTOR4);
 
 private:
+	bool InitializeShader();
+	void OutputShaderErrorMessage(ID3D10Blob*);
+
+	bool SetShaderParameters(D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, D3DXVECTOR4);
+	void RenderShader(int);
+
+private:
+	ID3D11Device * m_device;
+	ID3D11DeviceContext* m_deviceContext;
 	bool m_isFont;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShader;

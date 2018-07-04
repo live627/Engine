@@ -15,7 +15,7 @@
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "cameraclass.h"
-#include "textureshaderclass.h"
+#include "fontshaderclass.h"
 #include "bitmapclass.h"
 #include "textclass.h"
 #include "fontmanager.h"
@@ -48,7 +48,7 @@ private:
 	D3DClass* m_D3D;
 	FontManager* m_Font;
 	CameraClass* m_Camera;
-	TextureShaderClass* m_TextureShader;
+	ShaderClass* m_Shader;
 	BitmapClass* m_Bitmap;
 	TextClass* m_Text;
 	int m_screenWidth, m_screenHeight;

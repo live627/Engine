@@ -44,14 +44,14 @@ bool GraphicsClass::Initialize()
 	}
 
 	// Create the texture shader object.
-	m_TextureShader = new FontShaderClass;
-	if (!m_TextureShader)
+	m_Shader = new ShaderClass(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
+	if (!m_Shader)
 	{
 		return false;
 	}
 
 	// Initialize the texture shader object.
-	result = m_TextureShader->Initialize(m_D3D->GetDevice(), false);
+	result = m_Shader->Initialize();
 	if (!result)
 	{
 		throw std::runtime_error("Could not initialize the texture shader object.");
@@ -89,10 +89,10 @@ void GraphicsClass::Shutdown()
 	}
 
 	// Release the texture shader object.
-	if (m_TextureShader)
+	if (m_Shader)
 	{
-		delete m_TextureShader;
-		m_TextureShader = 0;
+		delete m_Shader;
+		m_Shader = 0;
 	}
 
 	// Release the font object.
@@ -189,7 +189,7 @@ bool GraphicsClass::Render()
 	}
 
 	// Render the bitmap with the texture shader.
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), 
+	result = m_Shader->Render(m_Bitmap->GetIndexCount(), 
 		worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture(), {});
 	if (!result)
 	{
