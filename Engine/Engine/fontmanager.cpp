@@ -122,8 +122,8 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	m_width = GetNextPow2(total_width);
 	m_height = GetNextPow2(max_height);
 
-	byte * charmap = new byte[m_width * m_height]();
-	std::fill(charmap, charmap + m_width * m_height, 0);
+	auto charmapPtr = std::vector<byte>(m_width * m_height);
+	auto charmap = charmapPtr.data();
 
 	for (uint j = 0; j < m_glyphSlots.size(); j++)
 	{
@@ -141,7 +141,6 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	flip(charmap, m_width, m_height);
 	CreateShaderResourceView(m_width, m_height, m_width, charmap);
 
-	delete[] charmap;
 	FT_Done_Face(m_face);
 
  	return true;
