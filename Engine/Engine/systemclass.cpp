@@ -439,30 +439,33 @@ void SystemClass::Autosave()
 			std::chrono::duration<uint>(canRetry ? retryTime : spinTime)
 		);
 		canRetry = false;
-		try
+		if (m_keepSavingFile)
 		{
-			file.open("autosave.bin", std::ios_base::binary);
-			for (auto gameObject : m_gameObjects)
-				gameObject.second->Save(file);
-			file.close();
-		}
-		catch (const std::ios_base::failure &e)
-		{
-			switch (MessageBoxA(
-				m_hwnd, e.what(), "Autosave error",
-				MB_ABORTRETRYIGNORE | MB_ICONERROR | MB_DEFBUTTON2
-			))
+			try
 			{
-			case IDABORT:
-				m_keepSavingFile = false;
-				break;
+				file.open("autosave.bin", std::ios_base::binary);
+				for (auto gameObject : m_gameObjects)
+					gameObject.second->Save(file);
+				file.close();
+			}
+			catch (const std::ios_base::failure & e)
+			{
+				switch (MessageBoxA(
+					m_hwnd, e.what(), "Autosave error",
+					MB_ABORTRETRYIGNORE | MB_ICONERROR | MB_DEFBUTTON2
+				))
+				{
+				case IDABORT:
+					m_keepSavingFile = false;
+					break;
 
-			case IDRETRY:
-				canRetry = true;
-				break;
+				case IDRETRY:
+					canRetry = true;
+					break;
+				}
 			}
 		}
-	} 
+	}
 }
 
 
