@@ -31,7 +31,7 @@ bool FontManager::LoadFonts(const char* filename)
 	char numFonts = 0;
 	file.read(&numFonts, sizeof(char));
 
-  	for (uint i = 1; i < (uint)numFonts; i++)
+  	for (uint i = 0; i < (uint)numFonts; i++)
 	{
 		long long fontLength = 0;
 		file.read(reinterpret_cast<char*>(&fontLength), sizeof(long long));
