@@ -122,7 +122,7 @@ void GraphicsClass::Shutdown()
 }
 
 
-bool GraphicsClass::Frame(int mouseX, int mouseY, int fps, 
+bool GraphicsClass::Dbg(int mouseX, int mouseY, int fps, 
 	int cpu, float frameTime, bool isGamePaused)
 {
 	bool result;

@@ -33,13 +33,14 @@ const float SCREEN_NEAR = 0.1f;
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: GraphicsClass
 ////////////////////////////////////////////////////////////////////////////////
-class GraphicsClass      
+class GraphicsClass : public GameObject     
 {
 public:
 	bool Initialize();
 	GraphicsClass(CameraClass *, int, int, HWND);
 	void Shutdown();
-	bool Frame(int, int, int, int, float, bool);
+	bool Dbg(int, int, int, int, float, bool);
+	void Frame() {}
 	bool Render();
 
 	void ResizeBuffers(int, int);

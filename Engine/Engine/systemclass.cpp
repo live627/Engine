@@ -34,35 +34,29 @@ bool SystemClass::Initialize()
 	auto camera = new CameraClass(m_Input);
 
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
-	m_Graphics = new GraphicsClass(camera);
-	if (!m_Graphics)
-	{
-		return false;
-	}
+	m_Graphics = new GraphicsClass(camera, screenWidth, screenHeight, m_hwnd);
 
-	// Initialize the graphics object.
-	result = m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd);
-	if (!result)
-	{
-		return false;
-	}
-
-	m_gameObjects.insert(std::make_pair(L"cpu", new CpuClass));
-	m_gameObjects.insert(std::make_pair(L"input", m_Input));
-	m_gameObjects.insert(std::make_pair(L"camera", camera));
+	m_gameObjects.insert(std::make_pair("cpu", new CpuClass));
+	m_gameObjects.insert(std::make_pair("input", m_Input));
+	m_gameObjects.insert(std::make_pair("camera", camera));
+	m_gameObjects.insert(std::make_pair("graphics", m_Graphics));
 
 	for (auto gameObject : m_gameObjects)
 	{
-		if (!gameObject.second->Initialize())
+		try
 		{
-			wchar_t buf[100];
-			wchar_t * msg = L"Could not initialize the %s object.";
-			swprintf_s(buf, wcslen(buf), msg, gameObject.first.c_str());
-			MessageBox(m_hwnd, buf, L"Error", MB_OK);
-
+			gameObject.second->Initialize();
+		}
+		catch (std::exception & e)
+		{
+			char * buf = new char[1060];
+			char * msg = "Could not initialize the %s object:\n\n%s\n\nApplication will now quit.";
+			sprintf(buf, msg, gameObject.first.c_str(), e.what());
+			MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
 			return false;
 		}
 	}
+
 	std::ifstream file;
 	file.open("autosave.bin", std::ios_base::binary);
 	if (file.is_open())
@@ -91,14 +85,6 @@ void SystemClass::Shutdown()
 	{
 		gameObject.second->Shutdown();
 		delete gameObject.second;
-	}
-
-	// Release the graphics object.
-	if (m_Graphics)
-	{
-		m_Graphics->Shutdown();
-		delete m_Graphics;
-		m_Graphics = 0;
 	}
 
 	// Shutdown the window.
@@ -143,10 +129,16 @@ void SystemClass::Run()
 		else if (!m_isGameHalted)
 		{
 			// Otherwise do the frame processing.  If frame processing fails then exit.
-			result = Frame();
-			if (!result)
+			try
 			{
-				MessageBox(m_hwnd, L"Frame Processing Failed", L"Error", MB_OK);
+				result = Frame();
+			}
+			catch (std::exception & e)
+			{
+				char * buf = new char[1060];
+				char * msg = "Failed to process frames:\n\n%s\n\nApplication will now quit.";
+				sprintf(buf, msg, e.what());
+				MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
 				done = true;
 			}
 		}
@@ -174,7 +166,7 @@ bool SystemClass::Frame()
 	}
 
 
-	auto obj = static_cast<CpuClass*>(m_gameObjects.at(std::wstring(L"cpu")));
+	auto obj = static_cast<CpuClass*>(m_gameObjects.at("cpu"));
 	auto cpuPercentage = obj->GetCpuPercentage();
 	auto fps = obj->GetFps();
 	auto frameTimeDelta = obj->GetTime();
@@ -183,7 +175,7 @@ bool SystemClass::Frame()
 	m_Input->GetMousePositionForDebug(mouseX, mouseY);
 
 	// Do the frame processing for the graphics object.
-	result = m_Graphics->Frame(mouseX, mouseY, fps, cpuPercentage, frameTimeDelta, !m_isGameActive);
+	result = m_Graphics->Dbg(mouseX, mouseY, fps, cpuPercentage, frameTimeDelta, !m_isGameActive);
 	if (!result)
 	{
 		return false;

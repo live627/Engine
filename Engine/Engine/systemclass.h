@@ -106,7 +106,7 @@ private:
 	InputClass* m_Input;
 	GraphicsClass* m_Graphics;
 
-	std::unordered_map<std::wstring, GameObject*> m_gameObjects; 
+	std::unordered_map<std::string, GameObject*> m_gameObjects; 
 	std::atomic<bool> m_keepSavingFile;
 
 	bool m_isGameActive = false;
