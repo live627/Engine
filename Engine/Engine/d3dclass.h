@@ -23,17 +23,20 @@
 #include <d3dx10math.h>
 
 
+///////////////////////
+// MY CLASS INCLUDES //
+///////////////////////
+#include "game.h"
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: D3DClass
 ////////////////////////////////////////////////////////////////////////////////
 class D3DClass
 {
 public:
-	D3DClass();
-	D3DClass(const D3DClass&);
-	~D3DClass();
-
-	bool Initialize(int, int, bool, HWND, bool, float, float);
+	D3DClass(int, int, HWND);
+	void Initialize(bool, bool, float, float);
 	void Shutdown();
 
 	void ResizeBuffers(int, int, float, float);
@@ -56,6 +59,8 @@ public:
 	void TurnOffAlphaBlending();
 
 private:
+	int m_screenWidth, m_screenHeight;
+	HWND m_hwnd;
 	bool m_vsync_enabled;
 
 	IDXGISwapChain* m_swapChain;

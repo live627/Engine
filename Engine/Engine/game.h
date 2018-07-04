@@ -42,6 +42,70 @@ public:
 };
 
 
+// Helper class for COM exceptions
+class com_exception : public std::runtime_error
+{
+public:
+	com_exception(const HRESULT hr, const char * msg)
+		:
+		std::runtime_error(msg),
+		result(hr)
+	{}
+
+	virtual const char* what() const override
+	{
+		LPSTR errorText = NULL;
+		FormatMessageA(
+			// use system message tables to retrieve error text
+			FORMAT_MESSAGE_FROM_SYSTEM
+			// allocate buffer on local heap for error text
+			| FORMAT_MESSAGE_ALLOCATE_BUFFER
+			// Important! will fail otherwise, since we're not 
+			// (and CANNOT) pass insertion parameters
+			| FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,    // unused with FORMAT_MESSAGE_FROM_SYSTEM
+			result,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPSTR)&errorText,  // output 
+			0, // minimum size for output buffer
+			NULL);   // arguments - see note 
+
+		static char s_str[1064] = {};
+		if (NULL != errorText)
+		{
+			sprintf_s(s_str, "Failure with HRESULT of 0X%08X:\n\n%s\n\n%s",
+				static_cast<unsigned int>(result),
+				errorText,
+				std::runtime_error::what()
+			);
+
+			// release memory allocated by FormatMessage()
+			LocalFree(errorText);
+			errorText = NULL;
+		}
+		else
+		{
+			sprintf_s(s_str, "Failure with HRESULT of 0X%08X:\n\n%s",
+				static_cast<unsigned int>(result),
+				std::runtime_error::what()
+			);
+		}
+
+		return s_str;
+	}
+
+private:
+	HRESULT result;
+};
+
+// Helper utility converts D3D API failures into exceptions.
+inline void ThrowIfFailed(const HRESULT hr, const char * msg)
+{
+	if (FAILED(hr))
+		throw com_exception(hr, msg);
+}
+
+
 #include <vector>    
 #include <algorithm> 
 #include <functional>

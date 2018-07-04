@@ -49,7 +49,7 @@ bool TextClass::Initialize(HWND hwnd, int screenWidth, int screenHeight,
 	result = m_FontShader->Initialize(device, hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
+		throw std::runtime_error("Could not initialize the font shader object.");
 		return false;
 	}
 

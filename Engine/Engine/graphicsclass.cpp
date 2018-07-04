@@ -4,48 +4,31 @@
 #include "graphicsclass.h"
 
 
-GraphicsClass::GraphicsClass(CameraClass * p_Camera)
+GraphicsClass::GraphicsClass(CameraClass * p_Camera, int screenWidth, int screenHeight, HWND p_hwnd)
 {
 	m_D3D = 0;
 	m_Camera = 0;
-	m_TextureShader = 0;
+	m_Shader = 0;
 	m_Bitmap = 0;
 	m_Text = 0;
 
 	m_Camera = p_Camera;
+	m_screenWidth = screenWidth;
+	m_screenHeight = screenHeight;
+	m_hwnd = p_hwnd;
 }
 
 
-GraphicsClass::GraphicsClass(const GraphicsClass& other)
-{
-}
-
-
-GraphicsClass::~GraphicsClass()
-{
-}
-
-
-bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
+bool GraphicsClass::Initialize()
 {
 	bool result;
 	D3DXMATRIX baseViewMatrix;
 
 	// Create the Direct3D object.
-	m_D3D = new D3DClass;
-	if (!m_D3D)
-	{
-		return false;
-	}
+	m_D3D = new D3DClass(m_screenWidth, m_screenHeight, m_hwnd);
 
 	// Initialize the Direct3D object.
-	result = m_D3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, 
-		hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
-		return false;
-	}
+	m_D3D->Initialize(VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 
 	// Initialize a base view matrix with the camera for 2D user interface rendering.
 	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
@@ -71,39 +54,25 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_TextureShader->Initialize(m_D3D->GetDevice(), false);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		throw std::runtime_error("Could not initialize the texture shader object.");
 		return false;
 	}
 
 	// Create the bitmap object.
 	m_Bitmap = new BitmapClass;
-	if (!m_Bitmap)
-	{
-		return false;
-	}
 
 	// Initialize the bitmap object.
-	result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/seafloor.dds");
+	result = m_Bitmap->Initialize(m_D3D->GetDevice(), m_screenWidth, m_screenHeight, L"../Engine/data/seafloor.dds");
 	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
-		return false;
-	}
+		throw std::runtime_error("Could not initialize the bitmap object.");
 
 	// Create the text object.
 	m_Text = new TextClass(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
-	if (!m_Text)
-	{
-		return false;
-	}
 
 	// Initialize the text object.
-	result = m_Text->Initialize(hwnd, screenWidth, screenHeight, baseViewMatrix, m_Font);
+	result = m_Text->Initialize(nullptr, m_screenWidth, m_screenHeight, baseViewMatrix, m_Font);
 	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
-		return false;
-	}
+		throw std::runtime_error("Could not initialize the text object.");
 
 	return true;
 }

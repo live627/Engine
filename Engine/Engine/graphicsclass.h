@@ -36,11 +36,8 @@ const float SCREEN_NEAR = 0.1f;
 class GraphicsClass      
 {
 public:
-	GraphicsClass(CameraClass*);
-	GraphicsClass(const GraphicsClass&);
-	~GraphicsClass();
-
-	bool Initialize(int, int, HWND);
+	bool Initialize();
+	GraphicsClass(CameraClass *, int, int, HWND);
 	void Shutdown();
 	bool Frame(int, int, int, int, float, bool);
 	bool Render();
@@ -54,6 +51,8 @@ private:
 	TextureShaderClass* m_TextureShader;
 	BitmapClass* m_Bitmap;
 	TextClass* m_Text;
+	int m_screenWidth, m_screenHeight;
+	HWND m_hwnd;
 };
 
 #endif
