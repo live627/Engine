@@ -94,7 +94,6 @@
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="textclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
-    <ClCompile Include="textureshaderclass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitmapclass.h" />
@@ -111,7 +110,6 @@
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="textclass.h" />
     <ClInclude Include="textureclass.h" />
-    <ClInclude Include="textureshaderclass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="font.ps" />
