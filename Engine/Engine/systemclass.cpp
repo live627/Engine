@@ -51,7 +51,7 @@ bool SystemClass::Initialize()
 		{
 			char * buf = new char[1060];
 			char * msg = "Could not initialize the %s object:\n\n%s\n\nApplication will now quit.";
-			sprintf(buf, msg, gameObject.first.c_str(), e.what());
+			sprintf_s(buf, 1060, msg, gameObject.first.c_str(), e.what());
 			MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
 			return false;
 		}
@@ -137,7 +137,7 @@ void SystemClass::Run()
 			{
 				char * buf = new char[1060];
 				char * msg = "Failed to process frames:\n\n%s\n\nApplication will now quit.";
-				sprintf(buf, msg, e.what());
+				sprintf_s(buf, 1060, msg, e.what());
 				MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
 				done = true;
 			}
