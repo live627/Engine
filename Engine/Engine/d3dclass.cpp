@@ -22,28 +22,16 @@ D3DClass::D3DClass(int screenWidth, int screenHeight, HWND hwnd, bool vsync)
 	m_screenHeight = screenHeight;
 	m_hwnd = hwnd;
 	m_vsync_enabled = vsync;
+	FillDisplayModes();
 }
 
 
-void D3DClass::Initialize(bool vsync, bool fullscreen, float screenDepth, float screenNear)
+void D3DClass::FillDisplayModes()
 {
 	HRESULT result;
-	IDXGIFactory* factory;
-	IDXGIAdapter* adapter;
-	IDXGIOutput* adapterOutput;
-	unsigned int numModes, i, numerator = 0, denominator = 1;
-	DXGI_MODE_DESC* displayModeList;
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	D3D_FEATURE_LEVEL featureLevel;
-	ID3D11Texture2D* backBufferPtr;
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	D3D11_RASTERIZER_DESC rasterDesc;
-	D3D11_VIEWPORT viewport;
-	float fieldOfView, screenAspect;
-	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
-	D3D11_BLEND_DESC blendStateDescription;
+	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
+	Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
+	Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
 
 	// Create a DirectX graphics interface factory.
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
@@ -59,52 +47,48 @@ void D3DClass::Initialize(bool vsync, bool fullscreen, float screenDepth, float 
 
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM
 	// display format for the adapter output (monitor).
+	unsigned int numModes = 0;
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM,
 		DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
 	ThrowIfFailed(result, "Failed to get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).");
 
-	// Create a list to hold all the possible display modes for this monitor/video card combination.
-	displayModeList = new DXGI_MODE_DESC[numModes];
-
 	// Now fill the display mode list structures.
+	auto displayModeList = std::vector<DXGI_MODE_DESC>(numModes);
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM,
-		DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
+		DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList.data());
 	ThrowIfFailed(result, "Failed to get the display modes");
 
-	int screenSizeX = GetSystemMetrics(SM_CXSCREEN);
-	int screenSizeY = GetSystemMetrics(SM_CYSCREEN);
-
 	// Now go through all the display modes and find the one that matches the screen width and height.
-	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	for (i = 0; i < numModes; i++)
+	size_t screenSizeX = GetSystemMetrics(SM_CXSCREEN);
+	size_t screenSizeY = GetSystemMetrics(SM_CYSCREEN);
+	for (auto mode : displayModeList)
 	{
-		if (displayModeList[i].Width == screenSizeX)
+		if (mode.Width == screenSizeX && mode.Height == screenSizeY)
 		{
-			if (displayModeList[i].Height == screenSizeY)
-			{
-				numerator = displayModeList[i].RefreshRate.Numerator;
-				denominator = displayModeList[i].RefreshRate.Denominator;
-			}
+			m_currentMode = mode;
+			break;
 		}
 	}
+	
 	// Get the adapter (video card) description.
 	result = adapter->GetDesc(&m_adapterDesc);
+} 
 
-	// Release the display mode list.
-	delete[] displayModeList;
-	displayModeList = 0;
 
-	// Release the adapter output.
-	adapterOutput->Release();
-	adapterOutput = 0;
-
-	// Release the adapter.
-	adapter->Release();
-	adapter = 0;
-
-	// Release the factory.
-	factory->Release();
-	factory = 0;
+void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
+{
+	HRESULT result;
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	D3D_FEATURE_LEVEL featureLevel;
+	ID3D11Texture2D* backBufferPtr;
+	D3D11_TEXTURE2D_DESC depthBufferDesc;
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	D3D11_RASTERIZER_DESC rasterDesc;
+	D3D11_VIEWPORT viewport;
+	float fieldOfView, screenAspect;
+	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
+	D3D11_BLEND_DESC blendStateDescription;
 
 	// Initialize the swap chain description.
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
@@ -120,8 +104,7 @@ void D3DClass::Initialize(bool vsync, bool fullscreen, float screenDepth, float 
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	// Set the refresh rate of the back buffer.
-	swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
-	swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
+	swapChainDesc.BufferDesc.RefreshRate = m_currentMode.RefreshRate;
 
 	// Set the usage of the back buffer.
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;

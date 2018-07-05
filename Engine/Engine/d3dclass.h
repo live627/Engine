@@ -72,6 +72,7 @@ private:
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11RasterizerState* m_rasterState;
 	DXGI_ADAPTER_DESC m_adapterDesc;
+	DXGI_MODE_DESC m_currentMode;
 
 	D3DXMATRIX m_projectionMatrix;
 	D3DXMATRIX m_worldMatrix;
