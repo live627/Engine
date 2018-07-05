@@ -105,7 +105,6 @@ void GraphicsClass::Shutdown()
 	// Release the D3D object.
 	if (m_D3D)
 	{
-		m_D3D->Shutdown();
 		delete m_D3D;
 		m_D3D = 0;
 	}

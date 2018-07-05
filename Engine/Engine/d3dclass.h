@@ -21,6 +21,7 @@
 #include <d3dcommon.h>
 #include <d3d11.h>
 #include <d3dx10math.h>
+#include <wrl\client.h>
 
 
 ///////////////////////
@@ -35,8 +36,8 @@
 class D3DClass
 {
 public:
-	void Shutdown();
 	D3DClass(int, int, HWND, bool);
+	void FillDisplayModes();
 	void Initialize(bool, float, float);
 
 	void ResizeBuffers(int, int, float, float);
@@ -63,24 +64,23 @@ private:
 	HWND m_hwnd;
 	bool m_vsync_enabled;
 
-	IDXGISwapChain* m_swapChain;
-	ID3D11Device* m_device;
-	ID3D11DeviceContext* m_deviceContext;
-	ID3D11RenderTargetView* m_renderTargetView;
-	ID3D11Texture2D* m_depthStencilBuffer;
-	ID3D11DepthStencilState* m_depthStencilState;
-	ID3D11DepthStencilView* m_depthStencilView;
-	ID3D11RasterizerState* m_rasterState;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> m_swapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device> m_device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_deviceContext;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthStencilBuffer;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthStencilState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_depthDisabledStencilState;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_alphaEnableBlendingState;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_alphaDisableBlendingState;
 	DXGI_ADAPTER_DESC m_adapterDesc;
 	DXGI_MODE_DESC m_currentMode;
 
 	D3DXMATRIX m_projectionMatrix;
 	D3DXMATRIX m_worldMatrix;
 	D3DXMATRIX m_orthoMatrix;
-
-	ID3D11DepthStencilState* m_depthDisabledStencilState;
-	ID3D11BlendState* m_alphaEnableBlendingState;
-	ID3D11BlendState* m_alphaDisableBlendingState;
 };
 
 #endif
