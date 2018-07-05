@@ -357,17 +357,12 @@ void D3DClass::ResizeBuffers(int screenWidth, int screenHeight, float screenDept
 }
 
 
-void D3DClass::BeginScene(float red, float green, float blue, float alpha)
 {
-	float color[4];
 
 
-	// Setup the color to clear the buffer to.
-	color[0] = red;
-	color[1] = green;
-	color[2] = blue;
-	color[3] = alpha;
 
+void D3DClass::BeginScene(const DirectX::XMVECTORF32& color)
+{
 	// Clear the back buffer.
 	m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), color);
 

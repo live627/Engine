@@ -21,6 +21,7 @@
 #include <d3dcommon.h>
 #include <d3d11.h>
 #include <d3dx10math.h>
+#include <DirectXColors.h>
 #include <wrl\client.h>
 
 
@@ -42,7 +43,7 @@ public:
 
 	void ResizeBuffers(int, int, float, float);
 
-	void BeginScene(float, float, float, float);
+	void BeginScene(const DirectX::XMVECTORF32&);
 	void EndScene();
 
 	ID3D11Device* GetDevice();
