@@ -53,7 +53,7 @@ public:
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetDeviceContext();
-	DXGI_ADAPTER_DESC GetAdapterDesc() { return m_adapterDesc; }
+	DXGI_ADAPTER_DESC& GetAdapterDesc() { return m_adapterDesc; }
 
 	void GetProjectionMatrix(D3DXMATRIX&);
 	void GetWorldMatrix(D3DXMATRIX&);
