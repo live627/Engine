@@ -35,9 +35,9 @@
 class D3DClass
 {
 public:
-	D3DClass(int, int, HWND);
-	void Initialize(bool, bool, float, float);
 	void Shutdown();
+	D3DClass(int, int, HWND, bool);
+	void Initialize(bool, float, float);
 
 	void ResizeBuffers(int, int, float, float);
 

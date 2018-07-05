@@ -4,7 +4,7 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass(int screenWidth, int screenHeight, HWND hwnd)
+D3DClass::D3DClass(int screenWidth, int screenHeight, HWND hwnd, bool vsync)
 {
 	m_swapChain = 0;
 	m_device = 0;
@@ -21,6 +21,7 @@ D3DClass::D3DClass(int screenWidth, int screenHeight, HWND hwnd)
 	m_screenWidth = screenWidth;
 	m_screenHeight = screenHeight;
 	m_hwnd = hwnd;
+	m_vsync_enabled = vsync;
 }
 
 
@@ -43,10 +44,6 @@ void D3DClass::Initialize(bool vsync, bool fullscreen, float screenDepth, float 
 	float fieldOfView, screenAspect;
 	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
 	D3D11_BLEND_DESC blendStateDescription;
-
-
-	// Store the vsync setting.
-	m_vsync_enabled = vsync;
 
 	// Create a DirectX graphics interface factory.
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);

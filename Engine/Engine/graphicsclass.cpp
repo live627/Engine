@@ -25,10 +25,10 @@ bool GraphicsClass::Initialize()
 	D3DXMATRIX baseViewMatrix;
 
 	// Create the Direct3D object.
-	m_D3D = new D3DClass(m_screenWidth, m_screenHeight, m_hwnd);
+	m_D3D = new D3DClass(m_screenWidth, m_screenHeight, m_hwnd, VSYNC_ENABLED);
 
 	// Initialize the Direct3D object.
-	m_D3D->Initialize(VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
+	m_D3D->Initialize(FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
 
 	// Initialize a base view matrix with the camera for 2D user interface rendering.
 	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
