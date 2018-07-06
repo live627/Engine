@@ -42,9 +42,9 @@
 class D3DClass
 {
 public:
-	D3DClass(float, float, HWND, bool);
 	void FillDisplayModes();
 	void Initialize(bool, float, float);
+	D3DClass(float, float, HWND, bool, bool, float, float);
 
 	void ResizeBuffers(float, float, float, float);
 
