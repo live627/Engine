@@ -334,7 +334,6 @@ bool TextClass::RenderSentence(SentenceType* sentence, D3DXMATRIX worldMatrix,
 {
 	unsigned int stride, offset;
 	D3DXVECTOR4 pixelColor;
-	bool result;
 
 
 	// Set vertex buffer stride and offset.
