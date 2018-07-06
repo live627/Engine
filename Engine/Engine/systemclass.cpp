@@ -14,7 +14,6 @@ SystemClass::SystemClass()
 bool SystemClass::Initialize()
 {
 	int screenWidth, screenHeight;
-	bool result;
 
 
 	// Initialize the width and height of the screen to zero before sending the variables into the function.
