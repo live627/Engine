@@ -42,8 +42,6 @@
 class D3DClass
 {
 public:
-	void FillDisplayModes();
-	void Initialize(bool, float, float);
 	D3DClass(float, float, HWND, bool, bool, float, float);
 
 	void ResizeBuffers(float, float, float, float);
@@ -88,6 +86,8 @@ private:
 	D3DXMATRIX m_worldMatrix;
 	D3DXMATRIX m_orthoMatrix;
 
+	void FillDisplayModes();
+	void Initialize(bool, float, float);
 	void CreateRenderTargetView();
 	void SetViewport(float, float);
 	void CreateMatrices(float, float, float, float);
