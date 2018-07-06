@@ -344,7 +344,7 @@ void D3DClass::BeginScene(const DirectX::XMVECTORF32& color)
 	m_deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), color);
 
 	// Clear the depth buffer.
-	m_deviceContext->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_deviceContext->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 
 	return;
 }
@@ -353,18 +353,7 @@ void D3DClass::BeginScene(const DirectX::XMVECTORF32& color)
 void D3DClass::EndScene()
 {
 	// Present the back buffer to the screen since rendering is complete.
-	if (m_vsync_enabled)
-	{
-		// Lock to screen refresh rate.
-		m_swapChain->Present(1, 0);
-	}
-	else
-	{
-		// Present as fast as possible.
-		m_swapChain->Present(0, 0);
-	}
-
-	return;
+	m_swapChain->Present(m_vsync_enabled ? 1u : 0u, 0x0u);
 }
 
 
@@ -417,17 +406,8 @@ void D3DClass::TurnZBufferOff()
 
 void D3DClass::TurnOnAlphaBlending()
 {
-	float blendFactor[4];
-
-
-	// Setup the blend factor.
-	blendFactor[0] = 0.0f;
-	blendFactor[1] = 0.0f;
-	blendFactor[2] = 0.0f;
-	blendFactor[3] = 0.0f;
-
 	// Turn on the alpha blending.
-	m_deviceContext->OMSetBlendState(m_alphaEnableBlendingState.Get(), blendFactor, 0xffffffff);
+	m_deviceContext->OMSetBlendState(m_alphaEnableBlendingState.Get(), {}, 0xffffffff);
 
 	return;
 }
@@ -435,17 +415,8 @@ void D3DClass::TurnOnAlphaBlending()
 
 void D3DClass::TurnOffAlphaBlending()
 {
-	float blendFactor[4];
-
-
-	// Setup the blend factor.
-	blendFactor[0] = 0.0f;
-	blendFactor[1] = 0.0f;
-	blendFactor[2] = 0.0f;
-	blendFactor[3] = 0.0f;
-
 	// Turn off the alpha blending.
-	m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState.Get(), blendFactor, 0xffffffff);
+	m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState.Get(), {}, 0xffffffff);
 
 	return;
 }
