@@ -139,12 +139,9 @@ bool TextClass::Render(D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix)
 
 bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength)
 {
-	VertexType* vertices;
-	unsigned long* indices;
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
-	int i;
 
 
 	// Create a new sentence object.
@@ -167,25 +164,11 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength)
 	// Set the number of indexes in the index array.
 	(*sentence)->indexCount = (*sentence)->vertexCount;
 
-	// Create the vertex array.
-	vertices = new VertexType[(*sentence)->vertexCount];
-	if (!vertices)
-	{
-		return false;
-	}
-
 	// Create the index array.
-	indices = new unsigned long[(*sentence)->indexCount];
-	if (!indices)
-	{
-		return false;
-	}
-
-	// Initialize vertex array to zeros at first.
-	memset(vertices, 0, (sizeof(VertexType) * (*sentence)->vertexCount));
+	auto indices = std::vector<unsigned long>((*sentence)->indexCount);  
 
 	// Initialize the index array.
-	for (i = 0; i < (*sentence)->indexCount; i++)
+	for (size_t i = 0; i < (*sentence)->indexCount; i++)
 	{
 		indices[i] = i;
 	}
@@ -199,7 +182,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength)
 	vertexBufferDesc.StructureByteStride = 0;
 
 	// Give the subresource structure a pointer to the vertex data.
-	vertexData.pSysMem = vertices;
+	vertexData.pSysMem = std::vector<VertexType>((*sentence)->vertexCount).data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -219,7 +202,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength)
 	indexBufferDesc.StructureByteStride = 0;
 
 	// Give the subresource structure a pointer to the index data.
-	indexData.pSysMem = indices;
+	indexData.pSysMem = indices.data();
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -229,14 +212,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength)
 	{
 		return false;
 	}
-
-	// Release the vertex array as it is no longer needed.
-	delete[] vertices;
-	vertices = 0;
-
-	// Release the index array as it is no longer needed.
-	delete[] indices;
-	indices = 0;
+	
 
 	return true;
 }
@@ -245,7 +221,6 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength)
 bool TextClass::UpdateSentence(SentenceType* sentence, const char* text, 
 	float positionX, float positionY, const DirectX::XMVECTORF32& color)
 {
-	VertexType* vertices;
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	VertexType* verticesPtr;
@@ -262,14 +237,7 @@ bool TextClass::UpdateSentence(SentenceType* sentence, const char* text,
 	}
 
 	// Create the vertex array.
-	vertices = new VertexType[sentence->vertexCount];
-	if (!vertices)
-	{
-		return false;
-	}
-
-	// Initialize vertex array to zeros at first.
-	memset(vertices, 0, (sizeof(VertexType) * sentence->vertexCount));
+	auto  vertices = std::vector<VertexType>(sentence->vertexCount).data();
 
 	// Calculate the X and Y pixel position on the screen to start drawing to.
 	float drawX = -(m_screenWidth >> 1) + positionX;
@@ -290,13 +258,10 @@ bool TextClass::UpdateSentence(SentenceType* sentence, const char* text,
 
 	// Copy the data into the vertex buffer.
 	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * sentence->vertexCount));
+	//verticesPtr = std::move(vertices);
 
 	// Unlock the vertex buffer.
 	deviceContext->Unmap(sentence->vertexBuffer, 0);
-
-	// Release the vertex array as it is no longer needed.
-	delete[] vertices;
-	vertices = 0;
 
 	return true;
 }
