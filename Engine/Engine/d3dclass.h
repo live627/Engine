@@ -51,8 +51,8 @@ public:
 	void BeginScene(const DirectX::XMVECTORF32&);
 	void EndScene();
 
-	ID3D11Device* GetDevice();
-	ID3D11DeviceContext* GetDeviceContext();
+	ID3D11Device* GetDevice() { return m_device.Get(); }
+	ID3D11DeviceContext* GetDeviceContext() { return m_deviceContext.Get(); }
 	DXGI_ADAPTER_DESC& GetAdapterDesc() { return m_adapterDesc; }
 
 	void GetProjectionMatrix(D3DXMATRIX&);

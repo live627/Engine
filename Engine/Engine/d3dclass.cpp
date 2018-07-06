@@ -359,18 +359,6 @@ void D3DClass::EndScene()
 }
 
 
-ID3D11Device* D3DClass::GetDevice()
-{
-	return m_device.Get();
-}
-
-
-ID3D11DeviceContext* D3DClass::GetDeviceContext()
-{
-	return m_deviceContext.Get();
-}
-
-
 void D3DClass::GetProjectionMatrix(D3DXMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
