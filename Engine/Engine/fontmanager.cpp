@@ -47,16 +47,27 @@ bool Fonts::LoadFonts(const char* filename)
 
 bool Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 {
-	auto font = new Font(m_device, m_deviceContext);
-
-	if (!font->LoadTTF(m_library, m_buffer, m_length))
+	try
 	{
-		char buf[24];
-		sprintf(buf, "Could not load font %d", p_idx);
-		throw std::runtime_error(buf);
-	}
+		auto font = new Font(m_device, m_deviceContext);
 
-	m_fonts.push_back(font);
+		if (!font->LoadTTF(m_library, m_buffer, m_length))
+		{
+			char buf[24];
+			sprintf(buf, "Could not load font %d", p_idx);
+			throw std::runtime_error(buf);
+		}
+
+		m_fonts.push_back(font);
+	}
+	catch (std::exception & e)
+	{
+		const char *fmt = "%s\n\nCould not load font %d";
+		size_t sz = std::snprintf(nullptr, 0, fmt, e.what(), p_idx);
+		std::vector<char> buf(sz + 1); // note +1 for null terminator
+		std::snprintf(&buf[0], buf.size(), fmt, e.what(), p_idx);
+		throw std::runtime_error(buf.data());
+	}
 
 	return true; 
 }
@@ -86,8 +97,12 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 		// If use FT_LOAD_DEFAULT, the actual glyph bitmap won't be loaded,
 		// thus bitmap->rows will be incorrect, causing insufficient max_height.
 		auto ret = FT_Load_Glyph(m_face, glyph_index, FT_LOAD_RENDER | FT_LOAD_COMPUTE_METRICS);
-		if (ret != 0) {
-			continue;
+		if (ret != 0/*||i==65*/)
+		{
+			char buf[32];
+			//sprintf(buf, "Could not load glyph %d (%1$c)", i);
+			sprintf(buf, "Could not load glyph %d (%c)", i, i);
+			throw std::runtime_error(buf);
 		}
 		auto glyphInfo = GlyphInfo();
 
