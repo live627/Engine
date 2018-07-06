@@ -4,7 +4,7 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass(int screenWidth, int screenHeight, HWND hwnd, bool vsync)
+D3DClass::D3DClass(float screenWidth, float screenHeight, HWND hwnd, bool vsync)
 {
 	m_screenWidth = screenWidth;
 	m_screenHeight = screenHeight;
@@ -266,7 +266,7 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 }
 
 
-void D3DClass::ResizeBuffers(int screenWidth, int screenHeight, float screenDepth, float screenNear)
+void D3DClass::ResizeBuffers(float screenWidth, float screenHeight, float screenDepth, float screenNear)
 {
 	if (m_swapChain)
 	{

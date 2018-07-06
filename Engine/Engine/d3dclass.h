@@ -42,11 +42,11 @@
 class D3DClass
 {
 public:
-	D3DClass(int, int, HWND, bool);
+	D3DClass(float, float, HWND, bool);
 	void FillDisplayModes();
 	void Initialize(bool, float, float);
 
-	void ResizeBuffers(int, int, float, float);
+	void ResizeBuffers(float, float, float, float);
 
 	void BeginScene(const DirectX::XMVECTORF32&);
 	void EndScene();
@@ -66,7 +66,7 @@ public:
 	void TurnOffAlphaBlending();
 
 private:
-	int m_screenWidth, m_screenHeight;
+	float m_screenWidth, m_screenHeight;
 	HWND m_hwnd;
 	bool m_vsync_enabled;
 
