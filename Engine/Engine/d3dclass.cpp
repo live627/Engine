@@ -68,13 +68,10 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 	HRESULT result;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	D3D_FEATURE_LEVEL featureLevel;
-	ID3D11Texture2D* backBufferPtr;
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 	D3D11_RASTERIZER_DESC rasterDesc;
-	D3D11_VIEWPORT viewport;
-	float fieldOfView, screenAspect;
 	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
 	D3D11_BLEND_DESC blendStateDescription;
 
@@ -126,17 +123,7 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 		m_swapChain.GetAddressOf(), m_device.GetAddressOf(), NULL, m_deviceContext.GetAddressOf());
 	ThrowIfFailed(result, "Failed to create the swap chain, Direct3D device, and Direct3D device context.");
 
-	// Get the pointer to the back buffer.
-	result = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
-	ThrowIfFailed(result, "Failed to get the pointer to the back buffer.");
-
-	// Create the render target view with the back buffer pointer.
-	result = m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView);
-	ThrowIfFailed(result, "Failed to create the render target view");
-
-	// Release pointer to the back buffer as we no longer need it.
-	backBufferPtr->Release();
-	backBufferPtr = 0;
+	CreateRenderTargetView();
 
 	// Initialize the description of the depth buffer.
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
@@ -225,29 +212,8 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 	// Now set the rasterizer state.
 	m_deviceContext->RSSetState(m_rasterState.Get());
 
-	// Setup the viewport for rendering.
-	viewport.Width = (float)m_screenWidth;
-	viewport.Height = (float)m_screenHeight;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-
-	// Create the viewport.
-	m_deviceContext->RSSetViewports(1, &viewport);
-
-	// Setup the projection matrix.
-	fieldOfView = (float)D3DX_PI / 4.0f;
-	screenAspect = (float)m_screenWidth / (float)m_screenHeight;
-
-	// Create the projection matrix for 3D rendering.
-	D3DXMatrixPerspectiveFovLH(&m_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
-
-	// Initialize the world matrix to the identity matrix.
-	D3DXMatrixIdentity(&m_worldMatrix);
-
-	// Create an orthographic projection matrix for 2D rendering.
-	D3DXMatrixOrthoLH(&m_orthoMatrix, (float)m_screenWidth, (float)m_screenHeight, screenNear, screenDepth);
+	SetViewport(m_screenWidth, m_screenHeight);
+	CreateMatrices(m_screenWidth, m_screenHeight, screenDepth, screenNear);
 
 	// Clear the second depth stencil state before setting the parameters.
 	ZeroMemory(&depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc));
@@ -314,51 +280,62 @@ void D3DClass::ResizeBuffers(int screenWidth, int screenHeight, float screenDept
 		// Automatically choose the width and height to match the client rect for HWNDs.
 		hr = m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 
-		// Perform error handling here!
-
-		// Get buffer and create a render-target-view.
-		ID3D11Texture2D* pBuffer;
-		hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
-			(void**)&pBuffer);
-		// Perform error handling here!
-
-		hr = m_device->CreateRenderTargetView(pBuffer, NULL,
-			&m_renderTargetView);
-		// Perform error handling here!
-		pBuffer->Release();
-
+		CreateRenderTargetView();
 		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
-
-		// Set up the viewport.
-		D3D11_VIEWPORT vp;
-		vp.Width = screenWidth;
-		vp.Height = screenHeight;
-		vp.MinDepth = 0.0f;
-		vp.MaxDepth = 1.0f;
-		vp.TopLeftX = 0;
-		vp.TopLeftY = 0;
-		m_deviceContext->RSSetViewports(1, &vp);
-
-		// Setup the projection matrix.
-		float fieldOfView = (float)D3DX_PI / 4.0f;
-		float screenAspect = (float)screenWidth / (float)screenHeight;
-
-		// Create the projection matrix for 3D rendering.
-		D3DXMatrixPerspectiveFovLH(&m_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
-
-		// Initialize the world matrix to the identity matrix.
-		D3DXMatrixIdentity(&m_worldMatrix);
-
-		// Create an orthographic projection matrix for 2D rendering.
-		D3DXMatrixOrthoLH(&m_orthoMatrix, (float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+		SetViewport(screenWidth, screenHeight);
+		CreateMatrices(screenWidth, screenHeight, screenDepth, screenNear);
 	}
 
 	return;
 }
 
 
+void D3DClass::CreateRenderTargetView()
 {
+	// Get the pointer to the back buffer.
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBufferPtr;
+	ThrowIfFailed(
+		m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr),
+		"Failed to get the pointer to the back buffer."
+	);
 
+	// Create the render target view with the back buffer pointer.
+	ThrowIfFailed(
+		m_device->CreateRenderTargetView(backBufferPtr.Get(), NULL, &m_renderTargetView),
+		"Failed to create the render target view"
+	);
+}
+
+
+void D3DClass::SetViewport(float screenWidth, float screenHeight)
+{
+	// Set up the viewport.
+	D3D11_VIEWPORT vp;
+	vp.Width = screenWidth;
+	vp.Height = screenHeight;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	m_deviceContext->RSSetViewports(1u, &vp);
+}
+
+
+void D3DClass::CreateMatrices(float screenWidth, float screenHeight, float screenDepth, float screenNear)
+{
+	// Setup the projection matrix.
+	float fieldOfView = DirectX::XM_PIDIV4;
+	float screenAspect = screenWidth / screenHeight;
+
+	// Create the projection matrix for 3D rendering.
+	D3DXMatrixPerspectiveFovLH(&m_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
+
+	// Initialize the world matrix to the identity matrix.
+	D3DXMatrixIdentity(&m_worldMatrix);
+
+	// Create an orthographic projection matrix for 2D rendering.
+	D3DXMatrixOrthoLH(&m_orthoMatrix, screenWidth, screenHeight, screenNear, screenDepth);
+}
 
 
 void D3DClass::BeginScene(const DirectX::XMVECTORF32& color)

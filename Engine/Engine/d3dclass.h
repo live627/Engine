@@ -87,6 +87,10 @@ private:
 	D3DXMATRIX m_projectionMatrix;
 	D3DXMATRIX m_worldMatrix;
 	D3DXMATRIX m_orthoMatrix;
+
+	void CreateRenderTargetView();
+	void SetViewport(float, float);
+	void CreateMatrices(float, float, float, float);
 };
 
 #endif
