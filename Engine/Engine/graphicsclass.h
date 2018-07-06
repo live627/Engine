@@ -47,7 +47,7 @@ public:
 
 private:
 	D3DClass* m_D3D;
-	FontManager* m_Font;
+	Fonts* m_Font;
 	CameraClass* m_Camera;
 	ShaderClass* m_Shader;
 	BitmapClass* m_Bitmap;

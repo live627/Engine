@@ -1,8 +1,4 @@
-﻿////////////////////////////////////////////////////////////////////////////////
-// Filename: fontmanager.h
-////////////////////////////////////////////////////////////////////////////////
-#ifndef _FontManager_H_
-#define _FontManager_H_
+﻿#pragma once
 
 
 ///////////////////////////////
@@ -47,7 +43,7 @@ struct GlyphInfo {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: FontManager
+// Class name: Fonts
 ////////////////////////////////////////////////////////////////////////////////
 class Font
 {
@@ -81,9 +77,9 @@ private:
 		return rval;
 	}
 
-	void StitchGlyph(const GlyphInfo g, unsigned int px, unsigned int py, unsigned char * charmap);
-	void flip(unsigned char * buffer, unsigned width, unsigned height);
-	bool CreateShaderResourceView(unsigned int width, unsigned int height, unsigned int pitch, const unsigned char * buffer);
+	void StitchGlyph(const GlyphInfo g, uint, uint, byte *);
+	void flip(byte *, uint, uint);
+	bool CreateShaderResourceView(uint, uint, uint, const byte *);
 	
 	template <typename input_type, typename output_type>
 	output_type chebyshev_distance(input_type from_x
@@ -103,9 +99,9 @@ private:
 		, unsigned char * outputBuffer
 		, bool normalize = false)
 	{
-		for (int iy = 0; iy < height; ++iy)
+		for (uint iy = 0; iy < height; ++iy)
 		{
-			for (int ix = 0; ix < width; ++ix)
+			for (uint ix = 0; ix < width; ++ix)
 			{
 				uint index = iy * width + ix;
 				unsigned char value = inputBuffer[index];
@@ -214,17 +210,17 @@ private:
 		m_height;
 };
 
-class FontManager
+class Fonts
 {
 public:
-	FontManager(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
+	Fonts(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
 		:
 		m_device(p_device),
 		m_deviceContext(p_deviceContext)
 	{}
 
 	bool Initialize();
-	~FontManager();
+	~Fonts();
 	bool LoadFonts(const char * filename);
 	bool LoadFont(FT_Byte * m_buffer, long long m_length, int);
 	Font* GetFont(int);
@@ -235,5 +231,3 @@ private:
 	FT_Library m_library;
 	std::vector<Font*> m_fonts;
 };
-
-#endif

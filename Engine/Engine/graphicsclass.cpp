@@ -33,7 +33,7 @@ bool GraphicsClass::Initialize()
 	m_Camera->GetViewMatrix(baseViewMatrix);
 
 	// Create the font object.
-	m_Font = new FontManager(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
+	m_Font = new Fonts(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
 	result = m_Font->Initialize();
 	if (!result)
 	{

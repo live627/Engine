@@ -24,7 +24,7 @@ TextClass::~TextClass()
 
 
 bool TextClass::Initialize(HWND hwnd, int screenWidth, int screenHeight,
-	D3DXMATRIX baseViewMatrix, FontManager * p_fontManager)
+	D3DXMATRIX baseViewMatrix, Fonts* p_fontManager)
 {
 	bool result;
 

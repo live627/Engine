@@ -4,7 +4,7 @@
 #include "fontmanager.h"
 
 
-bool FontManager::Initialize()
+bool Fonts::Initialize()
 {
 	FT_Init_FreeType(&m_library);
 	LoadFonts("data\\fonts.dat");
@@ -13,7 +13,7 @@ bool FontManager::Initialize()
 }
 
 
-FontManager::~FontManager()
+Fonts::~Fonts()
 {
 	while (!m_fonts.empty())
 		m_fonts.erase(m_fonts.begin());
@@ -21,7 +21,7 @@ FontManager::~FontManager()
 	FT_Done_FreeType(m_library);
 }
 
-bool FontManager::LoadFonts(const char* filename)
+bool Fonts::LoadFonts(const char* filename)
 {
 	bool result;
 
@@ -45,7 +45,7 @@ bool FontManager::LoadFonts(const char* filename)
 	return result;
 }
 
-bool FontManager::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
+bool Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 {
 	auto font = new Font(m_device, m_deviceContext);
 
@@ -61,7 +61,7 @@ bool FontManager::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 	return true; 
 }
 
-Font* FontManager::GetFont(int idx)
+Font* Fonts::GetFont(int idx)
 {
 	return m_fonts[idx];
 }
@@ -168,12 +168,12 @@ void Font::StitchGlyph(
 	}
 }
 
-void Font::flip(byte * buffer, unsigned width, unsigned height)
+void Font::flip(byte * buffer, uint width, uint height)
 {
-	unsigned rows = height / 2; // Iterate only half the buffer to get a full flip
+	uint rows = height / 2; // Iterate only half the buffer to get a full flip
 	byte * tempRow = (byte *)malloc(width * sizeof(byte));
 
-	for (unsigned rowIndex = 0; rowIndex < rows; rowIndex++)
+	for (uint rowIndex = 0; rowIndex < rows; rowIndex++)
 	{
 		memcpy(tempRow, buffer + rowIndex * width, width * sizeof(byte));
 		memcpy(buffer + rowIndex * width, buffer + (height - rowIndex - 1) * width, width * sizeof(byte));

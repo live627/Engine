@@ -44,7 +44,7 @@ public:
 	TextClass(const TextClass&);
 	~TextClass();
 
-	bool Initialize(HWND, int, int, D3DXMATRIX, FontManager *);
+	bool Initialize(HWND, int, int, D3DXMATRIX, Fonts *);
 	void Shutdown();
 	bool Render(D3DXMATRIX, D3DXMATRIX);
 
@@ -64,7 +64,7 @@ private:
 
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;
-	FontManager* m_FontManager;
+	Fonts* m_FontManager;
 	Font* m_Font;
 	ShaderClass* m_FontShader;
 	int m_screenWidth, m_screenHeight;
