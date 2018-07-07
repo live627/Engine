@@ -8,8 +8,7 @@
 //////////////
 // INCLUDES //
 //////////////
-#include <d3d10_1.h>
-#include <d3dx10math.h>
+#include <DirectXMath.h>
 #include <iostream>
 
 
@@ -31,22 +30,22 @@ public:
 	void Frame();
 
 	bool Render();
-	void GetViewMatrix(D3DXMATRIX&);
+	void GetViewMatrix(DirectX::XMMATRIX &) const;
 
-	void Save(std::ofstream&);
-	void Load(std::ifstream&);
+	void Save(std::ofstream &);
+	void Load(std::ifstream &);
 
 	void SetPosition(float, float, float);
 	void SetRotation(float, float, float);
 
-	D3DXVECTOR3 GetPosition();
-	D3DXVECTOR3 GetRotation();
+	DirectX::XMFLOAT3 GetPosition() const;
+	DirectX::XMFLOAT3 GetRotation() const;
 
 private:
 	float m_positionX, m_positionY, m_positionZ;
 	float m_rotationX, m_rotationY, m_rotationZ;
-	D3DXMATRIX m_viewMatrix;
-	InputClass* m_Input;
+	DirectX::XMMATRIX m_viewMatrix;
+	InputClass * m_Input;
 };
 
 #endif

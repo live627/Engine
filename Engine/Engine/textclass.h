@@ -30,13 +30,13 @@ private:
 	{
 		ID3D11Buffer *vertexBuffer, *indexBuffer;
 		size_t vertexCount, indexCount, maxLength;
-		D3DXVECTOR4 color;
+		DirectX::XMVECTORF32 color;
 	};
 
 	struct VertexType
 	{
-		D3DXVECTOR3 position;
-	    D3DXVECTOR2 texture;
+		DirectX::XMFLOAT3 position;
+	    DirectX::XMFLOAT2 texture;
 	};
 
 public:
@@ -44,12 +44,12 @@ public:
 	TextClass(const TextClass&);
 	~TextClass();
 
-	bool Initialize(HWND, int, int, D3DXMATRIX, Fonts *);
+	bool Initialize(HWND, int, int, DirectX::XMMATRIX, Fonts *);
 	void Shutdown();
-	bool Render(D3DXMATRIX, D3DXMATRIX);
+	bool Render(DirectX::XMMATRIX, DirectX::XMMATRIX);
 
 	bool SetMousePosition(int, int);
-	bool SetCameraPosition(D3DXVECTOR3);
+	bool SetCameraPosition(const DirectX::XMFLOAT3 &);
 	bool SetFps(int, float);
 	bool SetCpu(int);
 
@@ -58,9 +58,9 @@ public:
 
 private:
 	bool InitializeSentence(SentenceType**, int);
-	bool UpdateSentence(SentenceType*, const char*, float, float, const DirectX::XMVECTORF32&);
+	bool UpdateSentence(SentenceType*, const char*, float, float, const DirectX::XMVECTORF32 &);
 	void ReleaseSentence(SentenceType**);
-	bool RenderSentence(SentenceType*, D3DXMATRIX, D3DXMATRIX);
+	bool RenderSentence(SentenceType * sentence, const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & orthoMatrix);
 
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;
@@ -68,7 +68,7 @@ private:
 	Font* m_Font;
 	ShaderClass* m_FontShader;
 	int m_screenWidth, m_screenHeight;
-	D3DXMATRIX m_baseViewMatrix;
+	DirectX::XMMATRIX m_baseViewMatrix;
 	BitmapClass* m_Bitmap;
 	std::vector<SentenceType*> m_sentences;
 };

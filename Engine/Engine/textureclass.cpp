@@ -23,7 +23,7 @@ bool TextureClass::Initialize(const WCHAR* filename)
 	if(FAILED(result))
 	{
 		// Create a single-channel pixel. Use the
-		//same pixel shader that we use to draw fonts.
+		// same pixel shader that we use to draw fonts.
 		if (!CreateShaderResourceView())
 			return false;
 	}

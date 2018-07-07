@@ -243,14 +243,10 @@ ID3D11ShaderResourceView* Font::GetShaderResourceView()
 
 void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, float drawY)
 {
-	VertexType* vertexPtr;
-	uint index = 0;
-
-
-	// Coerce the input vertices into a VertexType structure.
-	vertexPtr = (VertexType*)vertices;
+	VertexType* vertexPtr = (VertexType*)vertices;
 
 	// Draw each letter onto a quad.
+	uint index = 0;
 	for (uint i = 0; i < strlen(sentence); i++)
 	{
 		uint letter = static_cast<uint>(sentence[i]) - 32;
@@ -264,29 +260,29 @@ void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, f
 		if (letter != 0)
 		{
 			// First triangle in quad.
-			vertexPtr[index].position = D3DXVECTOR3(drawX, drawY, 0);  // Top left.
-			vertexPtr[index].texture = D3DXVECTOR2(glyphSlot.left, 0);
+			vertexPtr[index].position = { drawX, drawY, 0 };  // Top left.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.left, 0);
 			index++;
 
-			vertexPtr[index].position = D3DXVECTOR3((drawX + glyphSlot.bw), (drawY - m_height), 0);  // Bottom right.
-			vertexPtr[index].texture = D3DXVECTOR2(glyphSlot.right, 1);
+			vertexPtr[index].position = DirectX::XMFLOAT3((drawX + glyphSlot.bw), (drawY - m_height), 0);  // Bottom right.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.right, 1);
 			index++;
 
-			vertexPtr[index].position = D3DXVECTOR3(drawX, (drawY - m_height), 0);  // Bottom left.
-			vertexPtr[index].texture = D3DXVECTOR2(glyphSlot.left, 1);
+			vertexPtr[index].position = DirectX::XMFLOAT3(drawX, (drawY - m_height), 0);  // Bottom left.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.left, 1);
 			index++;
 
 			// Second triangle in quad.
-			vertexPtr[index].position = D3DXVECTOR3(drawX, drawY, 0);  // Top left.
-			vertexPtr[index].texture = D3DXVECTOR2(glyphSlot.left, 0);
+			vertexPtr[index].position = DirectX::XMFLOAT3(drawX, drawY, 0);  // Top left.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.left, 0);
 			index++;
 
-			vertexPtr[index].position = D3DXVECTOR3(drawX + glyphSlot.bw, drawY, 0);  // Top right.
-			vertexPtr[index].texture = D3DXVECTOR2(glyphSlot.right, 0);
+			vertexPtr[index].position = DirectX::XMFLOAT3(drawX + glyphSlot.bw, drawY, 0);  // Top right.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.right, 0);
 			index++;
 
-			vertexPtr[index].position = D3DXVECTOR3((drawX + glyphSlot.bw), (drawY - m_height), 0);  // Bottom right.
-			vertexPtr[index].texture = D3DXVECTOR2(glyphSlot.right, 1);
+			vertexPtr[index].position = DirectX::XMFLOAT3((drawX + glyphSlot.bw), (drawY - m_height), 0);  // Bottom right.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.right, 1);
 			index++;
 		}
 

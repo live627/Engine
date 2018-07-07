@@ -11,7 +11,6 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dx11.lib")
-#pragma comment(lib, "d3dx10.lib")
 
 
 //////////////
@@ -24,7 +23,6 @@
 #include <dxgi.h>
 #include <d3dcommon.h>
 #include <d3d11.h>
-#include <d3dx10math.h>
 #pragma warning(pop)
 #include <DirectXColors.h>
 #include <wrl\client.h>
@@ -46,16 +44,16 @@ public:
 
 	void ResizeBuffers(float, float, float, float);
 
-	void BeginScene(const DirectX::XMVECTORF32&);
+	void BeginScene(const DirectX::XMVECTORF32 &);
 	void EndScene();
 
 	ID3D11Device* GetDevice() { return m_device.Get(); }
 	ID3D11DeviceContext* GetDeviceContext() { return m_deviceContext.Get(); }
 	DXGI_ADAPTER_DESC& GetAdapterDesc() { return m_adapterDesc; }
 
-	void GetProjectionMatrix(D3DXMATRIX&);
-	void GetWorldMatrix(D3DXMATRIX&);
-	void GetOrthoMatrix(D3DXMATRIX&);
+	void GetProjectionMatrix(DirectX::XMMATRIX &);
+	void GetWorldMatrix(DirectX::XMMATRIX &);
+	void GetOrthoMatrix(DirectX::XMMATRIX &);
 
 	void TurnZBufferOn();
 	void TurnZBufferOff();
@@ -82,9 +80,9 @@ private:
 	DXGI_ADAPTER_DESC m_adapterDesc;
 	DXGI_MODE_DESC m_currentMode;
 
-	D3DXMATRIX m_projectionMatrix;
-	D3DXMATRIX m_worldMatrix;
-	D3DXMATRIX m_orthoMatrix;
+	DirectX::XMMATRIX m_projectionMatrix;
+	DirectX::XMMATRIX m_worldMatrix;
+	DirectX::XMMATRIX m_orthoMatrix;
 
 	void FillDisplayModes();
 	void Initialize(bool, float, float);

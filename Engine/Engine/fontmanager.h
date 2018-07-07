@@ -51,8 +51,8 @@ private:
 
 	struct VertexType
 	{
-		D3DXVECTOR3 position;
-		D3DXVECTOR2 texture;
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT2 texture;
 	};
 
 public:

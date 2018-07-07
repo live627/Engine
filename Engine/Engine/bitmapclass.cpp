@@ -252,24 +252,24 @@ bool BitmapClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, RECT positio
 
 	// Load the vertex array with data.
 	// First triangle.
-	vertices[0].position = D3DXVECTOR3(left, top, 0.0f);  // Top left.
-	vertices[0].texture = D3DXVECTOR2(0.0f, 0.0f);
+	vertices[0].position = DirectX::XMFLOAT3(left, top, 0.0f);  // Top left.
+	vertices[0].texture = DirectX::XMFLOAT2(0.0f, 0.0f);
 
-	vertices[1].position = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
-	vertices[1].texture = D3DXVECTOR2(1.0f, 1.0f);
+	vertices[1].position = DirectX::XMFLOAT3(right, bottom, 0.0f);  // Bottom right.
+	vertices[1].texture = DirectX::XMFLOAT2(1.0f, 1.0f);
 
-	vertices[2].position = D3DXVECTOR3(left, bottom, 0.0f);  // Bottom left.
-	vertices[2].texture = D3DXVECTOR2(0.0f, 1.0f);
+	vertices[2].position = DirectX::XMFLOAT3(left, bottom, 0.0f);  // Bottom left.
+	vertices[2].texture = DirectX::XMFLOAT2(0.0f, 1.0f);
 
 	// Second triangle.
-	vertices[3].position = D3DXVECTOR3(left, top, 0.0f);  // Top left.
-	vertices[3].texture = D3DXVECTOR2(0.0f, 0.0f);
+	vertices[3].position = DirectX::XMFLOAT3(left, top, 0.0f);  // Top left.
+	vertices[3].texture = DirectX::XMFLOAT2(0.0f, 0.0f);
 
-	vertices[4].position = D3DXVECTOR3(right, top, 0.0f);  // Top right.
-	vertices[4].texture = D3DXVECTOR2(1.0f, 0.0f);
+	vertices[4].position = DirectX::XMFLOAT3(right, top, 0.0f);  // Top right.
+	vertices[4].texture = DirectX::XMFLOAT2(1.0f, 0.0f);
 
-	vertices[5].position = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
-	vertices[5].texture = D3DXVECTOR2(1.0f, 1.0f);
+	vertices[5].position = DirectX::XMFLOAT3(right, bottom, 0.0f);  // Bottom right.
+	vertices[5].texture = DirectX::XMFLOAT2(1.0f, 1.0f);
 
 	// Lock the vertex buffer so it can be written to.
 	result = deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

@@ -10,7 +10,6 @@
 //////////////
 #include <DirectXMath.h>
 #include <d3d11.h>
-#include <d3dx10math.h>
 #include <d3dx11async.h>
 #include <fstream>
 #include <wrl\client.h>
@@ -37,7 +36,7 @@ private:
 
 	struct PixelBufferType
 	{
-		D3DXVECTOR4 pixelColor;
+		DirectX::XMFLOAT4 pixelColor;
 		///float textureWidth;
 	};
 
@@ -50,13 +49,12 @@ public:
 	{}
 
 	bool Initialize();
-	bool Render(int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, D3DXVECTOR4);
+	bool Render(int indexCount, const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix, ID3D11ShaderResourceView * texture, const DirectX::XMVECTORF32 & pixelColor);
 
 private:
 	bool InitializeShader();
 	void OutputShaderErrorMessage(ID3D10Blob*);
-
-	bool SetShaderParameters(D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, D3DXVECTOR4);
+	bool SetShaderParameters(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix, ID3D11ShaderResourceView * texture, const DirectX::XMVECTORF32 & pixelColor);
 	void RenderShader(int);
 
 private:

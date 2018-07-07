@@ -20,8 +20,9 @@ bool ShaderClass::Initialize()
 }
 
 
-bool ShaderClass::Render(int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix,
-	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixelColor)
+bool ShaderClass::Render(int indexCount, const DirectX::XMMATRIX & worldMatrix,
+	const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix, 
+	ID3D11ShaderResourceView* texture, const DirectX::XMVECTORF32 & pixelColor)
 {
 	bool result;
 
@@ -202,8 +203,9 @@ void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage)
 }
 
 
-bool ShaderClass::SetShaderParameters(D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix,
-	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixelColor)
+bool ShaderClass::SetShaderParameters(const DirectX::XMMATRIX & worldMatrix, 
+	const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix,
+	ID3D11ShaderResourceView* texture, const DirectX::XMVECTORF32 & pixelColor)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -223,18 +225,9 @@ bool ShaderClass::SetShaderParameters(D3DXMATRIX worldMatrix, D3DXMATRIX viewMat
 	dataPtr = (ConstantBufferType*)mappedResource.pData;
 
 	// Transpose the matrices to prepare them for the shader.
-
-	dataPtr->world = DirectX::XMMatrixTranspose((DirectX::XMMATRIX)worldMatrix);
-	dataPtr->view = DirectX::XMMatrixTranspose((DirectX::XMMATRIX)viewMatrix);
-	dataPtr->projection = DirectX::XMMatrixTranspose((DirectX::XMMATRIX)projectionMatrix);
-	//D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
-	//D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-	//D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
-
-	//// Copy the matrices into the constant buffer.
-	//dataPtr->world = worldMatrix;
-	//dataPtr->view = viewMatrix;
-	//dataPtr->projection = projectionMatrix;
+	dataPtr->world = DirectX::XMMatrixTranspose(worldMatrix);
+	dataPtr->view = DirectX::XMMatrixTranspose(viewMatrix);
+	dataPtr->projection = DirectX::XMMatrixTranspose(projectionMatrix);
 
 	// Unlock the constant buffer.
 	m_deviceContext->Unmap(m_constantBuffer.Get(), 0);
@@ -259,7 +252,7 @@ bool ShaderClass::SetShaderParameters(D3DXMATRIX worldMatrix, D3DXMATRIX viewMat
 	dataPtr2 = (PixelBufferType*)mappedResource.pData;
 
 	// Copy the pixel color into the pixel constant buffer.
-	dataPtr2->pixelColor = pixelColor;
+	dataPtr2->pixelColor = static_cast<DirectX::XMFLOAT4>(pixelColor);
 
 	// Copy the data into the constant buffer.
 	//dataPtr2->textureWidth = screenWidth;

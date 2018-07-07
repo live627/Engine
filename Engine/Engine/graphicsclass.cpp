@@ -22,7 +22,7 @@ GraphicsClass::GraphicsClass(CameraClass * p_Camera, int screenWidth, int screen
 bool GraphicsClass::Initialize()
 {
 	bool result;
-	D3DXMATRIX baseViewMatrix;
+	DirectX::XMMATRIX baseViewMatrix;
 
 	m_D3D = new D3DClass(m_screenWidth, m_screenHeight, m_hwnd, 
 		VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
@@ -159,7 +159,7 @@ bool GraphicsClass::Dbg(int mouseX, int mouseY, int fps,
 
 bool GraphicsClass::Render()
 {
-	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
+	DirectX::XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	bool result;
 
 	// Clear the buffers to begin the scene.

@@ -24,7 +24,7 @@ TextClass::~TextClass()
 
 
 bool TextClass::Initialize(HWND hwnd, int screenWidth, int screenHeight,
-	D3DXMATRIX baseViewMatrix, Fonts* p_fontManager)
+	DirectX::XMMATRIX baseViewMatrix, Fonts* p_fontManager)
 {
 	bool result;
 
@@ -105,7 +105,7 @@ void TextClass::Shutdown()
 }
 
 
-bool TextClass::Render(D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix)
+bool TextClass::Render(DirectX::XMMATRIX worldMatrix, DirectX::XMMATRIX orthoMatrix)
 {
 	bool result = true;
 
@@ -127,7 +127,7 @@ bool TextClass::Render(D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix)
 	}
 
 	// Create a pixel color vector with the input sentence color.
-	D3DXVECTOR4 pixelColor = DirectX::Colors::AntiqueWhite;
+	auto pixelColor = DirectX::Colors::AntiqueWhite;
 
 	// Render the text using the font shader.
 	return m_FontShader->Render(m_Bitmap->GetIndexCount(), worldMatrix, m_baseViewMatrix,
@@ -219,7 +219,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength)
 
 
 bool TextClass::UpdateSentence(SentenceType* sentence, const char* text, 
-	float positionX, float positionY, const DirectX::XMVECTORF32& color)
+	float positionX, float positionY, const DirectX::XMVECTORF32 & color)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -227,7 +227,7 @@ bool TextClass::UpdateSentence(SentenceType* sentence, const char* text,
 
 
 	// Store the color of the sentence.
-	sentence->color = static_cast<D3DXVECTOR4>(color);
+	sentence->color = color;
 
 	// Check for possible buffer overflow.
 	if (strlen(text) > sentence->maxLength)
@@ -237,7 +237,7 @@ bool TextClass::UpdateSentence(SentenceType* sentence, const char* text,
 	}
 
 	// Create the vertex array.
-	auto  vertices = std::vector<VertexType>(sentence->vertexCount).data();
+	auto vertices = std::vector<VertexType>(sentence->vertexCount).data();
 
 	// Calculate the X and Y pixel position on the screen to start drawing to.
 	float drawX = -(m_screenWidth >> 1) + positionX;
@@ -294,16 +294,13 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 }
 
 
-bool TextClass::RenderSentence(SentenceType* sentence, D3DXMATRIX worldMatrix,
-	D3DXMATRIX orthoMatrix)
+bool TextClass::RenderSentence(
+	SentenceType* sentence, 
+	const DirectX::XMMATRIX & worldMatrix,
+	const DirectX::XMMATRIX & orthoMatrix
+)
 {
-	unsigned int stride, offset;
-	D3DXVECTOR4 pixelColor;
-
-
-	// Set vertex buffer stride and offset.
-	stride = sizeof(VertexType);
-	offset = 0;
+	unsigned int  stride = sizeof(VertexType), offset = 0;
 
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	deviceContext->IASetVertexBuffers(0, 1, &sentence->vertexBuffer, &stride, &offset);
@@ -338,7 +335,7 @@ bool TextClass::SetMousePosition(int mouseX, int mouseY)
 }
 
 
-bool TextClass::SetCameraPosition(D3DXVECTOR3 p_position)
+bool TextClass::SetCameraPosition(const DirectX::XMFLOAT3 & p_position)
 {
 	char buf[240];
 	char * msg = "Location {%.f, %.f}";
