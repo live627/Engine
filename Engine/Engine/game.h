@@ -5,6 +5,7 @@
 // INCLUDES //
 ////////////// 
 #include <fstream>
+#include <Windows.h>
 
 
 // Let's not rely on minwin.
