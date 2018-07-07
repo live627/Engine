@@ -81,8 +81,6 @@ void InputClass::Shutdown()
 		m_directInput->Release();
 		m_directInput = 0;
 	}
-
-	return;
 }
 
 

@@ -287,8 +287,6 @@ void D3DClass::ResizeBuffers(float screenWidth, float screenHeight, float screen
 		SetViewport(screenWidth, screenHeight);
 		CreateMatrices(screenWidth, screenHeight, screenDepth, screenNear);
 	}
-
-	return;
 }
 
 
@@ -347,8 +345,6 @@ void D3DClass::BeginScene(const DirectX::XMVECTORF32 & color)
 
 	// Clear the depth buffer.
 	m_deviceContext->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
-
-	return;
 }
 
 
@@ -362,35 +358,30 @@ void D3DClass::EndScene()
 void D3DClass::GetProjectionMatrix(DirectX::XMMATRIX & projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;
-	return;
 }
 
 
 void D3DClass::GetWorldMatrix(DirectX::XMMATRIX & worldMatrix)
 {
 	worldMatrix = m_worldMatrix;
-	return;
 }
 
 
 void D3DClass::GetOrthoMatrix(DirectX::XMMATRIX & orthoMatrix)
 {
 	orthoMatrix = m_orthoMatrix;
-	return;
 }
 
 
 void D3DClass::TurnZBufferOn()
 {
 	m_deviceContext->OMSetDepthStencilState(m_depthStencilState.Get(), 1);
-	return;
 }
 
 
 void D3DClass::TurnZBufferOff()
 {
 	m_deviceContext->OMSetDepthStencilState(m_depthDisabledStencilState.Get(), 1);
-	return;
 }
 
 
@@ -398,8 +389,6 @@ void D3DClass::TurnOnAlphaBlending()
 {
 	// Turn on the alpha blending.
 	m_deviceContext->OMSetBlendState(m_alphaEnableBlendingState.Get(), {}, 0xffffffff);
-
-	return;
 }
 
 
@@ -407,6 +396,4 @@ void D3DClass::TurnOffAlphaBlending()
 {
 	// Turn off the alpha blending.
 	m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState.Get(), {}, 0xffffffff);
-
-	return;
 }

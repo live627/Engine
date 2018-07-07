@@ -88,8 +88,6 @@ void SystemClass::Shutdown()
 
 	// Shutdown the window.
 	ShutdownWindows();
-
-	return;
 }
 
 
@@ -148,8 +146,6 @@ void SystemClass::Run()
 			done = true;
 		}
 	}
-
-	return;
 }
 
 
@@ -274,8 +270,6 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 	// Hide the mouse cursor.
 	//ShowCursor(false);
-
-	return;
 }
 
 
@@ -309,8 +303,6 @@ void SystemClass::ShutdownWindows()
 
 	// Release the pointer to this class.
 	ApplicationHandle = NULL;
-
-	return;
 }
 
 

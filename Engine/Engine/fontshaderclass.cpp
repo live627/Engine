@@ -198,8 +198,6 @@ void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage)
 
 	// Pop a message up on the screen to notify the user to check the text file for compile errors.
 	throw std::runtime_error("Error compiling shader. Check shader-error.txt for message.");
-
-	return;
 }
 
 
@@ -284,6 +282,4 @@ void ShaderClass::RenderShader(int indexCount)
 
 	// Render the triangles.
 	m_deviceContext->DrawIndexed(indexCount, 0, 0);
-
-	return;
 }

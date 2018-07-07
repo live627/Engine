@@ -113,8 +113,6 @@ void GraphicsClass::Shutdown()
 		delete m_Text;
 		m_Text = 0;
 	}
-
-	return;
 }
 
 

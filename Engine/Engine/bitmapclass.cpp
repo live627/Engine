@@ -58,8 +58,6 @@ void BitmapClass::Shutdown()
 
 	// Shutdown the vertex and index buffers.
 	ShutdownBuffers();
-
-	return;
 }
 
 
@@ -207,8 +205,6 @@ void BitmapClass::ShutdownBuffers()
 		m_vertexBuffer->Release();
 		m_vertexBuffer = 0;
 	}
-
-	return;
 }
 
 
@@ -313,8 +309,6 @@ void BitmapClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	return;
 }
 
 
@@ -350,6 +344,4 @@ void BitmapClass::ReleaseTexture()
 		delete m_Texture;
 		m_Texture = 0;
 	}
-
-	return;
 }

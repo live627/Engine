@@ -289,8 +289,6 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 		delete *sentence;
 		*sentence = 0;
 	}
-
-	return;
 }
 
 

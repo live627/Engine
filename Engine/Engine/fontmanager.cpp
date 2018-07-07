@@ -288,6 +288,4 @@ void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, f
 
 		drawX += glyphSlot.ax;
 	}
-
-	return;
 }

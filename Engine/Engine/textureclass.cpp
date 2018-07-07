@@ -78,8 +78,6 @@ void TextureClass::Shutdown()
 		m_texture->Release();
 		m_texture = 0;
 	}
-
-	return;
 }
 
 
