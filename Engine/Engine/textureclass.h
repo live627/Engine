@@ -18,9 +18,8 @@
 class TextureClass
 {
 public:
-	TextureClass(ID3D11Device*);
-
-	bool Initialize(const WCHAR*);
+	bool Initialize(const CHAR *);
+	TextureClass(ID3D11Device *, const CHAR *);
 	bool CreateShaderResourceView();
 	void Shutdown();
 

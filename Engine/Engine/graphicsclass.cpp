@@ -56,12 +56,10 @@ bool GraphicsClass::Initialize()
 	}
 
 	// Create the bitmap object.
-	m_Bitmap = new BitmapClass;
-
-	// Initialize the bitmap object.
-	result = m_Bitmap->Initialize(m_D3D->GetDevice(), m_screenWidth, m_screenHeight, L"../Engine/data/seafloor.dds");
-	if (!result)
-		throw std::runtime_error("Could not initialize the bitmap object.");
+	m_Bitmap = new BitmapClass(
+		m_D3D->GetDevice(), m_D3D->GetDeviceContext(),
+		m_screenWidth, m_screenHeight, "../Engine/data/seafloor.dds"
+	);
 
 	// Create the text object.
 	m_Text = new TextClass(
@@ -81,7 +79,6 @@ void GraphicsClass::Shutdown()
 	// Release the bitmap object.
 	if (m_Bitmap)
 	{
-		m_Bitmap->Shutdown();
 		delete m_Bitmap;
 		m_Bitmap = 0;
 	}
@@ -151,11 +148,7 @@ bool GraphicsClass::Render()
 	m_D3D->TurnZBufferOff();
 
 	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), { 100, 100, 256, 256 });
-	if (!result)
-	{
-		return false;
-	}
+	m_Bitmap->Render({ 100, 100, 256, 256 });
 
 	// Render the bitmap with the texture shader.
 	result = m_Shader->Render(m_Bitmap->GetIndexCount(), 
