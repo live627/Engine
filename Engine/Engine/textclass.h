@@ -28,7 +28,7 @@ class TextClass
 private:
 	struct SentenceType
 	{
-		ID3D11Buffer *vertexBuffer, *indexBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer, indexBuffer;
 		size_t vertexCount, indexCount, maxLength;
 		DirectX::XMVECTORF32 color;
 	};
@@ -40,27 +40,25 @@ private:
 	};
 
 public:
-	TextClass(ID3D11Device*, ID3D11DeviceContext*);
-	TextClass(const TextClass&);
-	~TextClass();
+	TextClass(ID3D11Device*, ID3D11DeviceContext*, int, int, const DirectX::XMMATRIX &);
 
-	bool Initialize(HWND, int, int, DirectX::XMMATRIX, Fonts *);
+	void Initialize(HWND, Fonts *);
 	void Shutdown();
-	bool Render(DirectX::XMMATRIX, DirectX::XMMATRIX);
 
-	bool SetMousePosition(int, int);
-	bool SetCameraPosition(const DirectX::XMFLOAT3 &);
-	bool SetFps(int, float);
-	bool SetCpu(int);
+	void Render(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
 
-	bool SetPausedState(bool isGaamePaused);
-	void ResizeBuffers(int width, int height);
+	void SetMousePosition(int, int);
+	void SetCameraPosition(const DirectX::XMFLOAT3 &);
+	void SetFps(int, float);
+	void SetCpu(int);
+
+	void SetPausedState(bool);
+	void ResizeBuffers(int, int);
 
 private:
-	bool InitializeSentence(SentenceType**, int);
-	bool UpdateSentence(SentenceType*, const char*, float, float, const DirectX::XMVECTORF32 &);
-	void ReleaseSentence(SentenceType**);
-	bool RenderSentence(SentenceType * sentence, const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & orthoMatrix);
+	void InitializeSentence(SentenceType &, int);
+	void UpdateSentence(SentenceType &, const char *, float, float, const DirectX::XMVECTORF32 &);
+	void RenderSentence(const SentenceType &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
 
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;
@@ -70,7 +68,7 @@ private:
 	int m_screenWidth, m_screenHeight;
 	DirectX::XMMATRIX m_baseViewMatrix;
 	BitmapClass* m_Bitmap;
-	std::vector<SentenceType*> m_sentences;
+	std::vector<SentenceType> m_sentences;
 };
 
 #endif

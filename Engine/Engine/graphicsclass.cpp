@@ -64,12 +64,13 @@ bool GraphicsClass::Initialize()
 		throw std::runtime_error("Could not initialize the bitmap object.");
 
 	// Create the text object.
-	m_Text = new TextClass(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
+	m_Text = new TextClass(
+		m_D3D->GetDevice(), m_D3D->GetDeviceContext(),
+		m_screenWidth, m_screenHeight, baseViewMatrix
+	);
 
 	// Initialize the text object.
-	result = m_Text->Initialize(nullptr, m_screenWidth, m_screenHeight, baseViewMatrix, m_Font);
-	if (!result)
-		throw std::runtime_error("Could not initialize the text object.");
+	m_Text->Initialize(nullptr, m_Font);
 
 	return true;
 }
@@ -119,37 +120,11 @@ void GraphicsClass::Shutdown()
 bool GraphicsClass::Dbg(int mouseX, int mouseY, int fps, 
 	int cpu, float frameTime, bool isGamePaused)
 {
-	bool result;
-
-	// Set the frames per second.
-	result = m_Text->SetFps(fps, frameTime);
-	if (!result)
-	{
-		return false;
-	}
-
-	// Set the cpu usage.
-	result = m_Text->SetCpu(cpu);
-	if (!result)
-	{
-		return false;
-	}
-
-	// Set the location of the mouse.
-	result = m_Text->SetMousePosition(mouseX, mouseY);
-	if (!result)
-	{
-		return false;
-	}
-
-	// Set the position of the camera.
-	result = m_Text->SetCameraPosition(m_Camera->GetPosition());
-	if (!result)
-	{
-		return false;
-	}
-
-	result &= m_Text->SetPausedState(isGamePaused);
+	m_Text->SetFps(fps, frameTime);
+	m_Text->SetCpu(cpu);
+	m_Text->SetMousePosition(mouseX, mouseY);
+	m_Text->SetCameraPosition(m_Camera->GetPosition());
+	m_Text->SetPausedState(isGamePaused);
 
 	return true;
 }
@@ -194,11 +169,7 @@ bool GraphicsClass::Render()
 	m_D3D->TurnOnAlphaBlending();
 	
 	// Render the text strings.
-	result = m_Text->Render(worldMatrix, orthoMatrix);
-	if (!result)
-	{
-		return false;
-	}
+	m_Text->Render(worldMatrix, orthoMatrix);
 
 	// Turn off alpha blending after rendering the text.
 	m_D3D->TurnOffAlphaBlending();
