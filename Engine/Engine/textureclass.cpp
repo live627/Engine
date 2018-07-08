@@ -4,21 +4,23 @@
 #include "textureclass.h"
 
 
-TextureClass::TextureClass(ID3D11Device * p_device)
+TextureClass::TextureClass(ID3D11Device * p_device, const CHAR* filename)
 {
 	m_device = p_device;
 
 	m_texture = 0;
+
+	Initialize(filename);
 }
 
 
-bool TextureClass::Initialize(const WCHAR* filename)
+bool TextureClass::Initialize(const CHAR* filename)
 {
 	HRESULT result;
 
 
 	// Load the texture in.
-	result = D3DX11CreateShaderResourceViewFromFile(
+	result = D3DX11CreateShaderResourceViewFromFileA(
 		m_device, filename, NULL, NULL, &m_texture, NULL);
 	if(FAILED(result))
 	{

@@ -8,14 +8,17 @@
 //////////////
 // INCLUDES //
 //////////////
+#include <vector>
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <wrl\client.h>
 
 
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "textureclass.h"
+#include "game.h" 
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,33 +34,32 @@ private:
 	};
 
 public:
-	BitmapClass();
-	BitmapClass(const BitmapClass&);
+	BitmapClass(ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext, int screenWidth, int screenHeight, CHAR * textureFilename);
 	~BitmapClass();
-
-	bool Initialize(ID3D11Device*, int, int, WCHAR*);
-	void Shutdown();
-	bool Render(ID3D11DeviceContext*, RECT);
+	void Render(RECT);
 
 	void ResizeBuffers(int screenWidth, int screenHeight);
 
-	int GetIndexCount();
-	ID3D11ShaderResourceView* GetTexture();
+	int GetIndexCount() const { return m_indexCount; }
+	auto GetTexture() { return m_Texture.GetTexture(); }
 
 private:
-	bool InitializeBuffers(ID3D11Device*);
-	void ShutdownBuffers();
-	bool UpdateBuffers(ID3D11DeviceContext*, RECT);
-	void RenderBuffers(ID3D11DeviceContext*);
-
-	bool LoadTexture(ID3D11Device*, WCHAR*);
-	void ReleaseTexture();
+	void InitializeBuffers();
+	void UpdateBuffers(RECT);
+	void RenderBuffers();
 
 private:
-	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
-	int m_vertexCount, m_indexCount;
-	TextureClass* m_Texture;
-	int m_screenWidth, m_screenHeight;
+	ID3D11Device * device;
+	ID3D11DeviceContext * deviceContext;
+	ID3D11Buffer
+		* m_vertexBuffer,
+		* m_indexBuffer;
+	size_t
+		m_vertexCount, 
+		m_indexCount, 
+		m_screenWidth,
+		m_screenHeight;
+	TextureClass m_Texture;
 	RECT m_previousPos;
 };
 

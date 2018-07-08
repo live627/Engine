@@ -8,19 +8,20 @@ TextClass::TextClass(
 	ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext,
 	int screenWidth, int screenHeight,
 	const DirectX::XMMATRIX & baseViewMatrix)
-{
-	device = p_device;
-	deviceContext = pdeviceContext;
+	:
+	device(p_device),
+	deviceContext(pdeviceContext),
 
-	m_Font = 0;
-	m_FontShader = 0;
+	m_Font(0),
+	m_FontShader(0),
 
 	// Store the screen width and height.
-	m_screenWidth = screenWidth;
-	m_screenHeight = screenHeight;
+	m_screenWidth(screenWidth),
+	m_screenHeight(screenHeight),
 
 	// Store the base view matrix.
-	m_baseViewMatrix = baseViewMatrix;
+	m_baseViewMatrix(baseViewMatrix)
+{
 }
 
 
@@ -42,14 +43,7 @@ void TextClass::Initialize(HWND hwnd, Fonts* p_fontManager)
 	}
 
 	// Create the bitmap object.
-	m_Bitmap = new BitmapClass;
-
-	// Initialize the bitmap object.
-	result = m_Bitmap->Initialize(device, m_screenWidth, m_screenHeight, L"");
-	if (!result)
-	{
-		throw std::runtime_error("Could not initialize the pixel object.");
-	}
+	m_Bitmap = new BitmapClass(device, deviceContext, m_screenWidth, m_screenHeight, "");
 
 	for (int i = 0; i < 5; i++)
 	{
@@ -77,7 +71,6 @@ void TextClass::Shutdown()
 	// Release the pixel object.
 	if (m_Bitmap)
 	{
-		m_Bitmap->Shutdown();
 		delete m_Bitmap;
 		m_Bitmap = 0;
 	}
@@ -103,7 +96,7 @@ void TextClass::Render(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMM
 		left = (m_screenWidth - width) / 2;
 
 	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Bitmap->Render(deviceContext, { left, top, width, height });
+	m_Bitmap->Render({ left, top, width, height });
 
 	// Create a pixel color vector with the input sentence color.
 	auto pixelColor = DirectX::Colors::AntiqueWhite;
@@ -118,7 +111,6 @@ void TextClass::InitializeSentence(SentenceType & sentence, int maxLength)
 {
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
-	HRESULT result;
 
 
 	// Set the maximum length of the sentence.
@@ -182,9 +174,7 @@ void TextClass::InitializeSentence(SentenceType & sentence, int maxLength)
 void TextClass::UpdateSentence(SentenceType & sentence, const char* text, 
 	float positionX, float positionY, const DirectX::XMVECTORF32 & color)
 {
-	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	VertexType* verticesPtr;
 
 
 	// Store the color of the sentence.
@@ -210,15 +200,14 @@ void TextClass::UpdateSentence(SentenceType & sentence, const char* text,
 	// Lock the vertex buffer so it can be written to.
 	ThrowIfFailed(
 		deviceContext->Map(sentence.vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
-		"Could not create the vertex buffer."
+		"Could not lock the vertex buffer."
 	);
 
 	// Get a pointer to the data in the vertex buffer.
-	verticesPtr = (VertexType*)mappedResource.pData;
+	auto verticesPtr = (VertexType*)mappedResource.pData;
 
 	// Copy the data into the vertex buffer.
 	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * sentence.vertexCount));
-	//verticesPtr = std::move(vertices);
 
 	// Unlock the vertex buffer.
 	deviceContext->Unmap(sentence.vertexBuffer.Get(), 0);
@@ -231,7 +220,7 @@ void TextClass::RenderSentence(
 	const DirectX::XMMATRIX & orthoMatrix
 )
 {
-	unsigned int stride = sizeof(VertexType), offset = 0;
+	auto stride = sizeof(VertexType), offset = 0u;
 
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	deviceContext->IASetVertexBuffers(0, 1, sentence.vertexBuffer.GetAddressOf(), &stride, &offset);
