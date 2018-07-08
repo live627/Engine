@@ -106,6 +106,17 @@ inline void ThrowIfFailed(const HRESULT hr, const char * msg)
 		throw com_exception(hr, msg);
 }
 
+// Helper utility converts D3D API failures into exceptions.
+template<typename... Args> 
+__forceinline auto FormatString(const char * fmt, Args... args)
+{
+	size_t sz = std::snprintf(nullptr, 0, fmt, args...);
+	std::vector<char> buf(sz + 1); // note +1 for null terminator
+	std::snprintf(&buf[0], buf.size(), fmt, args...);
+
+	return buf;
+}
+
 
 #include <vector>    
 #include <algorithm> 

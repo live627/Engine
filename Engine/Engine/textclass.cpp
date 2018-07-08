@@ -70,13 +70,21 @@ bool TextClass::Initialize(HWND hwnd, int screenWidth, int screenHeight,
 
 	for (int i = 0; i < 5; i++)
 	{
-		auto sentence = new SentenceType();
-		result = InitializeSentence(&sentence, 24);
-		if (!result)
+		try
 		{
-			return false;
+			auto sentence = SentenceType();
+			InitializeSentence(sentence, 24);
+			m_sentences.push_back(sentence);
 		}
-		m_sentences.push_back(sentence);
+		catch (std::exception & e)
+		{
+			throw std::runtime_error(
+				FormatString(
+					"%s\n\nCould not load sentence %d",
+					e.what(), i
+				).data()
+			);
+		}
 	}
 
 	return true;
