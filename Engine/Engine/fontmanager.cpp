@@ -203,7 +203,7 @@ void Font::flip(byte * buffer, uint width, uint height)
 }
 
 
-bool Font::CreateShaderResourceView(
+void Font::CreateShaderResourceView(
 	uint width, uint height,
 	uint pitch, const byte * buffer)
 {
@@ -218,30 +218,21 @@ bool Font::CreateShaderResourceView(
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2D;
-
 	D3D11_SUBRESOURCE_DATA resourceData = { buffer, pitch, 0 };
-
-	HRESULT res = m_device->CreateTexture2D(&textureDesc, &resourceData, &texture2D);
-	if (FAILED(res))
-		return false;
+	ThrowIfFailed(
+		m_device->CreateTexture2D(&textureDesc, &resourceData, &texture2D),
+		"Could not create the texture."
+	);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	shaderResourceViewDesc.Format = textureDesc.Format;
 	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-
-	HRESULT result = m_device->CreateShaderResourceView(texture2D.Get(), &shaderResourceViewDesc, &m_texture);
-	if (FAILED(result))
-		return false;
-
-	return true;
-}
-
-
-ID3D11ShaderResourceView* Font::GetShaderResourceView()
-{
-	return m_texture.Get();
+	ThrowIfFailed(
+		m_device->CreateShaderResourceView(texture2D.Get(), &shaderResourceViewDesc, &m_texture),
+		"Could not create the shader resource view."
+	);
 }
 
 

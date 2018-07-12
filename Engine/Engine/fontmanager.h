@@ -79,7 +79,7 @@ private:
 
 	void StitchGlyph(const GlyphInfo g, uint, uint, byte *);
 	void flip(byte *, uint, uint);
-	bool CreateShaderResourceView(uint, uint, uint, const byte *);
+	void CreateShaderResourceView(uint, uint, uint, const byte *);
 	
 	template <typename input_type, typename output_type>
 	output_type chebyshev_distance(input_type from_x
