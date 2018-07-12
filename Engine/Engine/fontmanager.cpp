@@ -94,7 +94,8 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	// Get total width
 	uint total_width = 0;
 	uint max_height = 0;
-	for (uint i = 32; i < 127; i++) {
+	for (uint i = 32; i < 127; i++) 
+	{
 		FT_UInt glyph_index = FT_Get_Char_Index(m_face, i);
 		// Have to use FT_LOAD_RENDER.
 		// If use FT_LOAD_DEFAULT, the actual glyph bitmap won't be loaded,
@@ -124,11 +125,10 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 			m_face->glyph->bitmap.buffer,
 			glyphInfo.bw, glyphInfo.bh
 		);
-		std::vector<byte> outputBuffer(
+		glyphInfo.img = std::vector<byte>(
 			m_face->glyph->bitmap.buffer,
 			m_face->glyph->bitmap.buffer + glyphInfo.bw * glyphInfo.bh
 		);
-		glyphInfo.img = outputBuffer;
 
 		glyphInfo.left = glyphInfo.x = glyphInfo.bl + x;
 		glyphInfo.y = glyphInfo.bh - glyphInfo.bt;
@@ -247,7 +247,7 @@ ID3D11ShaderResourceView* Font::GetShaderResourceView()
 
 void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, float drawY)
 {
-	VertexType* vertexPtr = (VertexType*)vertices;
+	 VertexType* vertexPtr = (VertexType*)vertices;
 
 	// Draw each letter onto a quad.
 	uint index = 0;
@@ -258,35 +258,29 @@ void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, f
 		if (letter > m_glyphSlots.size())
 			continue;
 
-		auto glyphSlot = m_glyphSlots[letter];
+		auto glyphSlot = m_glyphSlots.at(letter);
 
 		// If the letter is a space then just move over three pixels.
 		if (letter != 0)
 		{
 			// First triangle in quad.
-			vertexPtr[index].position = { drawX, drawY, 0 };  // Top left.
-			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.left, 0);
+			vertexPtr[index] = { { drawX, drawY, 0 }, { glyphSlot.left, 0} }; // Top left.
 			index++;
 
-			vertexPtr[index].position = DirectX::XMFLOAT3((drawX + glyphSlot.bw), (drawY - m_height), 0);  // Bottom right.
-			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.right, 1);
+			vertexPtr[index] = { { (drawX + glyphSlot.bw), (drawY - m_height), 0},{glyphSlot.right, 1} };; // Bottom right.
 			index++;
 
-			vertexPtr[index].position = DirectX::XMFLOAT3(drawX, (drawY - m_height), 0);  // Bottom left.
-			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.left, 1);
+			vertexPtr[index] = { {drawX, (drawY - m_height), 0	},{glyphSlot.left, 1} }; // Bottom left.
 			index++;
 
 			// Second triangle in quad.
-			vertexPtr[index].position = DirectX::XMFLOAT3(drawX, drawY, 0);  // Top left.
-			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.left, 0);
+			vertexPtr[index] = { {drawX, drawY, 0},{glyphSlot.left, 0} }; // Top left.
 			index++;
 
-			vertexPtr[index].position = DirectX::XMFLOAT3(drawX + glyphSlot.bw, drawY, 0);  // Top right.
-			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.right, 0);
+			vertexPtr[index] = { {drawX + glyphSlot.bw, drawY, 0},{glyphSlot.right, 0 } }; // Top right.
 			index++;
 
-			vertexPtr[index].position = DirectX::XMFLOAT3((drawX + glyphSlot.bw), (drawY - m_height), 0);  // Bottom right.
-			vertexPtr[index].texture = DirectX::XMFLOAT2(glyphSlot.right, 1);
+			vertexPtr[index] = { {(drawX + glyphSlot.bw), (drawY - m_height), 0},{glyphSlot.right, 1} }; // Bottom right.
 			index++;
 		}
 
