@@ -33,12 +33,6 @@ private:
 		DirectX::XMVECTORF32 color;
 	};
 
-	struct VertexType
-	{
-		DirectX::XMFLOAT3 position;
-	    DirectX::XMFLOAT2 texture;
-	};
-
 public:
 	TextClass(ID3D11Device*, ID3D11DeviceContext*, int, int, const DirectX::XMMATRIX &);
 

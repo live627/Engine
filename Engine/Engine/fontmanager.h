@@ -45,14 +45,6 @@ struct GlyphInfo {
 ////////////////////////////////////////////////////////////////////////////////
 class Font
 {
-private:
-
-	struct VertexType
-	{
-		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT2 texture;
-	};
-
 public:
 	Font(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
 	:

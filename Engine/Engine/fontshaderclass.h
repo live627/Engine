@@ -10,7 +10,7 @@
 //////////////
 #include <DirectXMath.h>
 #include <d3d11.h>
-#include <d3dx11async.h>
+#include <d3dcompiler.h>
 #include <fstream>
 #include <wrl\client.h>
 
@@ -19,6 +19,16 @@
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "shaders.h"
+
+
+#pragma comment(lib, "d3dcompiler.lib")
+
+
+struct VertexType
+{
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT2 texture;
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -44,7 +44,7 @@ bool ShaderClass::Render(int indexCount, const DirectX::XMMATRIX & worldMatrix,
 bool ShaderClass::InitializeShader()
 {
 	HRESULT result;
-	Microsoft::WRL::ComPtr<ID3D10Blob>
+	Microsoft::WRL::ComPtr<ID3DBlob>
 		errorMessage,
 		vertexShaderBuffer,
 		pixelShaderBuffer;
@@ -53,10 +53,15 @@ bool ShaderClass::InitializeShader()
 	D3D11_BUFFER_DESC constantBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC pixelBufferDesc;
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+#if defined( DEBUG ) || defined( _DEBUG )
+	flags |= D3DCOMPILE_DEBUG;
+#endif
 
 	// Compile the vertex shader code.
-	result = D3DX11CompileFromMemory(vertexShader, strlen(vertexShader), NULL, NULL, NULL, "TextureVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
-		&vertexShaderBuffer, &errorMessage, NULL);
+	result = D3DCompile(vertexShader, strlen(vertexShader), NULL, NULL, NULL,
+		"TextureVertexShader", "vs_5_0", flags, 0,
+		&vertexShaderBuffer, &errorMessage);
 	if (FAILED(result) && errorMessage)
 	{
 		OutputShaderErrorMessage(errorMessage.Get());
@@ -65,9 +70,9 @@ bool ShaderClass::InitializeShader()
 	}
 
 	// Compile the pixel shader code.
-	result = D3DX11CompileFromMemory(pixelShader, strlen(pixelShader), NULL, NULL, NULL,
-		m_isFont ? "FontPixelShader" : "TexturePixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL,
-		&pixelShaderBuffer, &errorMessage, NULL);
+	result = D3DCompile(pixelShader, strlen(pixelShader), NULL, NULL, NULL,
+		m_isFont ? "FontPixelShader" : "TexturePixelShader", "ps_5_0", flags, 0,
+		&pixelShaderBuffer, &errorMessage);
 	if (FAILED(result) && errorMessage)
 	{
 		OutputShaderErrorMessage(errorMessage.Get());
