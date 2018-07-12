@@ -23,23 +23,6 @@
 #include "game.h"
 
 
-struct GlyphInfo {
-	unsigned int ax; // advance.x
-	unsigned int ay; // advance.y
-
-	unsigned int bp; // bitmap.width;
-	unsigned int bw; // bitmap.width;
-	unsigned int bh; // bitmap.rows;
-
-	unsigned int bl; // bitmap_left;
-	unsigned int bt; // bitmap_top;
-
-	unsigned int x, y; // Position of glyph on texture map in pixels.
-	float left, right;
-	std::vector<unsigned char> img;
-};
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: Fonts
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +40,26 @@ public:
 	void BuildVertexArray(void *, const char *, float, float);
 
 private:
+	struct GlyphInfo 
+	{
+		unsigned int 
+			ax, // advance.x
+			ay, // advance.y
+
+			bp, // bitmap.width
+			bw, // bitmap.width
+			bh, // bitmap.rows
+
+			bl, // bitmap_left
+			bt, // bitmap_top
+
+			x, y; // Position of glyph on texture map in pixels.
+
+		float left, right; // UV coords of glyph on texture map.
+
+		std::vector<unsigned char> img;
+	};
+
 	int GetNextPow2(int a)
 	{
 		int rval = 2;
