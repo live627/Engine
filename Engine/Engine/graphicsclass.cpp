@@ -58,7 +58,7 @@ bool GraphicsClass::Initialize()
 	// Create the bitmap object.
 	m_Bitmap = new BitmapClass(
 		m_D3D->GetDevice(), m_D3D->GetDeviceContext(),
-		m_screenWidth, m_screenHeight, "../Engine/data/seafloor.dds"
+		m_screenWidth, m_screenHeight, "../Engine/data/seafloor.tga"
 	);
 
 	// Create the text object.
