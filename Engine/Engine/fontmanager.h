@@ -11,8 +11,6 @@
 ///////////////////////
 // INCLUDES //
 ///////////////////////
-#include <map>
-#include <queue>
 #include "ft2build.h"
 #include FT_FREETYPE_H
 #include <wrl\client.h>
