@@ -233,7 +233,7 @@ void TextClass::RenderSentence(
 
 	// Render the text using the font shader.
 	m_FontShader->Render(sentence.indexCount, worldMatrix, m_baseViewMatrix,
-		orthoMatrix, m_Font->GetShaderResourceView(), sentence.color);
+		orthoMatrix, m_Font->GetTexture(), sentence.color);
 }
 
 

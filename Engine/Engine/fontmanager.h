@@ -60,9 +60,9 @@ public:
 		m_deviceContext(p_deviceContext)
 	{}
 
-	bool LoadTTF(FT_Library p_library, FT_Byte * m_buffer, long long m_length);
-	ID3D11ShaderResourceView* GetShaderResourceView();
-	void BuildVertexArray(void * vertices, const char * sentence, float drawX, float drawY);
+	bool LoadTTF(FT_Library, FT_Byte *, long long);
+	auto GetTexture() { return m_texture.Get(); }
+	void BuildVertexArray(void *, const char *, float, float);
 
 private:
 	int GetNextPow2(int a)
