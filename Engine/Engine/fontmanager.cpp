@@ -14,10 +14,7 @@ bool Fonts::Initialize()
 
 
 Fonts::~Fonts()
-{
-	while (!m_fonts.empty())
-		m_fonts.erase(m_fonts.begin());
-	
+{	
 	FT_Done_FreeType(m_library);
 }
 
@@ -29,6 +26,7 @@ bool Fonts::LoadFonts(const char* filename)
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 	char numFonts = 0;
 	file.read(&numFonts, sizeof(char));
+	m_fonts = std::make_unique<Font[]>((uint)numFonts);
 
   	for (uint i = 0; i < (uint)numFonts; i++)
 	{
@@ -49,9 +47,9 @@ bool Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 {
 	try
 	{
-		auto font = new Font(m_device, m_deviceContext);
+		Font font(m_device, m_deviceContext);
 
-		if (!font->LoadTTF(m_library, m_buffer, m_length))
+		if (!font.LoadTTF(m_library, m_buffer, m_length))
 		{
 			throw std::runtime_error(
 				FormatString(
@@ -60,7 +58,7 @@ bool Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 			);
 		}
 
-		m_fonts.push_back(font);
+		m_fonts[p_idx] = std::move(font);
 	}
 	catch (std::exception & e)
 	{
@@ -77,7 +75,7 @@ bool Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 
 Font* Fonts::GetFont(int idx)
 {
-	return m_fonts[idx];
+	return &m_fonts[idx];
 }
 
 

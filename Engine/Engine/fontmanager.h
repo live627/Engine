@@ -29,6 +29,7 @@
 class Font
 {
 public:
+	Font() = default;
 	Font(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
 	:
 		m_device(p_device),
@@ -104,5 +105,5 @@ private:
 	ID3D11Device * m_device;
 	ID3D11DeviceContext * m_deviceContext;
 	FT_Library m_library;
-	std::vector<Font*> m_fonts;
+	std::unique_ptr<Font[]> m_fonts;
 };
