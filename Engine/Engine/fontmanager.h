@@ -32,7 +32,8 @@ public:
 	Font(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
 	:
 		m_device(p_device),
-		m_deviceContext(p_deviceContext)
+		m_deviceContext(p_deviceContext),
+		m_numGlyphs(127 - 32)
 	{}
 
 	bool LoadTTF(FT_Library, FT_Byte *, long long);
@@ -76,11 +77,12 @@ private:
 	ID3D11Device * m_device;
 	ID3D11DeviceContext * m_deviceContext;
 	FT_Face m_face;
-	std::vector<GlyphInfo> m_glyphSlots;
+	std::unique_ptr<GlyphInfo[]> m_glyphSlots;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 	size_t
 		m_width,
-		m_height;
+		m_height,
+		m_numGlyphs;
 };
 
 class Fonts

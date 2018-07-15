@@ -94,6 +94,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	// Get total width
 	uint total_width = 0;
 	uint max_height = 0;
+	m_glyphSlots = std::make_unique<GlyphInfo[]>(m_numGlyphs);
 	auto glyphBuffers = std::make_unique<std::vector<byte>[]>(m_numGlyphs);
 	for (uint i = 32; i < 127; i++) 
 	{
@@ -140,7 +141,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 		total_width = x + glyphInfo.bw;
 		max_height = std::max<uint>(max_height, glyphInfo.bt + glyphInfo.bh);
 		glyphInfo.right = glyphInfo.x + glyphInfo.bw;
-		m_glyphSlots.push_back(glyphInfo);
+		m_glyphSlots[i - 32] = glyphInfo;
 	}
 	m_width = GetNextPow2(total_width);
 	m_height = GetNextPow2(max_height);
