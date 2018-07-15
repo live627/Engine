@@ -245,11 +245,11 @@ void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, f
 	for (uint i = 0; i < strlen(sentence); i++)
 	{
 		uint letter = static_cast<uint>(sentence[i]) - 32;
-
+/*
 		if (letter > m_glyphSlots.size())
 			continue;
-
-		auto glyphSlot = m_glyphSlots.at(letter);
+*/
+		auto glyphSlot = m_glyphSlots[letter];
 
 		// If the letter is a space then just move over three pixels.
 		if (letter != 0)

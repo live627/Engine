@@ -181,7 +181,7 @@ void TextClass::UpdateSentence(SentenceType & sentence, const char* text,
 	}
 
 	// Create the vertex array.
-	auto vertices = std::vector<VertexType>(sentence.vertexCount).data();
+	auto vertices = std::make_unique<VertexType[]>(sentence.vertexCount).get();
 
 	// Calculate the X and Y pixel position on the screen to start drawing to.
 	float drawX = -(m_screenWidth >> 1) + positionX;
