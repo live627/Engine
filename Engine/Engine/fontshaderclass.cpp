@@ -257,9 +257,6 @@ bool ShaderClass::SetShaderParameters(const DirectX::XMMATRIX & worldMatrix,
 	// Copy the pixel color into the pixel constant buffer.
 	dataPtr2->pixelColor = static_cast<DirectX::XMFLOAT4>(pixelColor);
 
-	// Copy the data into the constant buffer.
-	//dataPtr2->textureWidth = screenWidth;
-
 	// Unlock the pixel constant buffer.
 	m_deviceContext->Unmap(m_pixelBuffer.Get(), 0);
 

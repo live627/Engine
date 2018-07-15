@@ -10,7 +10,6 @@ SamplerState SampleType;
 cbuffer PixelBuffer
 {
     float4 pixelColor;
-	float textureWidth;
 };
 
 
@@ -39,61 +38,6 @@ float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 float4 FontPixelShader(PixelInputType input) : SV_TARGET
 {
 	return shaderTexture.Sample(SampleType, input.tex).rrrr * pixelColor;
-}
-
-
-float Pixels[13] =
-{
-   -6,
-   -5,
-   -4,
-   -3,
-   -2,
-   -1,
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-};
-
-float BlurWeights[13] =
-{
-   0.002216,
-   0.008764,
-   0.026995,
-   0.064759,
-   0.120985,
-   0.176033,
-   0.199471,
-   0.176033,
-   0.120985,
-   0.064759,
-   0.026995,
-   0.008764,
-   0.002216,
-};
-
-
-float4 GaussianPixelShader(PixelInputType input) : SV_TARGET
-{
-    // Pixel width
-    float pixelWidth = 1.0f / textureWidth;
-
-    float4 color = {0, 0, 0, 1};
-
-    float2 blur;
-    blur.y = input.tex.y;
-
-    for (int i = 0; i < 13; i++) 
-    {
-        blur.x = input.tex.x + Pixels[i] * pixelWidth;
-        color += shaderTexture.Sample(SampleType, blur) * BlurWeights[i];
-    }  
-
-    return color;
 }
 )";
 

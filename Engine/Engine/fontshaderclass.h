@@ -47,7 +47,6 @@ private:
 	struct PixelBufferType
 	{
 		DirectX::XMFLOAT4 pixelColor;
-		///float textureWidth;
 	};
 
 public:
