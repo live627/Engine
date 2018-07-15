@@ -145,24 +145,23 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	m_width = GetNextPow2(total_width);
 	m_height = GetNextPow2(max_height);
 
-	auto charmapPtr = std::vector<byte>(m_width * m_height);
-	auto charmap = charmapPtr.data();
+	auto charmap = std::make_unique<byte[]>(m_width * m_height);
 
-	for (uint j = 0; j < m_glyphSlots.size(); j++)
+	for (uint j = 0; j < 127-32; j++)
 	{
 		StitchGlyph(
 			glyphBuffers[j],
 			m_glyphSlots[j],
 			m_glyphSlots[j].x,
 			m_height / 4 - m_glyphSlots[j].y, 
-			charmap
+			charmap.get()
 		);
 		m_glyphSlots[j].left /= m_width;
 		m_glyphSlots[j].right /= m_width;
 	}
 	
-	flip(charmap, m_width, m_height);
-	CreateShaderResourceView(m_width, m_height, m_width, charmap);
+	flip(charmap.get(), m_width, m_height);
+	CreateShaderResourceView(m_width, m_height, m_width, charmap.get());
 
 	FT_Done_Face(m_face);
 
