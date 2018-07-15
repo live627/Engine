@@ -94,6 +94,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	// Get total width
 	uint total_width = 0;
 	uint max_height = 0;
+	auto glyphBuffers = std::make_unique<std::vector<byte>[]>(m_numGlyphs);
 	for (uint i = 32; i < 127; i++) 
 	{
 		FT_UInt glyph_index = FT_Get_Char_Index(m_face, i);
@@ -125,7 +126,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 			m_face->glyph->bitmap.buffer,
 			glyphInfo.bw, glyphInfo.bh
 		);
-		glyphInfo.img = std::vector<byte>(
+		glyphBuffers[i - 32] = std::vector<byte>(
 			m_face->glyph->bitmap.buffer,
 			m_face->glyph->bitmap.buffer + glyphInfo.bw * glyphInfo.bh
 		);
@@ -150,12 +151,12 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	for (uint j = 0; j < m_glyphSlots.size(); j++)
 	{
 		StitchGlyph(
+			glyphBuffers[j],
 			m_glyphSlots[j],
 			m_glyphSlots[j].x,
 			m_height / 4 - m_glyphSlots[j].y, 
 			charmap
 		);
-		m_glyphSlots[j].img.empty();
 		m_glyphSlots[j].left /= m_width;
 		m_glyphSlots[j].right /= m_width;
 	}
@@ -170,7 +171,8 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 
 
 void Font::StitchGlyph(
-	const GlyphInfo g,
+	const std::vector<byte> & b,
+	const GlyphInfo & g,
 	uint px,
 	uint py,
 	byte * charmap)
@@ -182,7 +184,7 @@ void Font::StitchGlyph(
 	{
 		for (uint x = 0; x < g.bw; x++)
 		{
-			charmap[(py + y) * m_width + (px + x)] = g.img[y * g.bw + x];
+			charmap[(py + y) * m_width + (px + x)] = b[y * g.bw + x];
 		}
 	}
 }

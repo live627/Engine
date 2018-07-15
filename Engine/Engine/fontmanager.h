@@ -56,8 +56,6 @@ private:
 			x, y; // Position of glyph on texture map in pixels.
 
 		float left, right; // UV coords of glyph on texture map.
-
-		std::vector<unsigned char> img;
 	};
 
 	int GetNextPow2(int a)
@@ -70,7 +68,7 @@ private:
 		return rval;
 	}
 
-	void StitchGlyph(const GlyphInfo g, uint, uint, byte *);
+	void StitchGlyph(const std::vector<byte> &, const GlyphInfo &, uint, uint, byte *);
 	void flip(byte *, uint, uint);
 	void CreateShaderResourceView(uint, uint, uint, const byte *);
 	
