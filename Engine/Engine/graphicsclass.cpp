@@ -47,14 +47,6 @@ bool GraphicsClass::Initialize()
 		return false;
 	}
 
-	// Initialize the texture shader object.
-	result = m_Shader->Initialize();
-	if (!result)
-	{
-		throw std::runtime_error("Could not initialize the texture shader object.");
-		return false;
-	}
-
 	// Create the bitmap object.
 	m_Bitmap = new BitmapClass(
 		m_D3D->GetDevice(), m_D3D->GetDeviceContext(),
@@ -151,12 +143,8 @@ bool GraphicsClass::Render()
 	m_Bitmap->Render({ 100, 100, 256, 256 });
 
 	// Render the bitmap with the texture shader.
-	result = m_Shader->Render(m_Bitmap->GetIndexCount(), 
+	m_Shader->Render(m_Bitmap->GetIndexCount(), 
 		worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture(), {});
-	if (!result)
-	{
-		return false;
-	}
 
 	// Turn on the alpha blending before rendering the text.
 	m_D3D->TurnOnAlphaBlending();

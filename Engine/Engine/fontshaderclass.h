@@ -19,6 +19,7 @@
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "shaders.h"
+#include "game.h"
 
 
 #pragma comment(lib, "d3dcompiler.lib")
@@ -55,15 +56,15 @@ public:
 		m_device(p_device),
 		m_deviceContext(p_deviceContext),
 		m_isFont(p_isFont)
-	{}
+	{
+		InitializeShader();
+	}
 
-	bool Initialize();
-	bool Render(int indexCount, const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix, ID3D11ShaderResourceView * texture, const DirectX::XMVECTORF32 & pixelColor);
+	void Render(int, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
 
 private:
-	bool InitializeShader();
-	void OutputShaderErrorMessage(ID3D10Blob*);
-	bool SetShaderParameters(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix, ID3D11ShaderResourceView * texture, const DirectX::XMVECTORF32 & pixelColor);
+	void InitializeShader();
+	void SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
 	void RenderShader(int);
 
 private:

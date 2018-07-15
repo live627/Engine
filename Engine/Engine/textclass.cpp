@@ -35,13 +35,6 @@ void TextClass::Initialize(HWND hwnd, Fonts* p_fontManager)
 	// Create the font shader object.
 	m_FontShader = new ShaderClass(device, deviceContext, true);
 
-	// Initialize the font shader object.
-	result = m_FontShader->Initialize();
-	if (!result)
-	{
-		throw std::runtime_error("Could not initialize the font shader object.");
-	}
-
 	// Create the bitmap object.
 	m_Bitmap = new BitmapClass(device, deviceContext, m_screenWidth, m_screenHeight, "");
 

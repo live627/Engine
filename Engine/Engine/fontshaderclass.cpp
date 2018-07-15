@@ -4,44 +4,20 @@
 #include "fontshaderclass.h"
 
 
-bool ShaderClass::Initialize()
-{
-	bool result;
 
-
-	// Initialize the vertex and pixel shaders.
-	result = InitializeShader();
-	if (!result)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-
-bool ShaderClass::Render(int indexCount, const DirectX::XMMATRIX & worldMatrix,
+void ShaderClass::Render(int indexCount, const DirectX::XMMATRIX & worldMatrix,
 	const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix, 
 	ID3D11ShaderResourceView* texture, const DirectX::XMVECTORF32 & pixelColor)
 {
-	bool result;
-
-
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, pixelColor);
-	if (!result)
-	{
-		return false;
-	}
+	SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, pixelColor);
 
 	// Now render the prepared buffers with the shader.
 	RenderShader(indexCount);
-
-	return true;
 }
 
 
-bool ShaderClass::InitializeShader()
+void ShaderClass::InitializeShader()
 {
 	HRESULT result;
 	Microsoft::WRL::ComPtr<ID3DBlob>
@@ -64,9 +40,13 @@ bool ShaderClass::InitializeShader()
 		&vertexShaderBuffer, &errorMessage);
 	if (FAILED(result) && errorMessage)
 	{
-		OutputShaderErrorMessage(errorMessage.Get());
-
-		return false;
+		// Pop a message up on the screen to notify the user to check the text file for compile errors.
+		throw std::runtime_error(
+			FormatString(
+				"Error compiling vertex shader.\n\n%s",
+				(char*)(errorMessage->GetBufferPointer())
+			).data()
+		);
 	}
 
 	// Compile the pixel shader code.
@@ -75,26 +55,27 @@ bool ShaderClass::InitializeShader()
 		&pixelShaderBuffer, &errorMessage);
 	if (FAILED(result) && errorMessage)
 	{
-		OutputShaderErrorMessage(errorMessage.Get());
-
-		return false;
+		// Pop a message up on the screen to notify the user to check the text file for compile errors.
+		throw std::runtime_error(
+			FormatString(
+				"Error compiling pixel shader.\n\n%s",
+				(char*)(errorMessage->GetBufferPointer())
+			).data()
+		);
 	}
 
 	// Create the vertex shader from the buffer.
-	result = m_device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
-		vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
-	if (FAILED(result))
-	{
-		return false;
-	}
+	ThrowIfFailed(
+		m_device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+			vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader),
+		"Could not create the vertex shader buffer."
+	);
 
-	// Create the vertex shader from the buffer.
-	result = m_device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
-		pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
-	if (FAILED(result))
-	{
-		return false;
-	}
+	ThrowIfFailed(
+		m_device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
+			pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader),
+		"Could not create the pixel shader buffer."
+	);
 
 	// Create the vertex input layout description.
 	// This setup needs to match the VertexType stucture in the ModelClass and in the shader.
@@ -118,12 +99,11 @@ bool ShaderClass::InitializeShader()
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
 	// Create the vertex input layout.
-	result = m_device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
-		vertexShaderBuffer->GetBufferSize(), &m_layout);
-	if (FAILED(result))
-	{
-		return false;
-	}
+	ThrowIfFailed(
+		m_device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
+			vertexShaderBuffer->GetBufferSize(), &m_layout),
+		"Could not create the vertex shader layout."
+	);
 
 	// Setup the description of the dynamic constant buffer that is in the vertex shader.
 	constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -134,11 +114,10 @@ bool ShaderClass::InitializeShader()
 	constantBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = m_device->CreateBuffer(&constantBufferDesc, NULL, &m_constantBuffer);
-	if (FAILED(result))
-	{
-		return false;
-	}
+	ThrowIfFailed(
+		m_device->CreateBuffer(&constantBufferDesc, NULL, &m_constantBuffer),
+		"Could not create the vertex constant buffer pointer."
+	);
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -156,11 +135,10 @@ bool ShaderClass::InitializeShader()
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	// Create the texture sampler state.
-	result = m_device->CreateSamplerState(&samplerDesc, &m_sampleState);
-	if (FAILED(result))
-	{
-		return false;
-	}
+	ThrowIfFailed(
+		m_device->CreateSamplerState(&samplerDesc, &m_sampleState),
+		"Could not create the texture sampler state."
+	);
 
 	// Setup the description of the dynamic pixel constant buffer that is in the pixel shader.
 	pixelBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -171,61 +149,28 @@ bool ShaderClass::InitializeShader()
 	pixelBufferDesc.StructureByteStride = 0;
 
 	// Create the pixel constant buffer pointer so we can access the pixel shader constant buffer from within this class.
-	result = m_device->CreateBuffer(&pixelBufferDesc, NULL, &m_pixelBuffer);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	return true;
+	ThrowIfFailed(
+		m_device->CreateBuffer(&pixelBufferDesc, NULL, &m_pixelBuffer),
+		"Could not create the pixel constant buffer pointer."
+	);
 }
 
 
-void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage)
-{
-	// Get a pointer to the error message text buffer.
-	char * compileErrors = (char*)(errorMessage->GetBufferPointer());
-
-	// Get the length of the message.
-	unsigned long bufferSize = errorMessage->GetBufferSize();
-
-	// Open a file to write the error message to.
-	std::ofstream fout("shader-error.txt");
-
-	// Write out the error message.
-	for (unsigned long i = 0; i < bufferSize; i++)
-	{
-		fout << compileErrors[i];
-	}
-
-	// Close the file.
-	fout.close();
-
-	// Pop a message up on the screen to notify the user to check the text file for compile errors.
-	throw std::runtime_error("Error compiling shader. Check shader-error.txt for message.");
-}
-
-
-bool ShaderClass::SetShaderParameters(const DirectX::XMMATRIX & worldMatrix, 
+void ShaderClass::SetShaderParameters(const DirectX::XMMATRIX & worldMatrix,
 	const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix,
 	ID3D11ShaderResourceView* texture, const DirectX::XMVECTORF32 & pixelColor)
 {
-	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	ConstantBufferType* dataPtr;
-	unsigned int bufferNumber;
-	PixelBufferType* dataPtr2;
 
 
 	// Lock the constant buffer so it can be written to.
-	result = m_deviceContext->Map(m_constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-	{
-		return false;
-	}
+	ThrowIfFailed(
+		m_deviceContext->Map(m_constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
+		"Could not lock the vertex constant buffer pointer."
+	);
 
 	// Get a pointer to the data in the constant buffer.
-	dataPtr = (ConstantBufferType*)mappedResource.pData;
+	auto dataPtr = (ConstantBufferType*)mappedResource.pData;
 
 	// Transpose the matrices to prepare them for the shader.
 	dataPtr->world = DirectX::XMMatrixTranspose(worldMatrix);
@@ -235,24 +180,20 @@ bool ShaderClass::SetShaderParameters(const DirectX::XMMATRIX & worldMatrix,
 	// Unlock the constant buffer.
 	m_deviceContext->Unmap(m_constantBuffer.Get(), 0);
 
-	// Set the position of the constant buffer in the vertex shader.
-	bufferNumber = 0;
-
 	// Now set the constant buffer in the vertex shader with the updated values.
-	m_deviceContext->VSSetConstantBuffers(bufferNumber, 1, m_constantBuffer.GetAddressOf());
+	m_deviceContext->VSSetConstantBuffers(0, 1, m_constantBuffer.GetAddressOf());
 
 	// Set shader texture resource in the pixel shader.
 	m_deviceContext->PSSetShaderResources(0, 1, &texture);
 
 	// Lock the pixel constant buffer so it can be written to.
-	result = m_deviceContext->Map(m_pixelBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-	{
-		return false;
-	}
+	ThrowIfFailed(
+		m_deviceContext->Map(m_pixelBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
+		"Could not lock the pixel constant buffer pointer."
+	);
 
 	// Get a pointer to the data in the pixel constant buffer.
-	dataPtr2 = (PixelBufferType*)mappedResource.pData;
+	auto dataPtr2 = (PixelBufferType*)mappedResource.pData;
 
 	// Copy the pixel color into the pixel constant buffer.
 	dataPtr2->pixelColor = static_cast<DirectX::XMFLOAT4>(pixelColor);
@@ -260,13 +201,8 @@ bool ShaderClass::SetShaderParameters(const DirectX::XMMATRIX & worldMatrix,
 	// Unlock the pixel constant buffer.
 	m_deviceContext->Unmap(m_pixelBuffer.Get(), 0);
 
-	// Set the position of the pixel constant buffer in the pixel shader.
-	bufferNumber = 0;
-
 	// Now set the pixel constant buffer in the pixel shader with the updated value.
-	m_deviceContext->PSSetConstantBuffers(bufferNumber, 1, m_pixelBuffer.GetAddressOf());
-
-	return true;
+	m_deviceContext->PSSetConstantBuffers(0, 1, m_pixelBuffer.GetAddressOf());
 }
 
 
