@@ -74,7 +74,7 @@ public:
 
 	unsigned int GetFps() const { return m_fps; }
 	unsigned int GetCpuPercentage() const { return m_cpuUsage; }
-	int GetTime() { return m_frameTime; }
+	unsigned int GetFrameTimeDelta() { return m_frameTime; }
 
 private:
 	unsigned int
