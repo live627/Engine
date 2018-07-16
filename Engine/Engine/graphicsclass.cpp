@@ -4,18 +4,15 @@
 #include "graphicsclass.h"
 
 
-GraphicsClass::GraphicsClass(CameraClass * p_Camera, int screenWidth, int screenHeight, HWND p_hwnd)
+GraphicsClass::GraphicsClass(CameraClass * p_Camera, CpuClass * p_dbg, 
+	int screenWidth, int screenHeight, HWND p_hwnd)
+	:
+	m_dbg(p_dbg),
+	m_Camera(p_Camera),
+	m_screenWidth(screenWidth),
+	m_screenHeight(screenHeight),
+	m_hwnd(p_hwnd)
 {
-	m_D3D = 0;
-	m_Camera = 0;
-	m_Shader = 0;
-	m_Bitmap = 0;
-	m_Text = 0;
-
-	m_Camera = p_Camera;
-	m_screenWidth = screenWidth;
-	m_screenHeight = screenHeight;
-	m_hwnd = p_hwnd;
 }
 
 

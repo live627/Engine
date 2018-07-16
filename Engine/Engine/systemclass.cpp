@@ -31,11 +31,12 @@ bool SystemClass::Initialize()
 	}
 
 	auto camera = new CameraClass(m_Input);
+	auto debug = new CpuClass;
 
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
-	m_Graphics = new GraphicsClass(camera, screenWidth, screenHeight, m_hwnd);
+	m_Graphics = new GraphicsClass(camera, debug, screenWidth, screenHeight, m_hwnd);
 
-	m_gameObjects.insert(std::make_pair("cpu", new CpuClass));
+	m_gameObjects.insert(std::make_pair("cpu", debug));
 	m_gameObjects.insert(std::make_pair("input", m_Input));
 	m_gameObjects.insert(std::make_pair("camera", camera));
 	m_gameObjects.insert(std::make_pair("graphics", m_Graphics));

@@ -19,6 +19,7 @@
 #include "bitmapclass.h"
 #include "textclass.h"
 #include "fontmanager.h"
+#include "cpuclass.h"
 
 
 /////////////
@@ -49,6 +50,7 @@ private:
 	D3DClass* m_D3D;
 	Fonts* m_Font;
 	CameraClass* m_Camera;
+	CpuClass * m_dbg;
 	ShaderClass* m_Shader;
 	BitmapClass* m_Bitmap;
 	TextClass* m_Text;

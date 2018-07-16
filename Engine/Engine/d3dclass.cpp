@@ -6,11 +6,12 @@
 
 D3DClass::D3DClass(float screenWidth, float screenHeight, HWND hwnd, 
 	bool vsync, bool fullscreen, float screenDepth, float screenNear)
+	:
+	m_screenWidth(screenWidth),
+	m_screenHeight(screenHeight),
+	m_hwnd(hwnd),
+	m_vsync_enabled(vsync)
 {
-	m_screenWidth = screenWidth;
-	m_screenHeight = screenHeight;
-	m_hwnd = hwnd;
-	m_vsync_enabled = vsync;
 	FillDisplayModes();
 	Initialize(fullscreen, screenDepth, screenNear);
 }
