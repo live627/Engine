@@ -36,9 +36,7 @@
 #define NOSCROLL
 #define NOSERVICE
 #define NOSOUND
-
-// ID3DX10Font wants typedef TEXTMETRIC definitions et al.
-//#define NOTEXTMETRIC
+#define NOTEXTMETRIC
 #define NOWH
 #define NOCOMM
 #define NOKANJI
