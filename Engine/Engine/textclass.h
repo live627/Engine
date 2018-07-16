@@ -34,10 +34,7 @@ private:
 	};
 
 public:
-	TextClass(ID3D11Device*, ID3D11DeviceContext*, int, int, const DirectX::XMMATRIX &);
-
-	void Initialize(HWND, Fonts *);
-	void Shutdown();
+	TextClass(ID3D11Device*, ID3D11DeviceContext*, int, int, Fonts *, const DirectX::XMMATRIX &);
 
 	void Render(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
 
@@ -58,10 +55,10 @@ private:
 	ID3D11DeviceContext * deviceContext;
 	Fonts* m_FontManager;
 	Font* m_Font;
-	ShaderClass* m_FontShader;
+	ShaderClass m_FontShader;
 	int m_screenWidth, m_screenHeight;
 	DirectX::XMMATRIX m_baseViewMatrix;
-	BitmapClass* m_Bitmap;
+	BitmapClass m_Bitmap;
 	std::vector<SentenceType> m_sentences;
 };
 

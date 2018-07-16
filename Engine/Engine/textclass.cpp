@@ -6,37 +6,28 @@
 
 TextClass::TextClass(
 	ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext,
-	int screenWidth, int screenHeight,
+	int screenWidth, int screenHeight, Fonts * p_fontManager,
 	const DirectX::XMMATRIX & baseViewMatrix)
 	:
 	device(p_device),
 	deviceContext(pdeviceContext),
 
 	m_Font(0),
-	m_FontShader(0),
 
 	// Store the screen width and height.
 	m_screenWidth(screenWidth),
 	m_screenHeight(screenHeight),
 
 	// Store the base view matrix.
-	m_baseViewMatrix(baseViewMatrix)
-{
-}
-
-
-void TextClass::Initialize(HWND hwnd, Fonts* p_fontManager)
-{
-	bool result;
-
-
-	m_Font = p_fontManager->GetFont(1);
+	m_baseViewMatrix(baseViewMatrix),
 
 	// Create the font shader object.
-	m_FontShader = new ShaderClass(device, deviceContext, true);
+	m_FontShader(device, deviceContext, true),
 
 	// Create the bitmap object.
-	m_Bitmap = new BitmapClass(device, deviceContext, m_screenWidth, m_screenHeight, "");
+	m_Bitmap(device, deviceContext, m_screenWidth, m_screenHeight, "")
+{
+	m_Font = p_fontManager->GetFont(1);
 
 	for (int i = 0; i < 5; i++)
 	{
@@ -59,24 +50,6 @@ void TextClass::Initialize(HWND hwnd, Fonts* p_fontManager)
 }
 
 
-void TextClass::Shutdown()
-{
-	// Release the pixel object.
-	if (m_Bitmap)
-	{
-		delete m_Bitmap;
-		m_Bitmap = 0;
-	}
-
-	// Release the font shader object.
-	if (m_FontShader)
-	{
-		delete m_FontShader;
-		m_FontShader = 0;
-	}
-}
-
-
 void TextClass::Render(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & orthoMatrix)
 {
 	for (auto & sentence : m_sentences)
@@ -89,14 +62,14 @@ void TextClass::Render(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMM
 		left = (m_screenWidth - width) / 2;
 
 	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Bitmap->Render({ left, top, width, height });
+	m_Bitmap.Render({ left, top, width, height });
 
 	// Create a pixel color vector with the input sentence color.
 	auto pixelColor = DirectX::Colors::AntiqueWhite;
 
 	// Render the text using the font shader.
-	m_FontShader->Render(m_Bitmap->GetIndexCount(), worldMatrix, m_baseViewMatrix,
-		orthoMatrix, m_Bitmap->GetTexture(), pixelColor);
+	m_FontShader.Render(m_Bitmap.GetIndexCount(), worldMatrix, m_baseViewMatrix,
+		orthoMatrix, m_Bitmap.GetTexture(), pixelColor);
 }
 
 
@@ -225,7 +198,7 @@ void TextClass::RenderSentence(
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Render the text using the font shader.
-	m_FontShader->Render(sentence.indexCount, worldMatrix, m_baseViewMatrix,
+	m_FontShader.Render(sentence.indexCount, worldMatrix, m_baseViewMatrix,
 		orthoMatrix, m_Font->GetTexture(), sentence.color);
 }
 

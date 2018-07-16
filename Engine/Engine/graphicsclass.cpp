@@ -53,11 +53,8 @@ bool GraphicsClass::Initialize()
 	// Create the text object.
 	m_Text = new TextClass(
 		m_D3D->GetDevice(), m_D3D->GetDeviceContext(),
-		m_screenWidth, m_screenHeight, baseViewMatrix
+		m_screenWidth, m_screenHeight, m_Font, baseViewMatrix
 	);
-
-	// Initialize the text object.
-	m_Text->Initialize(nullptr, m_Font);
 
 	return true;
 }
@@ -96,7 +93,6 @@ void GraphicsClass::Shutdown()
 	// Release the text object.
 	if (m_Text)
 	{
-		m_Text->Shutdown();
 		delete m_Text;
 		m_Text = 0;
 	}
