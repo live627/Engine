@@ -61,7 +61,7 @@ bool SystemClass::Initialize()
 	file.open("autosave.bin", std::ios_base::binary);
 	if (file.is_open())
 	{
-		for (auto gameObject : m_gameObjects)
+		for (const auto & gameObject : m_gameObjects)
 		{
 			gameObject.second->Load(file);
 		}
@@ -436,7 +436,7 @@ void SystemClass::Autosave()
 			try
 			{
 				file.open("autosave.bin", std::ios_base::binary);
-				for (auto gameObject : m_gameObjects)
+				for (const auto & gameObject : m_gameObjects)
 					gameObject.second->Save(file);
 				file.close();
 			}
