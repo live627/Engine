@@ -152,36 +152,16 @@ void SystemClass::Run()
 
 bool SystemClass::Frame()
 {
-	bool result;
 	int mouseX, mouseY;
-
-
-	for (auto gameObject : m_gameObjects)
-	{
-		gameObject.second->Frame();
-	}
-
-
-	auto obj = static_cast<CpuClass*>(m_gameObjects.at("cpu"));
-	auto cpuPercentage = obj->GetCpuPercentage();
-	auto fps = obj->GetFps();
-	auto frameTimeDelta = obj->GetTime();
 
 	// Get the location of the mouse from the input object,
 	m_Input->GetMousePositionForDebug(mouseX, mouseY);
+	m_Graphics->DebugMousePosition(mouseX, mouseY);
+	m_Graphics->SetPausedState(!m_isGameActive);
 
-	// Do the frame processing for the graphics object.
-	result = m_Graphics->Dbg(mouseX, mouseY, fps, cpuPercentage, frameTimeDelta, !m_isGameActive);
-	if (!result)
+	for (const auto & gameObject : m_gameObjects)
 	{
-		return false;
-	}
-
-	// Finally render the graphics to the screen.
-	result = m_Graphics->Render();
-	if (!result)
-	{
-		return false;
+		gameObject.second->Frame();
 	}
 
 	return true;

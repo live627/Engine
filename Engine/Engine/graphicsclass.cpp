@@ -103,23 +103,39 @@ void GraphicsClass::Shutdown()
 }
 
 
-bool GraphicsClass::Dbg(int mouseX, int mouseY, int fps, 
-	int cpu, float frameTime, bool isGamePaused)
+void GraphicsClass::DebugMousePosition(int& mouseX, int& mouseY)
 {
-	m_Text->SetFps(fps, frameTime);
-	m_Text->SetCpu(cpu);
 	m_Text->SetMousePosition(mouseX, mouseY);
-	m_Text->SetCameraPosition(m_Camera->GetPosition());
-	m_Text->SetPausedState(isGamePaused);
+}
 
-	return true;
+
+void GraphicsClass::SetPausedState(bool isGamePaused)
+{
+	m_Text->SetPausedState(isGamePaused);
+}
+
+
+void GraphicsClass::UpdateDebugInfo()
+{
+	m_Text->SetFps(m_dbg->GetFps(), m_dbg->GetFrameTimeDelta());
+	m_Text->SetCpu(m_dbg->GetCpuPercentage());
+	m_Text->SetCameraPosition(m_Camera->GetPosition());
+}
+
+
+void GraphicsClass::Frame()
+{
+
+	UpdateDebugInfo();
+
+	// Finally render the graphics to the screen.
+	Render();
 }
 
 
 bool GraphicsClass::Render()
 {
 	DirectX::XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
-	bool result;
 
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(DirectX::Colors::Black);

@@ -38,10 +38,12 @@ class GraphicsClass : public GameObject
 {
 public:
 	bool Initialize();
-	GraphicsClass(CameraClass *, int, int, HWND);
+	GraphicsClass(CameraClass *, CpuClass *, int, int, HWND);
 	void Shutdown();
-	bool Dbg(int, int, int, int, float, bool);
-	void Frame() {}
+	void DebugMousePosition(int &, int &);
+	void SetPausedState(bool);
+	void UpdateDebugInfo();
+	void Frame();
 	bool Render();
 
 	void ResizeBuffers(int, int);
