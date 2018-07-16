@@ -87,13 +87,13 @@ private:
 	INT64 m_frameStartTime;
 	int m_frameTime;
 
-	float CalculateCPULoad(unsigned long long idleTicks, unsigned long long totalTicks) const
+	float CalculateCPULoad(uint64_t idleTicks, uint64_t totalTicks) const
 	{
-		static unsigned long long previousTotalTicks = 0;
-		static unsigned long long previousIdleTicks = 0;
+		static uint64_t previousTotalTicks = 0;
+		static uint64_t previousIdleTicks = 0;
 
-		unsigned long long totalTicksSinceLastTime = totalTicks - previousTotalTicks;
-		unsigned long long idleTicksSinceLastTime = idleTicks - previousIdleTicks;
+		uint64_t totalTicksSinceLastTime = totalTicks - previousTotalTicks;
+		uint64_t idleTicksSinceLastTime = idleTicks - previousIdleTicks;
 
 		previousTotalTicks = totalTicks;
 		previousIdleTicks = idleTicks;
@@ -104,11 +104,11 @@ private:
 				: 0);
 	}
 
-	unsigned long long FileTimeToInt64(const FILETIME & ft) const
+	uint64_t FileTimeToInt64(const FILETIME & ft) const
 	{
 		return
-			(static_cast<unsigned long long>(ft.dwHighDateTime) << 32)
-			| static_cast<unsigned long long>(ft.dwLowDateTime);
+			(static_cast<uint64_t>(ft.dwHighDateTime) << 32)
+			| static_cast<uint64_t>(ft.dwLowDateTime);
 	}
 
 	// Returns 1.0f for "CPU fully pinned", 0.0f for "CPU idle", or somewhere in between
