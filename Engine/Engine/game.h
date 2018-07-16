@@ -36,9 +36,10 @@ public:
 	static double scaleX;
 	static double scaleY;
 
-	static const double ScaleX(const double argX)
+	template<typename T>
+	static const T ScaleX(const T argX)
 	{
-		return argX * scaleX;
+		return static_cast<T>(argX * scaleX);
 	}
 };
 
