@@ -13,12 +13,7 @@ GraphicsClass::GraphicsClass(CameraClass * p_Camera, CpuClass * p_dbg,
 	m_screenHeight(screenHeight),
 	m_hwnd(p_hwnd)
 {
-}
 
-
-bool GraphicsClass::Initialize()
-{
-	bool result;
 	DirectX::XMMATRIX baseViewMatrix;
 
 	m_D3D = new D3DClass(m_screenWidth, m_screenHeight, m_hwnd, 
@@ -31,18 +26,9 @@ bool GraphicsClass::Initialize()
 
 	// Create the font object.
 	m_Font = new Fonts(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
-	result = m_Font->Initialize();
-	if (!result)
-	{
-		return false;
-	}
 
 	// Create the texture shader object.
 	m_Shader = new ShaderClass(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
-	if (!m_Shader)
-	{
-		return false;
-	}
 
 	// Create the bitmap object.
 	m_Bitmap = new BitmapClass(
@@ -55,8 +41,6 @@ bool GraphicsClass::Initialize()
 		m_D3D->GetDevice(), m_D3D->GetDeviceContext(),
 		m_screenWidth, m_screenHeight, m_Font, baseViewMatrix
 	);
-
-	return true;
 }
 
 

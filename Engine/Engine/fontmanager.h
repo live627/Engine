@@ -76,7 +76,7 @@ private:
 		return rval;
 	}
 
-	void StitchGlyph(const std::vector<byte> &, const GlyphInfo &, uint, uint, byte *);
+	void StitchGlyph(const byte *, const GlyphInfo &, uint, uint, byte *);
 	void flip(byte *, uint, uint);
 	void CreateShaderResourceView(uint, uint, uint, const byte *);
 	
@@ -99,13 +99,14 @@ public:
 		:
 		m_device(p_device),
 		m_deviceContext(p_deviceContext)
-	{}
-
-	bool Initialize();
-	~Fonts();
-	bool LoadFonts(const char * filename);
-	bool LoadFont(FT_Byte * m_buffer, long long m_length, int);
-	Font* GetFont(int);
+	{
+		FT_Init_FreeType(&m_library);
+		LoadFonts("data\\fonts.dat");
+	}
+	~Fonts() { FT_Done_FreeType(m_library); }
+	void LoadFonts(const char *);
+	void LoadFont(FT_Byte *, long long, int);
+	Font * GetFont(int idx) { return &m_fonts[idx]; }
 
 private:
 	ID3D11Device * m_device;

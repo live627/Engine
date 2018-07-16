@@ -37,7 +37,6 @@ const float SCREEN_NEAR = 0.1f;
 class GraphicsClass : public GameObject     
 {
 public:
-	bool Initialize();
 	GraphicsClass(CameraClass *, CpuClass *, int, int, HWND);
 	void Shutdown();
 	void DebugMousePosition(int &, int &);
@@ -45,6 +44,7 @@ public:
 	void UpdateDebugInfo();
 	void Frame();
 	bool Render();
+	bool Initialize() { return true; }
 
 	void ResizeBuffers(int, int);
 

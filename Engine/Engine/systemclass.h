@@ -91,7 +91,7 @@ public:
 	void Autosave();
 
 private:
-	bool Frame();
+	void Frame();
 	void InitializeWindows(int&, int&);
 	void InitializeScaling();
 	void ShutdownWindows();
@@ -104,7 +104,7 @@ private:
 	InputClass* m_Input;
 	GraphicsClass* m_Graphics;
 
-	std::unordered_map<std::string, GameObject*> m_gameObjects; 
+	std::unordered_map<std::string, GameObject *> m_gameObjects; 
 	std::atomic<bool> m_keepSavingFile;
 
 	bool m_isGameActive = false;

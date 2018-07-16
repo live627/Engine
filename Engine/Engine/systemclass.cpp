@@ -95,7 +95,7 @@ void SystemClass::Shutdown()
 void SystemClass::Run()
 {
 	MSG msg;
-	bool done, result;
+	bool done;
 
 
 	// Initialize the message structure.
@@ -129,7 +129,7 @@ void SystemClass::Run()
 			// Otherwise do the frame processing.  If frame processing fails then exit.
 			try
 			{
-				result = Frame();
+				Frame();
 			}
 			catch (std::exception & e)
 			{
@@ -150,7 +150,7 @@ void SystemClass::Run()
 }
 
 
-bool SystemClass::Frame()
+void SystemClass::Frame()
 {
 	int mouseX, mouseY;
 
@@ -163,8 +163,6 @@ bool SystemClass::Frame()
 	{
 		gameObject.second->Frame();
 	}
-
-	return true;
 }
 
 

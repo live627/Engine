@@ -4,24 +4,8 @@
 #include "fontmanager.h"
 
 
-bool Fonts::Initialize()
+void Fonts::LoadFonts(const char* filename)
 {
-	FT_Init_FreeType(&m_library);
-	LoadFonts("data\\fonts.dat");
-
-	return true;
-}
-
-
-Fonts::~Fonts()
-{	
-	FT_Done_FreeType(m_library);
-}
-
-bool Fonts::LoadFonts(const char* filename)
-{
-	bool result;
-
 	std::ifstream file(filename, std::ios::binary);
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 	char numFonts = 0;
@@ -33,17 +17,16 @@ bool Fonts::LoadFonts(const char* filename)
 		long long fontLength = 0;
 		file.read(reinterpret_cast<char*>(&fontLength), sizeof(long long));
 
-		std::vector<FT_Byte> buffer(fontLength);
+		auto buffer = std::make_unique<FT_Byte[]>(fontLength);
 		file.read(reinterpret_cast<char*>(&buffer[0]), fontLength);
-		result |= LoadFont(buffer.data(), fontLength, i);
+		LoadFont(buffer.get(), fontLength, i);
 	}
 
 	file.close();
-
-	return result;
 }
 
-bool Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
+
+void Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 {
 	try
 	{
@@ -69,13 +52,6 @@ bool Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 			).data()
 		);
 	}
-
-	return true; 
-}
-
-Font* Fonts::GetFont(int idx)
-{
-	return &m_fonts[idx];
 }
 
 
@@ -149,7 +125,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	for (uint j = 0; j < 127-32; j++)
 	{
 		StitchGlyph(
-			glyphBuffers[j],
+			glyphBuffers[j].data(),
 			m_glyphSlots[j],
 			m_glyphSlots[j].x,
 			m_height / 4 - m_glyphSlots[j].y, 
@@ -169,7 +145,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 
 
 void Font::StitchGlyph(
-	const std::vector<byte> & b,
+	const byte * b,
 	const GlyphInfo & g,
 	uint px,
 	uint py,
