@@ -5,16 +5,10 @@
 #define _CPUCLASS_H_
 
 
-/////////////
-// LINKING //
-/////////////
-#pragma comment(lib, "winmm.lib")
-
-
 //////////////
 // INCLUDES //
 //////////////
-#include <timeapi.h>
+#include <chrono>
 
 
 ///////////////////////
@@ -31,44 +25,29 @@ class CpuClass : public GameObject
 public:
 	CpuClass() 
 	{
-		m_startTime = timeGetTime();
-
-		// Check to see if this system supports high performance timers.
-		QueryPerformanceFrequency((LARGE_INTEGER*)&m_frequency);
-		if (m_frequency != 0)
-		{
-			// Find out how many times the frequency counter ticks every millisecond.
-			m_ticksPerMs = (int)(m_frequency / 1000);
-
-			QueryPerformanceCounter((LARGE_INTEGER*)&m_frameStartTime);
-		}
+		timetoprint = start = end = std::chrono::high_resolution_clock::now();
 	}
 
 	bool Initialize() { return true; }
 
 	void Frame()
 	{
-		INT64 currentTime;
-		int timeDifference;
-
-
-		QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
-
-		timeDifference = currentTime - m_frameStartTime;
+		end = std::chrono::high_resolution_clock::now();
+		auto timeDifference = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
 		m_count++;
 
-		if (m_startTime + 1000 < timeGetTime())
+		if (std::chrono::duration_cast<std::chrono::seconds>(end - timetoprint).count() >= 1)
 		{
 			m_fps = m_count;
 			m_count = 0;
 
-			m_cpuUsage = static_cast<int>(GetCPULoad() * 100);
-			m_startTime = timeGetTime();
-			m_frameTime = timeDifference / m_ticksPerMs;
+			m_cpuUsage = static_cast<unsigned int>(GetCPULoad() * 100);
+			timetoprint = std::chrono::high_resolution_clock::now();
+			m_frameTime = static_cast<unsigned int>(timeDifference);
 		}
 
-		m_frameStartTime = currentTime;
+		start = std::chrono::high_resolution_clock::now();
 	}
 
 
@@ -77,15 +56,13 @@ public:
 	unsigned int GetFrameTimeDelta() { return m_frameTime; }
 
 private:
+	std::chrono::high_resolution_clock::time_point start, end, timetoprint;
 	unsigned int
 		m_fps = 0,
 		m_count = 0,
 		m_startTime = 0,
-		m_cpuUsage = 0;
-	INT64 m_frequency;
-	int m_ticksPerMs;
-	INT64 m_frameStartTime;
-	int m_frameTime;
+		m_cpuUsage = 0,
+		m_frameTime = 0;
 
 	float CalculateCPULoad(uint64_t idleTicks, uint64_t totalTicks) const
 	{
