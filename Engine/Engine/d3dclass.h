@@ -15,14 +15,9 @@
 //////////////
 // INCLUDES //
 //////////////
-// These may conflict with the ones in the Winddows SDK
-// by defining duplicates. Ignore those.
-#pragma warning(push)
-#pragma warning(disable : 4005)
 #include <dxgi.h>
 #include <d3dcommon.h>
 #include <d3d11.h>
-#pragma warning(pop)
 #include <DirectXColors.h>
 #include <wrl\client.h>
 
