@@ -69,7 +69,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	uint total_width = 0;
 	uint max_height = 0;
 	m_glyphSlots = std::make_unique<GlyphInfo[]>(m_numGlyphs);
-	auto glyphBuffers = std::make_unique<std::vector<byte>[]>(m_numGlyphs);
+	auto glyphBuffers = std::make_unique<byte *[]>(m_numGlyphs);
 	for (uint i = 32; i < 127; i++) 
 	{
 		FT_UInt glyph_index = FT_Get_Char_Index(m_face, i);
@@ -101,10 +101,13 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 			m_face->glyph->bitmap.buffer,
 			glyphInfo.bw, glyphInfo.bh
 		);
-		glyphBuffers[i - 32] = std::vector<byte>(
+		byte * tempRow = (byte *)malloc(glyphInfo.bw * glyphInfo.bh * sizeof(byte));
+		memcpy(
+			tempRow,
 			m_face->glyph->bitmap.buffer,
-			m_face->glyph->bitmap.buffer + glyphInfo.bw * glyphInfo.bh
+			glyphInfo.bw * glyphInfo.bh * sizeof(byte)
 		);
+		glyphBuffers[i - 32] = tempRow;
 
 		glyphInfo.left = glyphInfo.x = glyphInfo.bl + x;
 		glyphInfo.y = glyphInfo.bh - glyphInfo.bt;
@@ -125,7 +128,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	for (uint j = 0; j < 127-32; j++)
 	{
 		StitchGlyph(
-			glyphBuffers[j].data(),
+			glyphBuffers[j],
 			m_glyphSlots[j],
 			m_glyphSlots[j].x,
 			m_height / 4 - m_glyphSlots[j].y, 
