@@ -13,16 +13,8 @@ GraphicsClass::GraphicsClass(CameraClass * p_Camera, CpuClass * p_dbg,
 	m_screenHeight(screenHeight),
 	m_hwnd(p_hwnd)
 {
-
-	DirectX::XMMATRIX baseViewMatrix;
-
 	m_D3D = new D3DClass(m_screenWidth, m_screenHeight, m_hwnd, 
 		VSYNC_ENABLED, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
-
-	// Initialize a base view matrix with the camera for 2D user interface rendering.
-	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
-	m_Camera->Render();
-	m_Camera->GetViewMatrix(baseViewMatrix);
 
 	// Create the font object.
 	m_Font = new Fonts(m_D3D->GetDevice(), m_D3D->GetDeviceContext());
@@ -39,7 +31,7 @@ GraphicsClass::GraphicsClass(CameraClass * p_Camera, CpuClass * p_dbg,
 	// Create the text object.
 	m_Text = new TextClass(
 		m_D3D->GetDevice(), m_D3D->GetDeviceContext(),
-		m_screenWidth, m_screenHeight, m_Font, baseViewMatrix
+		m_screenWidth, m_screenHeight, m_Font, m_Camera->GetViewMatrix()
 	);
 }
 
