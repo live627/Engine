@@ -4,10 +4,9 @@
 #include "graphicsclass.h"
 
 
-GraphicsClass::GraphicsClass(CameraClass * p_Camera, CpuClass * p_dbg, 
+GraphicsClass::GraphicsClass(CameraClass * p_Camera,
 	int screenWidth, int screenHeight, HWND p_hwnd)
 	:
-	m_dbg(p_dbg),
 	m_Camera(p_Camera),
 	m_screenWidth(screenWidth),
 	m_screenHeight(screenHeight),
@@ -75,31 +74,14 @@ void GraphicsClass::Shutdown()
 }
 
 
-void GraphicsClass::DebugMousePosition(int& mouseX, int& mouseY)
-{
-	m_Text->SetMousePosition(mouseX, mouseY);
-}
-
-
 void GraphicsClass::SetPausedState(bool isGamePaused)
 {
 	m_Text->SetPausedState(isGamePaused);
 }
 
 
-void GraphicsClass::UpdateDebugInfo()
-{
-	m_Text->SetFps(m_dbg->GetFps(), m_dbg->GetFrameTimeDelta());
-	m_Text->SetCpu(m_dbg->GetCpuPercentage());
-	m_Text->SetCameraPosition(m_Camera->GetPosition());
-}
-
-
 void GraphicsClass::Frame()
 {
-
-	UpdateDebugInfo();
-
 	// Finally render the graphics to the screen.
 	Render();
 }
@@ -116,7 +98,7 @@ bool GraphicsClass::Render()
 	m_Camera->Render();
 
 	// Get the world, view, projection, and ortho matrices from the camera and d3d objects.
-	m_Camera->GetViewMatrix(viewMatrix);
+	viewMatrix = m_Camera->GetViewMatrix();
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 	m_D3D->GetOrthoMatrix(orthoMatrix);

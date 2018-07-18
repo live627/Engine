@@ -149,11 +149,6 @@ void SystemClass::Run()
 
 void SystemClass::Frame()
 {
-	int mouseX, mouseY;
-
-	// Get the location of the mouse from the input object,
-	m_Input->GetMousePositionForDebug(mouseX, mouseY);
-	m_Graphics->DebugMousePosition(mouseX, mouseY);
 	m_Graphics->SetPausedState(!m_isGameActive);
 
 	for (const auto & gameObject : m_gameObjects)

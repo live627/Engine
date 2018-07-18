@@ -23,7 +23,12 @@
 class CpuClass : public GameObject
 {
 public:
-	CpuClass() 
+	CpuClass(InputClass * p_Input,  
+		CameraClass * p_Camera, TextClass * p_Text)
+		:
+		m_Input(p_Input),
+		m_Camera(p_Camera),
+		m_Text(p_Text)
 	{
 		timetoprint = start = end = std::chrono::high_resolution_clock::now();
 	}
@@ -48,6 +53,18 @@ public:
 		}
 
 		start = std::chrono::high_resolution_clock::now();
+		UpdateDebugInfo();
+	}
+	void UpdateDebugInfo()
+	{
+		int mouseX, mouseY;
+
+		// Get the location of the mouse from the input object,
+		m_Input->GetMousePositionForDebug(mouseX, mouseY);
+		m_Text->SetMousePosition(mouseX, mouseY);
+		m_Text->SetFps(GetFps(), GetFrameTimeDelta());
+		m_Text->SetCpu(GetCpuPercentage());
+		m_Text->SetCameraPosition(m_Camera->GetPosition());
 	}
 
 
@@ -63,6 +80,9 @@ private:
 		m_startTime = 0,
 		m_cpuUsage = 0,
 		m_frameTime = 0;
+	InputClass * m_Input;
+	CameraClass * m_Camera;
+	TextClass * m_Text;
 
 	float CalculateCPULoad(uint64_t idleTicks, uint64_t totalTicks) const
 	{

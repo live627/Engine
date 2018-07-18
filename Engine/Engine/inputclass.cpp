@@ -29,7 +29,7 @@ bool InputClass::Initialize()
 	// Initialize the main direct input interface.
 	result = DirectInput8Create(hinstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_directInput, NULL);
 	if (FAILED(result))
-	{
+	{ 
 		return false;
 	}
 

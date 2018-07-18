@@ -37,16 +37,16 @@ const float SCREEN_NEAR = 0.1f;
 class GraphicsClass : public GameObject     
 {
 public:
-	GraphicsClass(CameraClass *, CpuClass *, int, int, HWND);
+	GraphicsClass(CameraClass *, int, int, HWND);
 	void Shutdown();
-	void DebugMousePosition(int &, int &);
 	void SetPausedState(bool);
-	void UpdateDebugInfo();
 	void Frame();
 	bool Render();
 	bool Initialize() { return true; }
 
 	void ResizeBuffers(int, int);
+
+	auto GetText() { return m_Text; }
 
 private:
 	D3DClass* m_D3D;
