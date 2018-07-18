@@ -15,46 +15,43 @@ bool SystemClass::Initialize()
 {
 	int screenWidth, screenHeight;
 
-
-	// Initialize the width and height of the screen to zero before sending the variables into the function.
-	screenWidth = 0;
-	screenHeight = 0;
-
-	// Initialize the windows api.
-	InitializeWindows(screenWidth, screenHeight);
-
-	// Create the input object.  This object will be used to handle reading the keyboard input from the user.
-	m_Input = new InputClass(m_hinstance, m_hwnd);
-	if (!m_Input)
+	try
 	{
-		return false;
+		// Initialize the windows api.
+		InitializeWindows(screenWidth, screenHeight);
+
+		m_Input = new InputClass(m_hinstance, m_hwnd);
+		auto camera = new CameraClass(m_Input);
+		m_Graphics = new GraphicsClass(camera, screenWidth, screenHeight, m_hwnd);
+
+		m_gameObjects.insert(std::make_pair("input", new CpuClass(m_Input, camera, m_Graphics->GetText())));
+		m_gameObjects.insert(std::make_pair("input", m_Input));
+		m_gameObjects.insert(std::make_pair("camera", camera));
+		m_gameObjects.insert(std::make_pair("graphics", m_Graphics));
+
+		for (auto gameObject : m_gameObjects)
+		{
+			try
+			{
+				gameObject.second->Initialize();
+			}
+			catch (std::exception & e)
+			{
+				char * buf = new char[1060];
+				char * msg = "Could not initialize the %s object:\n\n%s\n\nApplication will now quit.";
+				sprintf_s(buf, 1060, msg, gameObject.first.c_str(), e.what());
+				MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
+				return false;
+			}
+		}
 	}
-
-	auto camera = new CameraClass(m_Input);
-	auto debug = new CpuClass;
-
-	// Create the graphics object.  This object will handle rendering all the graphics for this application.
-	m_Graphics = new GraphicsClass(camera, debug, screenWidth, screenHeight, m_hwnd);
-
-	m_gameObjects.insert(std::make_pair("cpu", debug));
-	m_gameObjects.insert(std::make_pair("input", m_Input));
-	m_gameObjects.insert(std::make_pair("camera", camera));
-	m_gameObjects.insert(std::make_pair("graphics", m_Graphics));
-
-	for (auto gameObject : m_gameObjects)
+	catch (std::exception & e)
 	{
-		try
-		{
-			gameObject.second->Initialize();
-		}
-		catch (std::exception & e)
-		{
-			char * buf = new char[1060];
-			char * msg = "Could not initialize the %s object:\n\n%s\n\nApplication will now quit.";
-			sprintf_s(buf, 1060, msg, gameObject.first.c_str(), e.what());
-			MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
-			return false;
-		}
+		char * buf = new char[1060];
+		char * msg = "%s\n\nApplication will now quit.";
+		sprintf_s(buf, 1060, msg, e.what());
+		MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
+		return false;
 	}
 
 	std::ifstream file;
