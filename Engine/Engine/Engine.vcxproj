@@ -83,7 +83,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bitmapclass.cpp" />
-    <ClCompile Include="cameraclass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="fontmanager.cpp" />
     <ClCompile Include="fontshaderclass.cpp" />
