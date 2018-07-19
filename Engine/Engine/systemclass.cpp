@@ -160,7 +160,6 @@ void SystemClass::Frame()
 
 void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 {
-	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
 	int posX, posY;
 	int dwStyle = WS_VISIBLE;
@@ -176,21 +175,16 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_applicationName = L"Random Game Engine";
 
 	// Setup the windows class with default settings.
+	WNDCLASS wc = {};
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
+	wc.lpfnWndProc = (WNDPROC)WndProc;
 	wc.hInstance = m_hinstance;
 	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-	wc.hIconSm = wc.hIcon;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszMenuName = NULL;
 	wc.lpszClassName = m_applicationName;
-	wc.cbSize = sizeof(WNDCLASSEX);
 
 	// Register the window class.
-	RegisterClassEx(&wc);
+	RegisterClass(&wc);
 
 	// Determine the resolution of the clients desktop screen.
 	screenWidth = GetSystemMetrics(SM_CXSCREEN);
