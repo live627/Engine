@@ -184,7 +184,8 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	wc.lpszClassName = m_applicationName;
 
 	// Register the window class.
-	RegisterClass(&wc);
+	if (!RegisterClass(&wc))
+		throw std::runtime_error("Could not register Win32 class!");
 
 	// Determine the resolution of the clients desktop screen.
 	screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -228,6 +229,9 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
 		dwStyle, posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
 
+	if (!m_hwnd)
+		throw std::runtime_error("Could not create window!");
+	
 	// Bring the window up on the screen and set it as main focus.
 	ShowWindow(m_hwnd, SW_SHOW);
 	SetForegroundWindow(m_hwnd);
