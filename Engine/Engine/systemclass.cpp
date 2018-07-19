@@ -236,9 +236,6 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	ShowWindow(m_hwnd, SW_SHOW);
 	SetForegroundWindow(m_hwnd);
 	SetFocus(m_hwnd);
-
-	// Hide the mouse cursor.
-	//ShowCursor(false);
 }
 
 
@@ -253,9 +250,6 @@ void SystemClass::InitializeScaling()
 
 void SystemClass::ShutdownWindows()
 {
-	// Show the mouse cursor.
-	ShowCursor(true);
-
 	// Fix the display settings if leaving full screen mode.
 	if (FULL_SCREEN)
 	{
