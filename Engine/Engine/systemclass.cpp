@@ -215,8 +215,10 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	}
 
 	// Create the window with the screen settings and get the handle to it.
-	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-		dwStyle, posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
+	m_hwnd = CreateWindow(m_applicationName, m_applicationName,
+		dwStyle, posX, posY, screenWidth, screenHeight, 
+		NULL, NULL, m_hinstance, NULL
+	);
 
 	if (!m_hwnd)
 		throw std::runtime_error("Could not create window!");
