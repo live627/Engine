@@ -284,7 +284,7 @@ void D3DClass::ResizeBuffers(float screenWidth, float screenHeight, float screen
 		hr = m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 
 		CreateRenderTargetView();
-		m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, NULL);
+		m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), NULL);
 		SetViewport(screenWidth, screenHeight);
 		CreateMatrices(screenWidth, screenHeight, screenDepth, screenNear);
 	}
@@ -302,7 +302,7 @@ void D3DClass::CreateRenderTargetView()
 
 	// Create the render target view with the back buffer pointer.
 	ThrowIfFailed(
-		m_device->CreateRenderTargetView(backBufferPtr.Get(), NULL, &m_renderTargetView),
+		m_device->CreateRenderTargetView(backBufferPtr.Get(), NULL, m_renderTargetView.GetAddressOf()),
 		"Failed to create the render target view"
 	);
 }
