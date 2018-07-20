@@ -222,11 +222,6 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 	if (!m_hwnd)
 		throw std::runtime_error("Could not create window!");
-	
-	// Bring the window up on the screen and set it as main focus.
-	ShowWindow(m_hwnd, SW_SHOW);
-	SetForegroundWindow(m_hwnd);
-	SetFocus(m_hwnd);
 }
 
 
