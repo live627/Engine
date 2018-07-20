@@ -348,16 +348,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		// Check if the window is being destroyed.
 	case WM_DESTROY:
-	{
 		PostQuitMessage(0);
 		return 0;
-	}
 
 	// All other messages pass to the message handler in the system class.
 	default:
-	{
 		return ApplicationHandle->MessageHandler(hWnd, message, wParam, lParam);
-	}
 	return 0;
 	}
 }
