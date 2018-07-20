@@ -293,30 +293,15 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		return 0;
 	}
 
-	//case WM_ACTIVATE:
 	case WM_ACTIVATEAPP:
 		m_isGameActive = wparam != 0;
 		return 0;
 
-	case WM_EXITSIZEMOVE:
+	case WM_SIZE:
 		if (!m_isGameHalted)
-		{
-			RECT rc;
-			GetWindowRect(hwnd, &rc);
-
-			m_Graphics->ResizeBuffers(rc.right - rc.left, rc.bottom - rc.top);
-		}
+			m_Graphics->ResizeBuffers(LOWORD(lparam), HIWORD(lparam));
+		
 		return 0;
-
-		//case WM_SIZE:
-		//	if (!m_isGameHalted)
-		//	{
-		//		RECT rc;
-		//		GetClientRect(hwnd, &rc);
-
-		//		m_Graphics->ResizeBuffers(LOWORD(lparam), HIWORD(lparam));
-		//	}
-		//	break;
 
 	case WM_SYSCOMMAND:
 		switch (wparam)
