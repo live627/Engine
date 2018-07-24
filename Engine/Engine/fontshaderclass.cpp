@@ -17,6 +17,18 @@ void ShaderClass::Render(int indexCount, const DirectX::XMMATRIX & worldMatrix,
 }
 
 
+void ShaderClass::RenderInstanced(uint indexCount, uint instanceCount, const DirectX::XMMATRIX & worldMatrix,
+	const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix, 
+	ID3D11ShaderResourceView* texture, const DirectX::XMVECTORF32 & pixelColor)
+{
+	// Set the shader parameters that it will use for rendering.
+	SetShaderParameters(worldMatrix, viewMatrix, projectionMatrix, texture, pixelColor);
+
+	// Now render the prepared buffers with the shader.
+	RenderShaderInstanced(indexCount, instanceCount);
+}
+
+
 void ShaderClass::InitializeShader()
 {
 	HRESULT result;
@@ -79,6 +91,9 @@ void ShaderClass::InitializeShader()
 		//Vertex Buffer
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+
+		//Instance buffer
+		{ "INSTANCEPOS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 }
 	};
 
 	// Get a count of the elements in the layout.
@@ -204,4 +219,21 @@ void ShaderClass::RenderShader(int indexCount)
 
 	// Render the triangles.
 	m_deviceContext->DrawIndexed(indexCount, 0, 0);
+}
+
+
+void ShaderClass::RenderShaderInstanced(uint indexCount, uint instanceCount)
+{
+	// Set the vertex input layout.
+	m_deviceContext->IASetInputLayout(m_layout.Get());
+
+	// Set the vertex and pixel shaders that will be used to render the triangles.
+	m_deviceContext->VSSetShader(m_vertexShader.Get(), NULL, 0);
+	m_deviceContext->PSSetShader(m_pixelShader.Get(), NULL, 0);
+
+	// Set the sampler state in the pixel shader.
+	m_deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+
+	// Render the triangles.
+	m_deviceContext->DrawIndexedInstanced(indexCount, instanceCount, 0, 0, 0);
 }

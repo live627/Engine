@@ -32,6 +32,12 @@ struct VertexType
 };
 
 
+struct InstanceType
+{
+	DirectX::XMFLOAT3 position;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ShaderClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,11 +67,13 @@ public:
 	}
 
 	void Render(int, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
+	void RenderInstanced(uint, uint, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
 
 private:
 	void InitializeShader();
 	void SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
 	void RenderShader(int);
+	void RenderShaderInstanced(uint, uint);
 
 private:
 	ID3D11Device * m_device;

@@ -50,6 +50,7 @@ private:
 	void InitializeSentence(SentenceType &, int);
 	void UpdateSentence(SentenceType &, const char *, float, float, const DirectX::XMVECTORF32 &);
 	void RenderSentence(const SentenceType &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
+	void RenderSentenceInstanced(const SentenceType &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
 
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;

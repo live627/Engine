@@ -179,6 +179,30 @@ void TextClass::RenderSentence(
 }
 
 
+void TextClass::RenderSentenceInstanced(
+	const SentenceType & sentence, 
+	const DirectX::XMMATRIX & worldMatrix,
+	const DirectX::XMMATRIX & orthoMatrix
+)
+{
+	uint strides[2] = { sizeof(VertexType), sizeof(InstanceType) }, offsets[2] = { 0u };
+	ID3D11Buffer* bufferPointers[2];
+
+	// Set the vertex buffer to active in the input assembler so it can be rendered.
+	deviceContext->IASetVertexBuffers(0, 1, sentence.vertexBuffer.GetAddressOf(), strides, offsets);
+
+	// Set the index buffer to active in the input assembler so it can be rendered.
+	deviceContext->IASetIndexBuffer(sentence.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Render the text using the font shader.
+	m_FontShader.RenderInstanced(sentence.indexCount, m_sentences.size(), worldMatrix, m_baseViewMatrix,
+		orthoMatrix, m_Font->GetTexture(), sentence.color);
+}
+
+
 void TextClass::ResizeBuffers(int screenWidth, int screenHeight)
 {
 	m_screenWidth = screenWidth;
