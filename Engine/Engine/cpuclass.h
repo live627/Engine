@@ -5,10 +5,16 @@
 #define _CPUCLASS_H_
 
 
+/////////////
+// LINKING //
+/////////////
+#pragma comment(lib, "winmm.lib")
+
+
 //////////////
 // INCLUDES //
 //////////////
-#include <chrono>
+#include <timeapi.h>
 
 
 ///////////////////////
@@ -30,29 +36,44 @@ public:
 		m_Camera(p_Camera),
 		m_Text(p_Text)
 	{
-		timetoprint = start = end = std::chrono::high_resolution_clock::now();
+		m_startTime = timeGetTime();
+
+		// Check to see if this system supports high performance timers.
+		QueryPerformanceFrequency((LARGE_INTEGER*)&m_frequency);
+		if (m_frequency != 0)
+		{
+			// Find out how many times the frequency counter ticks every millisecond.
+			m_ticksPerMs = (int)(m_frequency / 1000);
+
+			QueryPerformanceCounter((LARGE_INTEGER*)&m_frameStartTime);
+		}
 	}
 
 	bool Initialize() { return true; }
 
 	void Frame()
 	{
-		end = std::chrono::high_resolution_clock::now();
-		auto timeDifference = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+		int64_t currentTime;
+		int timeDifference;
+
+
+		QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
+
+		timeDifference = currentTime - m_frameStartTime;
 
 		m_count++;
 
-		if (std::chrono::duration_cast<std::chrono::seconds>(end - timetoprint).count() >= 1)
+		if (m_startTime + 1000 < timeGetTime())
 		{
 			m_fps = m_count;
 			m_count = 0;
 
-			m_cpuUsage = static_cast<unsigned int>(GetCPULoad() * 100);
-			timetoprint = std::chrono::high_resolution_clock::now();
-			m_frameTime = static_cast<unsigned int>(timeDifference);
+			m_cpuUsage = static_cast<int>(GetCPULoad() * 100);
+			m_startTime = timeGetTime();
+			m_frameTime = timeDifference / m_ticksPerMs;
 		}
 
-		start = std::chrono::high_resolution_clock::now();
+		m_frameStartTime = currentTime;
 		UpdateDebugInfo();
 	}
 	void UpdateDebugInfo()
@@ -73,7 +94,6 @@ public:
 	unsigned int GetFrameTimeDelta() { return m_frameTime; }
 
 private:
-	std::chrono::high_resolution_clock::time_point start, end, timetoprint;
 	unsigned int
 		m_fps = 0,
 		m_count = 0,
@@ -83,6 +103,10 @@ private:
 	InputClass * m_Input;
 	CameraClass * m_Camera;
 	TextClass * m_Text;
+	int64_t
+		m_frequency,
+		m_frameStartTime;
+	int m_ticksPerMs;
 
 	float CalculateCPULoad(uint64_t idleTicks, uint64_t totalTicks) const
 	{
