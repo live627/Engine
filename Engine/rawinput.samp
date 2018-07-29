@@ -1,0 +1,83 @@
+
+	case WM_CREATE:
+	{
+		RAWINPUTDEVICE Rid[2] = { { 0x01, 0x02 },{ 0x01, 0x06 } };
+		if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) 
+		{
+			throw std::system_error(
+				std::error_code(
+					GetLastError(),
+					std::system_category()
+				),
+				"WinAPI Error occured."
+			);
+		}
+	}
+	break;
+	case WM_INPUT:
+	{
+		UINT dwSize;
+
+		GetRawInputData((HRAWINPUT)lparam, RID_INPUT, NULL, &dwSize,
+			sizeof(RAWINPUTHEADER));
+		const auto lpb = std::make_unique<BYTE[]>(dwSize);
+
+		if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb.get(), &dwSize,
+			sizeof(RAWINPUTHEADER)) != dwSize)
+		{
+			throw std::system_error(
+				std::error_code(
+					GetLastError(),
+					std::system_category()
+				),
+				"WinAPI Error occured."
+			);
+		}
+
+		const auto raw = (RAWINPUT*)lpb.get();
+
+		if (raw->header.dwType == RIM_TYPEKEYBOARD)
+		{
+			if (raw->data.keyboard.Flags & RI_KEY_E0)
+			{
+				if (raw->data.keyboard.VKey == VK_CONTROL) 
+					raw->data.keyboard.VKey = VK_RCONTROL;
+				else if (raw->data.keyboard.VKey == VK_MENU) 
+					raw->data.keyboard.VKey = VK_RMENU;
+			}
+			if (raw->data.keyboard.MakeCode == 0x36)
+				raw->data.keyboard.VKey = VK_RSHIFT;
+
+			if (raw->data.keyboard.Flags & RI_KEY_MAKE)
+				m_Input->KeyDown(raw->data.keyboard.VKey);
+			else if (raw->data.keyboard.Flags & RI_KEY_BREAK)
+				m_Input->KeyUp(raw->data.keyboard.VKey);
+		}
+		else if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_1_DOWN)
+				m_Input->KeyDown(VK_LBUTTON);
+			else if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_1_UP)
+				m_Input->KeyUp(VK_LBUTTON);
+
+			if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_2_DOWN)
+				m_Input->KeyDown(VK_LBUTTON);
+			else if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_2_UP)
+				m_Input->KeyUp(VK_LBUTTON);
+
+			if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_3_DOWN)
+				m_Input->KeyDown(VK_LBUTTON);
+			else if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_3_UP)
+				m_Input->KeyUp(VK_LBUTTON);
+
+			if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_4_DOWN)
+				m_Input->KeyDown(VK_LBUTTON);
+			else if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_4_UP)
+				m_Input->KeyUp(VK_LBUTTON);
+
+			if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_5_DOWN)
+				m_Input->KeyDown(VK_LBUTTON);
+			else if (raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_5_UP)
+				m_Input->KeyUp(VK_LBUTTON);
+		}
+		break;
