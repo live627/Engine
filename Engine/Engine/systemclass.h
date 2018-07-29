@@ -104,8 +104,8 @@ private:
 	InputClass* m_Input;
 	GraphicsClass* m_Graphics;
 
-	std::atomic<bool> m_keepSavingFile;
 	std::array<GameObject *, 4> m_gameObjects; 
+	std::atomic<bool> m_keepSavingFile = false;
 
 	bool m_isGameActive = false;
 	bool m_isGameHalted = false;
