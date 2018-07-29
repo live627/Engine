@@ -22,8 +22,8 @@ public:
 	void Frame();
 
 	void GetMousePositionForDebug(int & mouseX, int & mouseY);
-	bool IsMouseButtonDown(MouseButtonID mouseButton);
-
+	void WndMouse(UINT, WPARAM);
+	void WndMouseWheel(WPARAM delta) { wheel = delta; }
 
 	bool IsKeyDown(uint8_t key) const { return m_keys[key]; }
 	void WndKey(UINT, WPARAM, LPARAM);

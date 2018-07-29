@@ -286,7 +286,17 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		m_Input->WndKey(umsg, wparam, lparam);
 		break;
 
-	// Check if the window is being closed.
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+		m_Input->WndMouse(umsg, wparam);
+		break;
+
 	case WM_CLOSE:
 	{
 		if (MessageBox(hwnd, L"Are you sure you want to quit?", m_applicationName, MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2) == IDOK)

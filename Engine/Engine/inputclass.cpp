@@ -24,7 +24,37 @@ void InputClass::GetMousePositionForDebug(int& mouseX, int& mouseY)
 }
 
 
+void InputClass::WndMouse(UINT message, WPARAM wParam)
 {
+	if (message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN || message == WM_MBUTTONDOWN || message == WM_XBUTTONDOWN)
+	{
+		SetCapture(hwnd);
+
+		if (wParam & MK_LBUTTON)
+			m_keys[VK_LBUTTON] = true;
+
+		if (wParam & MK_RBUTTON)
+			m_keys[VK_RBUTTON] = true;
+
+		if (wParam & MK_MBUTTON)
+			m_keys[VK_MBUTTON] = true;
+
+		if (wParam & MK_XBUTTON1)
+			m_keys[VK_XBUTTON1] = true;
+
+		if (wParam & MK_XBUTTON2)
+			m_keys[VK_XBUTTON2] = true;
+	}
+	else
+	{
+		m_keys[VK_LBUTTON] = false;
+		m_keys[VK_RBUTTON] = false;
+		m_keys[VK_MBUTTON] = false;
+		m_keys[VK_XBUTTON1] = false;
+		m_keys[VK_XBUTTON2] = false;
+
+		ReleaseCapture();
+	}
 }
 
 
