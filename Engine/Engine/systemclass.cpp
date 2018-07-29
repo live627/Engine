@@ -248,21 +248,6 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 {
 	switch (umsg)
 	{
-		/*case WM_CREATE:
-		{
-			RAWINPUTDEVICE Rid[2];
-
-			Rid[0].usUsagePage = 0x01;
-			Rid[0].usUsage = 0x02;
-			Rid[0].dwFlags = RIDEV_NOLEGACY;   // adds HID mouse and also ignores legacy mouse messages
-			Rid[0].hwndTarget = hwnd;
-
-			if (!RegisterRawInputDevices(&Rid[0], 1, sizeof(RAWINPUTDEVICE)))
-				return -1;
-		}
-		return 0;*/
-
-		// Check if a key has been pressed on the keyboard.
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 	case WM_SYSKEYDOWN:
