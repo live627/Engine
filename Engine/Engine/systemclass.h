@@ -86,7 +86,7 @@ public:
 	void Shutdown();
 	void Run();
 
-	LRESULT CALLBACK MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam);
+	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
 	void Autosave();
 

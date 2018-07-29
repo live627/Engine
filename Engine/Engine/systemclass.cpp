@@ -287,13 +287,8 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		break;
 
 	case WM_CLOSE:
-	{
 		if (MessageBox(hwnd, L"Are you sure you want to quit?", m_applicationName, MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2) == IDOK)
-		{
 			DestroyWindow(hwnd);
-		}
-		// Else: User canceled. Do nothing.
-	}
 		break;
 
 	case WM_ACTIVATEAPP:
@@ -317,7 +312,6 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		}
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
 
-		// Any other messages send to the default message handler as our application won't make use of them.
 	default:
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
 	}
@@ -329,7 +323,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-		// Check if the window is being destroyed.
+	// Check if the window is being destroyed.
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
