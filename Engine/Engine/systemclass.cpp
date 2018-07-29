@@ -185,7 +185,13 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 	// Register the window class.
 	if (!RegisterClass(&wc))
-		throw std::runtime_error("Could not register Win32 class!");
+		throw std::system_error(
+			std::error_code(
+				GetLastError(),
+				std::system_category()
+			),
+			"Win32 error occured when trying to register the window class"
+		);
 
 	// Determine the resolution of the clients desktop screen.
 	screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -221,7 +227,13 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	);
 
 	if (!m_hwnd)
-		throw std::runtime_error("Could not create window!");
+		throw std::system_error(
+			std::error_code(
+				GetLastError(),
+				std::system_category()
+			),
+			"Win32 error occured when trying to create window"
+		);
 }
 
 
