@@ -293,6 +293,8 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		case SC_RESTORE: 
 			m_isGameHalted = false;
 			break;
+		case SC_KEYMENU:
+			break;
 		}
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
 
