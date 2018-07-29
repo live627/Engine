@@ -32,6 +32,7 @@ private:
 	HINSTANCE hinstance;
 	HWND hwnd;
 	bool m_keys[256] = {};
+	unsigned char wheel = 0;
 };
 
 #endif

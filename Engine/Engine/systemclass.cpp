@@ -297,6 +297,11 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		m_Input->WndMouse(umsg, wparam);
 		break;
 
+	case WM_MOUSEWHEEL:
+		m_Input->WndMouseWheel(GET_WHEEL_DELTA_WPARAM(wparam));
+		m_Input->WndMouse(umsg, GET_KEYSTATE_WPARAM(wparam));
+		break;
+
 	case WM_CLOSE:
 	{
 		if (MessageBox(hwnd, L"Are you sure you want to quit?", m_applicationName, MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2) == IDOK)
