@@ -27,7 +27,7 @@ public:
 	void KeyDown(unsigned int);
 	void KeyUp(unsigned int);
 
-	bool IsKeyDown(unsigned int);
+	bool IsKeyDown(uint8_t key) const { return m_keys[key]; }
 
 private:
 	HINSTANCE hinstance;
