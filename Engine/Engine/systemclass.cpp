@@ -79,8 +79,6 @@ void SystemClass::Run()
 	bool done;
 
 
-	// Initialize the message structure.
-	ZeroMemory(&msg, sizeof(MSG));
 
 	// Loop until there is a quit message from the window or the user.
 	done = false;
