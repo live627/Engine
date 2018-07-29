@@ -144,7 +144,6 @@ void SystemClass::Frame()
 
 void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 {
-	DEVMODE dmScreenSettings;
 	int posX, posY;
 	int dwStyle = WS_VISIBLE;
 	InitializeScaling();
