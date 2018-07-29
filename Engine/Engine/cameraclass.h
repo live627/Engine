@@ -66,7 +66,7 @@ public:
 
 	void Save(std::ofstream& file)
 	{
-		int16_t x = m_position.x;
+		float x = m_position.x;
 		file.write(reinterpret_cast<const char*>(&x), sizeof x);
 
 		x = m_position.y;
@@ -75,7 +75,7 @@ public:
 
 	void Load(std::ifstream& file)
 	{
-		int16_t x = 0;
+		float x = 0;
 		file.read(reinterpret_cast<char*>(&x), sizeof x);
 		m_position.x = x;
 
