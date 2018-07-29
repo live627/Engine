@@ -293,6 +293,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		m_Input->KeyUp((unsigned int)wparam);
 		return 0;
 	}
+		break;
 
 	// Check if the window is being closed.
 	case WM_CLOSE:
@@ -302,18 +303,17 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 			DestroyWindow(hwnd);
 		}
 		// Else: User canceled. Do nothing.
-		return 0;
 	}
+		break;
 
 	case WM_ACTIVATEAPP:
 		m_isGameActive = wparam != 0;
-		return 0;
+		break;
 
 	case WM_SIZE:
 		if (!m_isGameHalted)
 			m_Graphics->ResizeBuffers(LOWORD(lparam), HIWORD(lparam));
-		
-		return 0;
+		break;
 
 	case WM_SYSCOMMAND:
 		switch (wparam)
@@ -331,6 +331,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 	default:
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
 	}
+	return 0;
 }
 
 
@@ -341,13 +342,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Check if the window is being destroyed.
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		return 0;
+		break;
 
 	// All other messages pass to the message handler in the system class.
 	default:
 		return ApplicationHandle->MessageHandler(hWnd, message, wParam, lParam);
-	return 0;
 	}
+	return 0;
 }
 
 
