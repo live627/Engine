@@ -24,26 +24,10 @@ bool SystemClass::Initialize()
 		auto camera = new CameraClass(m_Input);
 		m_Graphics = new GraphicsClass(camera, screenWidth, screenHeight, m_hwnd);
 
-		m_gameObjects.insert(std::make_pair("input", new CpuClass(m_Input, camera, m_Graphics->GetText())));
-		m_gameObjects.insert(std::make_pair("input", m_Input));
-		m_gameObjects.insert(std::make_pair("camera", camera));
-		m_gameObjects.insert(std::make_pair("graphics", m_Graphics));
-
-		for (auto gameObject : m_gameObjects)
-		{
-			try
-			{
-				gameObject.second->Initialize();
-			}
-			catch (std::exception & e)
-			{
-				char * buf = new char[1060];
-				char * msg = "Could not initialize the %s object:\n\n%s\n\nApplication will now quit.";
-				sprintf_s(buf, 1060, msg, gameObject.first.c_str(), e.what());
-				MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
-				return false;
-			}
-		}
+		m_gameObjects[0] = new CpuClass(m_Input, camera, m_Graphics->GetText());
+		m_gameObjects[2] = m_Input;
+		m_gameObjects[1] = camera;
+		m_gameObjects[3] = m_Graphics;
 	}
 	catch (std::exception & e)
 	{
@@ -60,7 +44,7 @@ bool SystemClass::Initialize()
 	{
 		for (const auto & gameObject : m_gameObjects)
 		{
-			gameObject.second->Load(file);
+			gameObject->Load(file);
 		}
 	}
 	file.close();
@@ -80,8 +64,8 @@ void SystemClass::Shutdown()
 	// All GameObjects must be ended.
 	for (auto gameObject : m_gameObjects)
 	{
-		gameObject.second->Shutdown();
-		delete gameObject.second;
+		gameObject->Shutdown();
+		delete gameObject;
 	}
 
 	// Shutdown the window.
@@ -153,7 +137,7 @@ void SystemClass::Frame()
 
 	for (const auto & gameObject : m_gameObjects)
 	{
-		gameObject.second->Frame();
+		gameObject->Frame();
 	}
 }
 
@@ -378,7 +362,7 @@ void SystemClass::Autosave()
 			{
 				file.open("autosave.bin", std::ios_base::binary);
 				for (const auto & gameObject : m_gameObjects)
-					gameObject.second->Save(file);
+					gameObject->Save(file);
 				file.close();
 			}
 			catch (const std::ios_base::failure & e)
