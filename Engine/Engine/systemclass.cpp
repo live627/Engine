@@ -296,6 +296,9 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		case SC_KEYMENU:
 			break;
 		}
+		if (wparam == SC_CLOSE && (lparam >> 16) <= 0) 
+			break;
+
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
 
 	default:
