@@ -76,12 +76,9 @@ void SystemClass::Shutdown()
 void SystemClass::Run()
 {
 	MSG msg;
-	bool done;
-
-
 
 	// Loop until there is a quit message from the window or the user.
-	done = false;
+	bool done = false;
 	while (!done)
 	{
 		// Handle the windows messages.
