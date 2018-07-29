@@ -13,12 +13,26 @@ InputClass::InputClass(HINSTANCE hinstance, HWND hwnd)
 
 void InputClass::Frame()
 {
+	POINT cursor;
+	GetCursorPos(&cursor);
+	ScreenToClient(hwnd, &cursor);
+	this->cursor = cursor;
+}
 
 
-void InputClass::GetMousePositionForDebug(int& mouseX, int& mouseY)
+POINT InputClass::GetMousePositionDelta()
 {
 	POINT cursor;
 	GetCursorPos(&cursor);
+	ScreenToClient(hwnd, &cursor);
+	POINT temp = { cursor.x - this->cursor.x, cursor.y - this->cursor.y };
+
+	return temp;
+}
+
+
+void InputClass::GetMousePositionForDebug(int & mouseX, int & mouseY)
+{
 	mouseX = cursor.x;
 	mouseY = cursor.y;
 }

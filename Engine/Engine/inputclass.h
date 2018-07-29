@@ -21,6 +21,7 @@ public:
 	bool Initialize() { return true; }
 	void Frame();
 
+	POINT GetMousePositionDelta();
 	void GetMousePositionForDebug(int & mouseX, int & mouseY);
 	void WndMouse(UINT, WPARAM);
 	void WndMouseWheel(WPARAM delta) { wheel = delta; }
@@ -33,6 +34,7 @@ private:
 	HWND hwnd;
 	bool m_keys[256] = {};
 	unsigned char wheel = 0;
+	POINT cursor = {};
 };
 
 #endif

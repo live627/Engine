@@ -48,6 +48,13 @@ public:
 
 		if (m_Input->IsKeyDown(VK_DOWN))
 			m_position.y++;
+
+		if (m_Input->IsKeyDown(VK_RBUTTON))
+		{
+			POINT temp = m_Input->GetMousePositionDelta();
+			m_position.x -= temp.x;
+			m_position.y += temp.y;
+		}
 	}
 	bool Render()
 	{
