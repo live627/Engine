@@ -363,3 +363,5 @@ ASALocalRun/
 .mfractor/
 
 *.bin
+
+Engine/Engine/data/
