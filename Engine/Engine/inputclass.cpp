@@ -8,11 +8,6 @@ InputClass::InputClass(HINSTANCE hinstance, HWND hwnd)
 {
 	this->hinstance = hinstance;
 	this->hwnd = hwnd;
-
-
-	// Initialize all the keys to being released and not pressed.
-	for (int i = 0; i<256; i++)
-		m_keys[i] = false;
 }
 
 

@@ -32,7 +32,7 @@ public:
 private:
 	HINSTANCE hinstance;
 	HWND hwnd;
-	bool m_keys[256];
+	bool m_keys[256] = {};
 };
 
 #endif
