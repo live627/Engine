@@ -22,18 +22,29 @@ void InputClass::GetMousePositionForDebug(int& mouseX, int& mouseY)
 	mouseX = cursor.x;
 	mouseY = cursor.y;
 }
+
+
+{
 }
 
 
-void InputClass::KeyDown(unsigned int input)
+void InputClass::WndKey(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	// If a key is pressed then save that state in the key array.
-	m_keys[input] = true;
-}
+	unsigned int scancode = (lParam >> 16) & 0xff;
+	unsigned int extended = (lParam >> 24) & 0x1;
+	bool pressed = message == WM_KEYDOWN || message == WM_SYSKEYDOWN;
 
+	if (extended)
+	{
+		if (wParam == VK_CONTROL)
+			wParam = VK_RCONTROL;
+		else if (wParam == VK_MENU)
+			wParam = VK_RMENU;
+	}
+	if (scancode == 0x2a)
+		wParam = VK_LSHIFT;
+	if (scancode == 0x36)
+		wParam = VK_RSHIFT;
 
-void InputClass::KeyUp(unsigned int input)
-{
-	// If a key is released then clear that state in the key array.
-	m_keys[input] = false;
+	m_keys[wParam] = pressed;
 }

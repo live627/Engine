@@ -280,19 +280,10 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 
 		// Check if a key has been pressed on the keyboard.
 	case WM_KEYDOWN:
-	{
-		// If a key is pressed send it to the input object so it can record that state.
-		m_Input->KeyDown((uint)wparam);
-		return 0;
-	}
-
-	// Check if a key has been released on the keyboard.
 	case WM_KEYUP:
-	{
-		// If a key is released then send it to the input object so it can unset the state for that key.
-		m_Input->KeyUp((unsigned int)wparam);
-		return 0;
-	}
+	case WM_SYSKEYDOWN:
+	case WM_SYSKEYUP:
+		m_Input->WndKey(umsg, wparam, lparam);
 		break;
 
 	// Check if the window is being closed.

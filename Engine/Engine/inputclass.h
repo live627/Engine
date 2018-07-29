@@ -24,10 +24,9 @@ public:
 	void GetMousePositionForDebug(int & mouseX, int & mouseY);
 	bool IsMouseButtonDown(MouseButtonID mouseButton);
 
-	void KeyDown(unsigned int);
-	void KeyUp(unsigned int);
 
 	bool IsKeyDown(uint8_t key) const { return m_keys[key]; }
+	void WndKey(UINT, WPARAM, LPARAM);
 
 private:
 	HINSTANCE hinstance;
