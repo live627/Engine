@@ -40,7 +40,7 @@ public:
 	static double scaleY;
 
 	template<typename T>
-	static const T ScaleX(const T argX)
+	inline static constexpr T ScaleX(const T argX)
 	{
 		return static_cast<T>(argX * scaleX);
 	}
