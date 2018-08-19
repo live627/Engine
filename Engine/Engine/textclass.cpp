@@ -100,9 +100,8 @@ void TextClass::InitializeSentence(SentenceType & sentence, int maxLength)
 		D3D11_BIND_INDEX_BUFFER
 	};
 
-	auto indices = std::vector<unsigned long>(sentence.indexCount);  
-	for (size_t i = 0; i < sentence.indexCount; i++)
-		indices[i] = i;
+	auto indices = std::vector<unsigned long>(sentence.indexCount);
+	std::iota(indices.begin(), indices.end(), 0);
 
 	D3D11_SUBRESOURCE_DATA indexData = { indices.data() };
 

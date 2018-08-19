@@ -9,6 +9,7 @@
 // INCLUDES //
 //////////////
 #include <DirectXColors.h>
+#include <numeric>
 
 
 ///////////////////////
