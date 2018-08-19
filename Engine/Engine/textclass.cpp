@@ -128,15 +128,9 @@ void TextClass::UpdateSentence(SentenceType & sentence, const char* text,
 		//return false;
 	}
 
-	// Create the vertex array.
-	auto vertices = std::make_unique<VertexType[]>(sentence.vertexCount).get();
-
 	// Calculate the X and Y pixel position on the screen to start drawing to.
 	float drawX = -(m_screenWidth >> 1) + positionX;
 	float drawY = (m_screenHeight >> 1) - positionY;
-
-	// Use the font class to build the vertex array from the sentence text and sentence draw location.
-	m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
 
 	// Lock the vertex buffer so it can be written to.
 	ThrowIfFailed(
@@ -144,11 +138,11 @@ void TextClass::UpdateSentence(SentenceType & sentence, const char* text,
 		"Could not lock the vertex buffer."
 	);
 
-	// Get a pointer to the data in the vertex buffer.
-	auto verticesPtr = (VertexType*)mappedResource.pData;
+	// Clear the vertex buffer.
+	std::memset(mappedResource.pData, 0, (sizeof(VertexType) * sentence.vertexCount));
 
-	// Copy the data into the vertex buffer.
-	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * sentence.vertexCount));
+	// Use the font class to build the vertex array from the sentence text and sentence draw location.
+	m_Font->BuildVertexArray(mappedResource.pData, text, drawX, drawY);
 
 	// Unlock the vertex buffer.
 	deviceContext->Unmap(sentence.vertexBuffer.Get(), 0);
