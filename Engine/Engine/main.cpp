@@ -14,9 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	// Create the system object.
 	System = new SystemClass;
 	if (!System)
-	{
-		return 0;
-	}
+		return EXIT_FAILURE;
 
 	// Fire up the autosave thread.
 	std::thread thread_to_save_file([=]()
@@ -31,7 +29,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	// Something failed to initialize. Die. Horribly.
 	else
-		return -1;
+		return EXIT_FAILURE;
 
 	// Shutdown the system object.   
 	System->Shutdown();
@@ -44,5 +42,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	System = 0;
 
 	// Success! We did it!
-	return 0;
+	return EXIT_SUCCESS;
 }
