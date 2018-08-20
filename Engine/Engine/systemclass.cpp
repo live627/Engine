@@ -328,7 +328,7 @@ void SystemClass::Autosave()
 	std::ofstream file;
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 
-	while (m_keepSavingFile)
+	while (true)
 	{
 		std::this_thread::sleep_for(
 			std::chrono::duration<uint>(canRetry ? retryTime : spinTime)
@@ -360,6 +360,8 @@ void SystemClass::Autosave()
 				}
 			}
 		}
+		else
+			break;
 	}
 }
 
