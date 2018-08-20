@@ -150,10 +150,10 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_hinstance = GetModuleHandle(NULL);
 
 	// Give the application a name.
-	m_applicationName = L"Random Game Engine";
+	m_applicationName = "Random Game Engine";
 
 	// Setup the windows class with default settings.
-	WNDCLASS wc = {};
+	WNDCLASSA wc = {};
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = (WNDPROC)WndProc;
 	wc.hInstance = m_hinstance;
@@ -162,7 +162,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	wc.lpszClassName = m_applicationName;
 
 	// Register the window class.
-	if (!RegisterClass(&wc))
+	if (!RegisterClassA(&wc))
 		throw std::system_error(
 			std::error_code(
 				GetLastError(),
@@ -199,7 +199,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	}
 
 	// Create the window with the screen settings and get the handle to it.
-	m_hwnd = CreateWindow(m_applicationName, m_applicationName,
+	m_hwnd = CreateWindowA(m_applicationName, m_applicationName,
 		dwStyle, posX, posY, screenWidth, screenHeight, 
 		NULL, NULL, m_hinstance, NULL
 	);
@@ -230,13 +230,12 @@ void SystemClass::ShutdownWindows()
 	m_hwnd = NULL;
 
 	// Remove the application instance.
-	UnregisterClass(m_applicationName, m_hinstance);
+	UnregisterClassA(m_applicationName, m_hinstance);
 	m_hinstance = NULL;
 
 	// Release the pointer to this class.
 	ApplicationHandle = NULL;
 }
-
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
@@ -266,7 +265,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		break;
 
 	case WM_CLOSE:
-		if (MessageBox(hwnd, L"Are you sure you want to quit?", m_applicationName, MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2) == IDOK)
+		if (MessageBoxA(hwnd, "Are you sure you want to quit?", m_applicationName, MB_OKCANCEL | MB_ICONQUESTION | MB_DEFBUTTON2) == IDOK)
 			DestroyWindow(hwnd);
 		break;
 
