@@ -31,6 +31,7 @@ bool SystemClass::Initialize()
 	}
 	catch (std::exception & e)
 	{
+		std::clog << e.what() << std::endl;
 		char * buf = new char[1060];
 		char * msg = "%s\n\nApplication will now quit.";
 		sprintf_s(buf, 1060, msg, e.what());

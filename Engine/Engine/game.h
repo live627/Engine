@@ -9,6 +9,8 @@
 #include <memory> 
 #include <vector> 
 #include <Windows.h>
+#include <iostream> 
+#include <string> 
 
 
 // Let's not rely on minwin.
