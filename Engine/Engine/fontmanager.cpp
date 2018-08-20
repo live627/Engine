@@ -217,40 +217,40 @@ void Font::CreateShaderResourceView(
 
 void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, float drawY)
 {
-	 VertexType* vertexPtr = (VertexType*)vertices;
+	VertexType* vertexPtr = (VertexType*)vertices;
 
 	// Draw each letter onto a quad.
 	uint index = 0;
 	for (uint i = 0; i < strlen(sentence); i++)
 	{
 		uint letter = static_cast<uint>(sentence[i]) - 32;
-/*
+		/*
 		if (letter > m_glyphSlots.size())
-			continue;
-*/
+		continue;
+		*/
 		auto glyphSlot = m_glyphSlots[letter];
 
 		// If the letter is a space then just move over three pixels.
 		if (letter != 0)
 		{
 			// First triangle in quad.
-			vertexPtr[index] = { { drawX, drawY, 0 }, { glyphSlot.left, 0} }; // Top left.
+			vertexPtr[index] = { { drawX, drawY, 0 },{ glyphSlot.left, 0 } }; // Top left.
 			index++;
 
-			vertexPtr[index] = { { (drawX + glyphSlot.bw), (drawY - m_height), 0},{glyphSlot.right, 1} };; // Bottom right.
+			vertexPtr[index] = { { (drawX + glyphSlot.bw), (drawY - m_height), 0 },{ glyphSlot.right, 1 } }; // Bottom right.
 			index++;
 
-			vertexPtr[index] = { {drawX, (drawY - m_height), 0	},{glyphSlot.left, 1} }; // Bottom left.
+			vertexPtr[index] = { { drawX, (drawY - m_height), 0 },{ glyphSlot.left, 1 } }; // Bottom left.
 			index++;
 
 			// Second triangle in quad.
-			vertexPtr[index] = { {drawX, drawY, 0},{glyphSlot.left, 0} }; // Top left.
+			vertexPtr[index] = { { drawX, drawY, 0 },{ glyphSlot.left, 0 } }; // Top left.
 			index++;
 
-			vertexPtr[index] = { {drawX + glyphSlot.bw, drawY, 0},{glyphSlot.right, 0 } }; // Top right.
+			vertexPtr[index] = { { drawX + glyphSlot.bw, drawY, 0 },{ glyphSlot.right, 0 } }; // Top right.
 			index++;
 
-			vertexPtr[index] = { {(drawX + glyphSlot.bw), (drawY - m_height), 0},{glyphSlot.right, 1} }; // Bottom right.
+			vertexPtr[index] = { { (drawX + glyphSlot.bw), (drawY - m_height), 0 },{ glyphSlot.right, 1 } }; // Bottom right.
 			index++;
 		}
 
