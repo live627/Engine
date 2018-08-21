@@ -271,23 +271,20 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 
 void D3DClass::ResizeBuffers(float screenWidth, float screenHeight, float screenDepth, float screenNear)
 {
-	if (m_swapChain)
-	{
-		m_deviceContext->OMSetRenderTargets(0, 0, 0);
+	m_deviceContext->OMSetRenderTargets(0, 0, 0);
 
-		// Release all outstanding references to the swap chain's buffers.
-		m_renderTargetView.Get()->Release();
+	// Release all outstanding references to the swap chain's buffers.
+	m_renderTargetView.Get()->Release();
 
-		HRESULT hr;
-		// Preserve the existing buffer count and format.
-		// Automatically choose the width and height to match the client rect for HWNDs.
-		hr = m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+	HRESULT hr;
+	// Preserve the existing buffer count and format.
+	// Automatically choose the width and height to match the client rect for HWNDs.
+	hr = m_swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 
-		CreateRenderTargetView();
-		m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), NULL);
-		SetViewport(screenWidth, screenHeight);
-		CreateMatrices(screenWidth, screenHeight, screenDepth, screenNear);
-	}
+	CreateRenderTargetView();
+	m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), NULL);
+	SetViewport(screenWidth, screenHeight);
+	CreateMatrices(screenWidth, screenHeight, screenDepth, screenNear);
 }
 
 

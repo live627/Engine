@@ -265,9 +265,14 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 		m_isGameActive = wparam != 0;
 		break;
 
-	case WM_SIZE:
+	case WM_EXITSIZEMOVE:
 		if (!m_isGameHalted)
-			m_Graphics->ResizeBuffers(LOWORD(lparam), HIWORD(lparam));
+		{
+			RECT rc;
+			GetWindowRect(hwnd, &rc);
+
+			m_Graphics->ResizeBuffers(rc.right - rc.left, rc.bottom - rc.top);
+		}
 		break;
 
 	case WM_SYSCOMMAND:
