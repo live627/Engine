@@ -81,23 +81,18 @@ class SystemClass
 {
 public:
 	SystemClass();
-	~SystemClass() {}
-	bool Initialize();
-	void Shutdown();
+	~SystemClass();
 	void Run();
-
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
-
 	void Autosave();
 
 private:
-	void Frame();
 	void InitializeWindows(int&, int&);
 	void InitializeScaling();
 	void ShutdownWindows();
 
 private:
-	LPCSTR m_applicationName;
+	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;
 
@@ -109,6 +104,7 @@ private:
 
 	bool m_isGameActive = false;
 	bool m_isGameHalted = false;
+	bool m_isGameLoaded = false;
 };
 
 

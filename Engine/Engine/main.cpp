@@ -55,18 +55,13 @@ class MyStream : public std::ostream
 	MyStreamBuf buffer;
 public:
 	MyStream(std::ostream& str)
-		:std::ostream(&buffer)
-		, buffer(str)
+		:std::ostream(&buffer), buffer(str)
 	{}
 };
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
-	SystemClass* System;
-	bool result;
-
-
 	// Log stderr to a file.
 	// cerr always flushes on every command, so use clog since it only
 	// flushes as expected (when explicitly told to or by calling endl).
@@ -74,35 +69,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	MyStream myStream(ofs);
 	std::clog.rdbuf(myStream.rdbuf());
 
-	// Create the system object.
-	System = new SystemClass;
-	if (!System)
-		return EXIT_FAILURE;
+	std::thread thread_to_save_file;
 
-	// Fire up the autosave thread.
-	std::thread thread_to_save_file([=]()
 	{
-		System->Autosave();
-	});
+		// Create the system object.
+		SystemClass System;
 
-	// Initialize and run the system object.
-	result = System->Initialize();
-	if (result)
-		System->Run();
+		// Fire up the autosave thread.
+		thread_to_save_file = std::thread([&System]()
+		{
+			System.Autosave();
+		});
 
-	// Something failed to initialize. Die. Horribly.
-	else
-		return EXIT_FAILURE;
-
-	// Shutdown the system object.   
-	System->Shutdown();
+		System.Run();
+	}
 	
 	// Wait until the autosave thread finishes.	
 	thread_to_save_file.join();
-
-	// Release the main class.
-	delete System;
-	System = 0;
 
 	// Success! We did it!
 	return EXIT_SUCCESS;

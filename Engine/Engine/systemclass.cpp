@@ -6,13 +6,6 @@
 
 SystemClass::SystemClass()
 {
-	m_Input = 0;
-	m_Graphics = 0;
-}
-
-
-bool SystemClass::Initialize()
-{
 	int screenWidth, screenHeight;
 
 	try
@@ -28,6 +21,23 @@ bool SystemClass::Initialize()
 		m_gameObjects[2] = m_Input;
 		m_gameObjects[1] = camera;
 		m_gameObjects[3] = m_Graphics;
+
+		std::ifstream file;
+		file.open("autosave.bin", std::ios_base::binary);
+		if (file.is_open())
+		{
+			for (const auto & gameObject : m_gameObjects)
+			{
+				gameObject->Load(file);
+			}
+		}
+		file.close();
+
+		// Allow the autosave loop to start.
+		m_keepSavingFile.store(true);
+
+		// Game can start now.
+		m_isGameLoaded = true;
 	}
 	catch (std::exception & e)
 	{
@@ -36,28 +46,11 @@ bool SystemClass::Initialize()
 		char * msg = "%s\n\nApplication will now quit.";
 		sprintf_s(buf, 1060, msg, e.what());
 		MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
-		return false;
 	}
-
-	std::ifstream file;
-	file.open("autosave.bin", std::ios_base::binary);
-	if (file.is_open())
-	{
-		for (const auto & gameObject : m_gameObjects)
-		{
-			gameObject->Load(file);
-		}
-	}
-	file.close();
-
-	// Allow the autosave loop to start.
-	m_keepSavingFile.store(true);
-
-	return true;
 }
 
 
-void SystemClass::Shutdown()
+SystemClass::~SystemClass()
 {
 	// End the autosave loop.
 	m_keepSavingFile.store(false);
@@ -82,58 +75,56 @@ void SystemClass::Run()
 	bool done = false;
 	while (!done)
 	{
-		// Handle the windows messages.
-		if (!m_isGameHalted && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (m_isGameLoaded)
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		// Oh, but we minimized, so freeze while waiting for a message.
-		else if (m_isGameHalted && GetMessage(&msg, 0, 0, 0))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		// If windows signals to end the application then exit out.
-		if (msg.message == WM_QUIT)
-		{
-			done = true;
-		}
-		else if (!m_isGameHalted)
-		{
-			// Otherwise do the frame processing.  If frame processing fails then exit.
-			try
+			// Handle the windows messages.
+			if (!m_isGameHalted && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
-				Frame();
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
 			}
-			catch (std::exception & e)
+			// Oh, but we minimized, so freeze while waiting for a message.
+			else if (m_isGameHalted && GetMessage(&msg, 0, 0, 0))
 			{
-				char * buf = new char[1060];
-				char * msg = "Failed to process frames:\n\n%s\n\nApplication will now quit.";
-				sprintf_s(buf, 1060, msg, e.what());
-				MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			// If windows signals to end the application then exit out.
+			if (msg.message == WM_QUIT)
+			{
 				done = true;
 			}
+			else if (!m_isGameHalted)
+			{
+				// Otherwise do the frame processing.  If frame processing fails then exit.
+				try
+				{
+					m_Graphics->SetPausedState(!m_isGameActive);
+
+					for (const auto & gameObject : m_gameObjects)
+					{
+						gameObject->Frame();
+					}
+				}
+				catch (std::exception & e)
+				{
+					char * buf = new char[1060];
+					char * msg = "Failed to process frames:\n\n%s\n\nApplication will now quit.";
+					sprintf_s(buf, 1060, msg, e.what());
+					MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
+					done = true;
+				}
+			}
+
+			// Check if the user pressed escape and wants to exit the application.
+			if (m_Input->IsKeyDown(VK_ESCAPE))
+			{
+				done = true;
+			}
+			if (m_Input->IsKeyDown(VK_XBUTTON1))
+				PostQuitMessage(0);
 		}
-
-		// Check if the user pressed escape and wants to exit the application.
-		if (m_Input->IsKeyDown(VK_ESCAPE))
-		{
-			done = true;
-		}
-	}
-}
-
-
-void SystemClass::Frame()
-{
-	m_Graphics->SetPausedState(!m_isGameActive);
-
-	for (const auto & gameObject : m_gameObjects)
-	{
-		gameObject->Frame();
 	}
 }
 

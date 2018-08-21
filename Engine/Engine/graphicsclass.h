@@ -38,7 +38,6 @@ class GraphicsClass : public GameObject
 {
 public:
 	GraphicsClass(CameraClass *, int, int, HWND);
-	void Shutdown();
 	void SetPausedState(bool);
 	void Frame();
 	bool Render();
@@ -46,16 +45,16 @@ public:
 
 	void ResizeBuffers(int, int);
 
-	auto GetText() { return m_Text; }
+	auto GetText() { return &m_Text; }
 
 private:
-	D3DClass* m_D3D;
-	Fonts* m_Font;
+	D3DClass m_D3D;
+	Fonts m_Font;
 	CameraClass* m_Camera;
 	CpuClass * m_dbg;
-	ShaderClass* m_Shader;
-	BitmapClass* m_Bitmap;
-	TextClass* m_Text;
+	ShaderClass m_Shader;
+	BitmapClass m_Bitmap;
+	TextClass m_Text;
 	int m_screenWidth, m_screenHeight;
 	HWND m_hwnd;
 };
