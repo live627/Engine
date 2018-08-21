@@ -1,18 +1,9 @@
 ﻿#pragma once
 
 
-///////////////////////////////
-// PRE-PROCESSING DIRECTIVES //
-///////////////////////////////
-// Windows is too helpful sometimes.
-#define NOMINMAX
-
-
 ///////////////////////
 // INCLUDES //
 ///////////////////////
-#include "ft2build.h"
-#include FT_FREETYPE_H
 #include <wrl\client.h>
 
 
@@ -21,12 +12,6 @@
 ///////////////////////
 #include "fontshaderclass.h"
 #include "game.h"
-
-
-/////////////
-// LINKING //
-/////////////
-#pragma comment(lib, "libfreetype.lib")
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +28,7 @@ public:
 		m_numGlyphs(127 - 32)
 	{}
 
-	bool LoadTTF(FT_Library, FT_Byte *, long long);
+	bool LoadTTF(uint8_t *, uint64_t);
 	auto GetTexture() { return m_texture.Get(); }
 	void BuildVertexArray(void *, const char *, float, float);
 
@@ -54,42 +39,24 @@ private:
 			ax, // advance.x
 			ay, // advance.y
 
-			bp, // bitmap.width
 			bw, // bitmap.width
 			bh, // bitmap.rows
-
-			bl, // bitmap_left
-			bt, // bitmap_top
 
 			x, y; // Position of glyph on texture map in pixels.
 
 		float left, right; // UV coords of glyph on texture map.
 	};
-
-	int GetNextPow2(int a)
-	{
-		int rval = 2;
-
-		while (rval < a)
-			rval <<= 1;
-
-		return rval;
-	}
-
-	void StitchGlyph(const byte *, const GlyphInfo &, uint, uint, byte *);
-	void flip(byte *, uint, uint);
+	
 	void CreateShaderResourceView(uint, uint, uint, const byte *);
 	
-private:
 	ID3D11Device * m_device;
 	ID3D11DeviceContext * m_deviceContext;
-	FT_Face m_face;
-	std::unique_ptr<GlyphInfo[]> m_glyphSlots;
+	std::vector<GlyphInfo> m_glyphSlots;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 	size_t
-		m_width,
-		m_height,
-		m_numGlyphs;
+		m_width = 0,
+		m_height = 0,
+		m_numGlyphs = 0;
 };
 
 class Fonts
@@ -100,17 +67,14 @@ public:
 		m_device(p_device),
 		m_deviceContext(p_deviceContext)
 	{
-		FT_Init_FreeType(&m_library);
 		LoadFonts("data\\fonts.dat");
 	}
-	~Fonts() { FT_Done_FreeType(m_library); }
 	void LoadFonts(const char *);
-	void LoadFont(FT_Byte *, long long, int);
+	void LoadFont(uint8_t *, uint64_t, int);
 	Font * GetFont(int idx) { return &m_fonts[idx]; }
 
 private:
 	ID3D11Device * m_device;
 	ID3D11DeviceContext * m_deviceContext;
-	FT_Library m_library;
 	std::unique_ptr<Font[]> m_fonts;
 };

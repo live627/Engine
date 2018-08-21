@@ -2,6 +2,8 @@
 // Filename: fontmanager.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "fontmanager.h"
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "stb_truetype.h"
 
 
 void Fonts::LoadFonts(const char* filename)
@@ -12,13 +14,13 @@ void Fonts::LoadFonts(const char* filename)
 	file.read(&numFonts, sizeof(char));
 	m_fonts = std::make_unique<Font[]>((uint)numFonts);
 
-  	for (uint i = 0; i < (uint)numFonts; i++)
-	{
 		long long fontLength = 0;
 		file.read(reinterpret_cast<char*>(&fontLength), sizeof(long long));
 
-		auto buffer = std::make_unique<FT_Byte[]>(fontLength);
+		auto buffer = std::make_unique<uint8_t[]>(fontLength);
 		file.read(reinterpret_cast<char*>(&buffer[0]), fontLength);
+  	for (uint i = 0; i < (uint)numFonts; i++)
+	{
 		LoadFont(buffer.get(), fontLength, i);
 	}
 
@@ -26,13 +28,13 @@ void Fonts::LoadFonts(const char* filename)
 }
 
 
-void Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
+void Fonts::LoadFont(uint8_t * buffer, uint64_t length, int p_idx)
 {
 	try
 	{
 		Font font(m_device, m_deviceContext);
 
-		if (!font.LoadTTF(m_library, m_buffer, m_length))
+		if (!font.LoadTTF(buffer, length))
 		{
 			throw std::runtime_error(
 				FormatString(
@@ -55,130 +57,56 @@ void Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 }
 
 
-bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
+bool Font::LoadTTF(uint8_t * buffer, uint64_t length)
 {
-	if (FT_New_Memory_Face(p_library, m_buffer, m_length, 0, &m_face))
+	stbtt_fontinfo info;
+	if (!stbtt_InitFont(&info, buffer, 0))
 		return false;
 
-	if (FT_Set_Pixel_Sizes(m_face, 0, ceilf(ui::ScaleX(16))))
-		return false;
+	int l_h = ui::ScaleX(20); /* line height */
 
-	uint x = 0, y = 0, sx = 1, sy = 1;
+	float scale = stbtt_ScaleForPixelHeight(&info, l_h);
 
-	// Get total width
-	uint total_width = 0;
-	uint max_height = 0;
-	m_glyphSlots = std::make_unique<GlyphInfo[]>(m_numGlyphs);
-	auto glyphBuffers = std::make_unique<byte *[]>(m_numGlyphs);
-	for (uint i = 32; i < 127; i++) 
+	int ascent, descent, lineGap;
+	stbtt_GetFontVMetrics(&info, &ascent, &descent, &lineGap);
+	ascent *= scale;
+	descent *= scale;
+	m_glyphSlots = std::vector<GlyphInfo>(m_numGlyphs);
+	for (int i = 32, ix0, iy0, ix1, iy1, ax; i < 127; i++)
 	{
-		FT_UInt glyph_index = FT_Get_Char_Index(m_face, i);
-		// Have to use FT_LOAD_RENDER.
-		// If use FT_LOAD_DEFAULT, the actual glyph bitmap won't be loaded,
-		// thus bitmap->rows will be incorrect, causing insufficient max_height.
-		auto ret = FT_Load_Glyph(m_face, glyph_index, FT_LOAD_RENDER | FT_LOAD_COMPUTE_METRICS);
-		if (ret != 0)
-		{
-			throw std::runtime_error(
-				FormatString(
-					"Could not load glyph %d (%c)", i, i
-				).data()
-			);
-		}
+		stbtt_GetCodepointBitmapBox(&info, i, scale, scale, &ix0, &iy0, &ix1, &iy1);
+		stbtt_GetCodepointHMetrics(&info, i, &ax, nullptr);
 		auto glyphInfo = GlyphInfo();
 
-		// Advance is in 1/64 pixels, so bitshift by 6 to get value in pixels (2^6 = 64).
-		glyphInfo.ax = m_face->glyph->advance.x >> 6;
-		glyphInfo.ay = m_face->glyph->advance.y >> 6;
+		glyphInfo.ax = ax * scale;
+		glyphInfo.ay = ascent - descent;
 
-		glyphInfo.bw = m_face->glyph->bitmap.width;
-		glyphInfo.bh = m_face->glyph->bitmap.rows;
+		glyphInfo.bw = ix1 - ix0;
+		glyphInfo.bh = iy1 - iy0;
 
-		glyphInfo.bl = m_face->glyph->bitmap_left;
-		glyphInfo.bt = m_face->glyph->bitmap_top;
+		glyphInfo.left = glyphInfo.x = m_width;
+		glyphInfo.y = ascent + iy0;
 
-		flip(
-			m_face->glyph->bitmap.buffer,
-			glyphInfo.bw, glyphInfo.bh
-		);
-		byte * tempRow = (byte *)malloc(glyphInfo.bw * glyphInfo.bh * sizeof(byte));
-		memcpy(
-			tempRow,
-			m_face->glyph->bitmap.buffer,
-			glyphInfo.bw * glyphInfo.bh * sizeof(byte)
-		);
-		glyphBuffers[i - 32] = tempRow;
-
-		glyphInfo.left = glyphInfo.x = glyphInfo.bl + x;
-		glyphInfo.y = glyphInfo.bh - glyphInfo.bt;
-
-		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (glyphInfo.ax) * sx; // Bitshift by 6 to get value in pixels (2^6 = 64)
-		y += (glyphInfo.ay) * sy;
-		total_width = x + glyphInfo.bw;
-		max_height = std::max<uint>(max_height, glyphInfo.bt + glyphInfo.bh);
 		glyphInfo.right = glyphInfo.x + glyphInfo.bw;
 		m_glyphSlots[i - 32] = glyphInfo;
+		m_width += ax * scale;
+		m_height = ascent - descent;
 	}
-	m_width = GetNextPow2(total_width);
-	m_height = GetNextPow2(max_height);
 
 	auto charmap = std::make_unique<byte[]>(m_width * m_height);
-
-	for (uint j = 0; j < 127-32; j++)
+	for (int i = 0, x = 0; i < m_numGlyphs; i++)
 	{
-		StitchGlyph(
-			glyphBuffers[j],
-			m_glyphSlots[j],
-			m_glyphSlots[j].x,
-			m_height / 4 - m_glyphSlots[j].y, 
-			charmap.get()
-		);
-		m_glyphSlots[j].left /= m_width;
-		m_glyphSlots[j].right /= m_width;
+		auto g = m_glyphSlots[i];
+		int byteOffset = x + g.y * m_width;
+		stbtt_MakeCodepointBitmap(&info, charmap.get() + byteOffset, g.bw, g.bh, m_width, scale, scale, i + 32);
+
+		x += g.ax;
+		m_glyphSlots[i].left /= m_width;
+		m_glyphSlots[i].right /= m_width;
 	}
-	
-	flip(charmap.get(), m_width, m_height);
 	CreateShaderResourceView(m_width, m_height, m_width, charmap.get());
 
-	FT_Done_Face(m_face);
-
  	return true;
-}
-
-
-void Font::StitchGlyph(
-	const byte * b,
-	const GlyphInfo & g,
-	uint px,
-	uint py,
-	byte * charmap)
-{
-	if (px + g.bw > m_width || py + g.bh > m_height)
-		return; 
-
-	for (uint y = 0; y < g.bh; y++)
-	{
-		for (uint x = 0; x < g.bw; x++)
-		{
-			charmap[(py + y) * m_width + (px + x)] = b[y * g.bw + x];
-		}
-	}
-}
-
-void Font::flip(byte * buffer, uint width, uint height)
-{
-	uint rows = height / 2; // Iterate only half the buffer to get a full flip
-	byte * tempRow = (byte *)malloc(width * sizeof(byte));
-
-	for (uint rowIndex = 0; rowIndex < rows; rowIndex++)
-	{
-		memcpy(tempRow, buffer + rowIndex * width, width * sizeof(byte));
-		memcpy(buffer + rowIndex * width, buffer + (height - rowIndex - 1) * width, width * sizeof(byte));
-		memcpy(buffer + (height - rowIndex - 1) * width, tempRow, width * sizeof(byte));
-	}
-
-	free(tempRow);
 }
 
 
