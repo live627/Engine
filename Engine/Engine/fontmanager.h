@@ -54,12 +54,8 @@ private:
 			ax, // advance.x
 			ay, // advance.y
 
-			bp, // bitmap.width
 			bw, // bitmap.width
 			bh, // bitmap.rows
-
-			bl, // bitmap_left
-			bt, // bitmap_top
 
 			x, y; // Position of glyph on texture map in pixels.
 
