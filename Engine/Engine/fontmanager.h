@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 ///////////////////////////////
@@ -68,7 +68,7 @@ private:
 
 	int GetNextPow2(int a)
 	{
-		int rval = 2;
+		int rval = 1;
 
 		while (rval < a)
 			rval <<= 1;
