@@ -67,13 +67,13 @@ public:
 	}
 
 	void Render(int, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
-	void RenderInstanced(uint, uint, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
+	void RenderInstanced(uint32_t, uint32_t, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
 
 private:
 	void InitializeShader();
 	void SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
 	void RenderShader(int);
-	void RenderShaderInstanced(uint, uint);
+	void RenderShaderInstanced(uint32_t, uint32_t);
 
 private:
 	ID3D11Device * m_device;

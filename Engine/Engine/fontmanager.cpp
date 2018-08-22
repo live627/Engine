@@ -10,9 +10,9 @@ void Fonts::LoadFonts(const char* filename)
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 	char numFonts = 0;
 	file.read(&numFonts, sizeof(char));
-	m_fonts = std::make_unique<Font[]>((uint)numFonts);
+	m_fonts = std::make_unique<Font[]>((uint32_t)numFonts);
 
-  	for (uint i = 0; i < (uint)numFonts; i++)
+  	for (uint32_t i = 0; i < (uint32_t)numFonts; i++)
 	{
 		long long fontLength = 0;
 		file.read(reinterpret_cast<char*>(&fontLength), sizeof(long long));
@@ -63,14 +63,14 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	if (FT_Set_Pixel_Sizes(m_face, 0, ceilf(ui::ScaleX(16))))
 		return false;
 
-	uint x = 0, y = 0, sx = 1, sy = 1;
+	uint32_t x = 0, y = 0, sx = 1, sy = 1;
 
 	// Get total width
-	uint total_width = 0;
-	uint max_height = 0;
+	uint32_t total_width = 0;
+	uint32_t max_height = 0;
 	m_glyphSlots = std::make_unique<GlyphInfo[]>(m_numGlyphs);
 	auto glyphBuffers = std::make_unique<std::byte *[]>(m_numGlyphs);
-	for (uint i = 32; i < 127; i++) 
+	for (uint32_t i = 32; i < 127; i++) 
 	{
 		FT_UInt glyph_index = FT_Get_Char_Index(m_face, i);
 		// Have to use FT_LOAD_RENDER.
@@ -94,8 +94,8 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 		glyphInfo.bw = m_face->glyph->bitmap.width;
 		glyphInfo.bh = m_face->glyph->bitmap.rows;
 
-		glyphInfo.bl = m_face->glyph->bitmap_left;
-		glyphInfo.bt = m_face->glyph->bitmap_top;
+		int bl = m_face->glyph->bitmap_left;
+		int bt = m_face->glyph->bitmap_top;
 
 		std::byte * tempRow = (std::byte *)malloc(glyphInfo.bw * glyphInfo.bh * sizeof(std::byte));
 		memcpy(
@@ -125,7 +125,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 
 	auto charmap = std::make_unique<std::byte[]>(m_width * m_height);
 
-	for (uint j = 0; j < 127-32; j++)
+	for (uint32_t j = 0; j < 127-32; j++)
 	{
 		StitchGlyph(
 			glyphBuffers[j],
@@ -150,28 +150,28 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 void Font::StitchGlyph(
 	const std::byte * b,
 	const GlyphInfo & g,
-	uint px,
-	uint py,
+	uint32_t px,
+	uint32_t py,
 	std::byte * charmap)
 {
 	if (px + g.bw > m_width || py + g.bh > m_height)
 		return; 
 
-	for (uint y = 0; y < g.bh; y++)
+	for (uint32_t y = 0; y < g.bh; y++)
 	{
-		for (uint x = 0; x < g.bw; x++)
+		for (uint32_t x = 0; x < g.bw; x++)
 		{
 			charmap[(py + y) * m_width + (px + x)] = b[y * g.bw + x];
 		}
 	}
 }
 
-void Font::flip(std::byte * buffer, uint width, uint height)
+void Font::flip(std::byte * buffer, uint32_t width, uint32_t height)
 {
-	uint rows = height / 2; // Iterate only half the buffer to get a full flip
+	uint32_t rows = height / 2; // Iterate only half the buffer to get a full flip
 	std::byte * tempRow = (std::byte *)malloc(width * sizeof(std::byte));
 
-	for (uint rowIndex = 0; rowIndex < rows; rowIndex++)
+	for (uint32_t rowIndex = 0; rowIndex < rows; rowIndex++)
 	{
 		memcpy(tempRow, buffer + rowIndex * width, width * sizeof(std::byte));
 		memcpy(buffer + rowIndex * width, buffer + (height - rowIndex - 1) * width, width * sizeof(std::byte));
@@ -183,8 +183,8 @@ void Font::flip(std::byte * buffer, uint width, uint height)
 
 
 void Font::CreateShaderResourceView(
-	uint width, uint height,
-	uint pitch, const std::byte * buffer)
+	uint32_t width, uint32_t height,
+	uint32_t pitch, const std::byte * buffer)
 {
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = width;
@@ -220,10 +220,10 @@ void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, f
 	VertexType* vertexPtr = (VertexType*)vertices;
 
 	// Draw each letter onto a quad.
-	uint index = 0;
-	for (uint i = 0; i < strlen(sentence); i++)
+	uint32_t index = 0;
+	for (uint32_t i = 0; i < strlen(sentence); i++)
 	{
-		uint letter = static_cast<uint>(sentence[i]) - 32;
+		uint32_t letter = static_cast<uint32_t>(sentence[i]) - 32;
 		/*
 		if (letter > m_glyphSlots.size())
 		continue;

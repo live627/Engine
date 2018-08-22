@@ -178,7 +178,7 @@ void TextClass::RenderSentenceInstanced(
 	const DirectX::XMMATRIX & orthoMatrix
 )
 {
-	uint strides[2] = { sizeof(VertexType), sizeof(InstanceType) }, offsets[2] = { 0u };
+	uint32_t strides[2] = { sizeof(VertexType), sizeof(InstanceType) }, offsets[2] = { 0u };
 	ID3D11Buffer* bufferPointers[2];
 
 	// Set the vertex buffer to active in the input assembler so it can be rendered.

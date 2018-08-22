@@ -319,15 +319,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 void SystemClass::Autosave()
 {
 	bool canRetry = false;
-	const uint retryTime = 1;
-	const uint spinTime = 5;
+	const uint32_t retryTime = 1;
+	const uint32_t spinTime = 5;
 	std::ofstream file;
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 
 	while (true)
 	{
 		std::this_thread::sleep_for(
-			std::chrono::duration<uint>(canRetry ? retryTime : spinTime)
+			std::chrono::duration<uint32_t>(canRetry ? retryTime : spinTime)
 		);
 		canRetry = false;
 		if (m_keepSavingFile)

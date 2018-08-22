@@ -17,7 +17,7 @@ void ShaderClass::Render(int indexCount, const DirectX::XMMATRIX & worldMatrix,
 }
 
 
-void ShaderClass::RenderInstanced(uint indexCount, uint instanceCount, const DirectX::XMMATRIX & worldMatrix,
+void ShaderClass::RenderInstanced(uint32_t indexCount, uint32_t instanceCount, const DirectX::XMMATRIX & worldMatrix,
 	const DirectX::XMMATRIX & viewMatrix, const DirectX::XMMATRIX & projectionMatrix, 
 	ID3D11ShaderResourceView* texture, const DirectX::XMVECTORF32 & pixelColor)
 {
@@ -36,7 +36,7 @@ void ShaderClass::InitializeShader()
 		errorMessage,
 		vertexShaderBuffer,
 		pixelShaderBuffer;
-	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+	uint32_t flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
 	flags |= D3DCOMPILE_DEBUG;
 #endif
@@ -97,7 +97,7 @@ void ShaderClass::InitializeShader()
 	};
 
 	// Get a count of the elements in the layout.
-	uint numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+	uint32_t numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
 	// Create the vertex input layout.
 	ThrowIfFailed(
@@ -222,7 +222,7 @@ void ShaderClass::RenderShader(int indexCount)
 }
 
 
-void ShaderClass::RenderShaderInstanced(uint indexCount, uint instanceCount)
+void ShaderClass::RenderShaderInstanced(uint32_t indexCount, uint32_t instanceCount)
 {
 	// Set the vertex input layout.
 	m_deviceContext->IASetInputLayout(m_layout.Get());

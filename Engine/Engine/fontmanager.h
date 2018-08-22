@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 
 ///////////////////////////////
@@ -76,9 +76,9 @@ private:
 		return rval;
 	}
 
-	void StitchGlyph(const std::byte *, const GlyphInfo &, uint, uint, std::byte *);
-	void flip(std::byte *, uint, uint);
-	void CreateShaderResourceView(uint, uint, uint, const std::byte *);
+	void StitchGlyph(const std::byte *, const GlyphInfo &, uint32_t, uint32_t, std::byte *);
+	void flip(std::byte *, uint32_t, uint32_t);
+	void CreateShaderResourceView(uint32_t, uint32_t, uint32_t, const std::byte *);
 	
 private:
 	ID3D11Device * m_device;
