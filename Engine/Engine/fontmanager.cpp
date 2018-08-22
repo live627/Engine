@@ -69,7 +69,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	uint total_width = 0;
 	uint max_height = 0;
 	m_glyphSlots = std::make_unique<GlyphInfo[]>(m_numGlyphs);
-	auto glyphBuffers = std::make_unique<byte *[]>(m_numGlyphs);
+	auto glyphBuffers = std::make_unique<std::byte *[]>(m_numGlyphs);
 	for (uint i = 32; i < 127; i++) 
 	{
 		FT_UInt glyph_index = FT_Get_Char_Index(m_face, i);
@@ -97,15 +97,15 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 		glyphInfo.bl = m_face->glyph->bitmap_left;
 		glyphInfo.bt = m_face->glyph->bitmap_top;
 
-		flip(
-			m_face->glyph->bitmap.buffer,
-			glyphInfo.bw, glyphInfo.bh
-		);
-		byte * tempRow = (byte *)malloc(glyphInfo.bw * glyphInfo.bh * sizeof(byte));
+		std::byte * tempRow = (std::byte *)malloc(glyphInfo.bw * glyphInfo.bh * sizeof(std::byte));
 		memcpy(
 			tempRow,
 			m_face->glyph->bitmap.buffer,
-			glyphInfo.bw * glyphInfo.bh * sizeof(byte)
+			glyphInfo.bw * glyphInfo.bh * sizeof(std::byte)
+		);
+		flip(
+			tempRow,
+			glyphInfo.bw, glyphInfo.bh
 		);
 		glyphBuffers[i - 32] = tempRow;
 
@@ -123,7 +123,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 	m_width = GetNextPow2(total_width);
 	m_height = GetNextPow2(max_height);
 
-	auto charmap = std::make_unique<byte[]>(m_width * m_height);
+	auto charmap = std::make_unique<std::byte[]>(m_width * m_height);
 
 	for (uint j = 0; j < 127-32; j++)
 	{
@@ -148,11 +148,11 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
 
 
 void Font::StitchGlyph(
-	const byte * b,
+	const std::byte * b,
 	const GlyphInfo & g,
 	uint px,
 	uint py,
-	byte * charmap)
+	std::byte * charmap)
 {
 	if (px + g.bw > m_width || py + g.bh > m_height)
 		return; 
@@ -166,16 +166,16 @@ void Font::StitchGlyph(
 	}
 }
 
-void Font::flip(byte * buffer, uint width, uint height)
+void Font::flip(std::byte * buffer, uint width, uint height)
 {
 	uint rows = height / 2; // Iterate only half the buffer to get a full flip
-	byte * tempRow = (byte *)malloc(width * sizeof(byte));
+	std::byte * tempRow = (std::byte *)malloc(width * sizeof(std::byte));
 
 	for (uint rowIndex = 0; rowIndex < rows; rowIndex++)
 	{
-		memcpy(tempRow, buffer + rowIndex * width, width * sizeof(byte));
-		memcpy(buffer + rowIndex * width, buffer + (height - rowIndex - 1) * width, width * sizeof(byte));
-		memcpy(buffer + (height - rowIndex - 1) * width, tempRow, width * sizeof(byte));
+		memcpy(tempRow, buffer + rowIndex * width, width * sizeof(std::byte));
+		memcpy(buffer + rowIndex * width, buffer + (height - rowIndex - 1) * width, width * sizeof(std::byte));
+		memcpy(buffer + (height - rowIndex - 1) * width, tempRow, width * sizeof(std::byte));
 	}
 
 	free(tempRow);
@@ -184,7 +184,7 @@ void Font::flip(byte * buffer, uint width, uint height)
 
 void Font::CreateShaderResourceView(
 	uint width, uint height,
-	uint pitch, const byte * buffer)
+	uint pitch, const std::byte * buffer)
 {
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = width;
