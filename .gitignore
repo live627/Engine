@@ -365,3 +365,5 @@ ASALocalRun/
 *.bin
 
 Engine/Engine/data/
+
+Engine/Engine/logfile
