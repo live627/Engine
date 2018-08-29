@@ -34,7 +34,6 @@ public:
 		SetPosition(0.0f, 0.0f, -1.0f);
 		Render();
 	}
-	bool Initialize() { return true; }
 	void Frame()
 	{
 		if (m_Input->IsKeyDown(VK_LEFT))

@@ -48,8 +48,6 @@ public:
 		}
 	}
 
-	bool Initialize() { return true; }
-
 	void Frame()
 	{
 		int64_t currentTime;

@@ -18,7 +18,6 @@ class InputClass : public IGameObject
 {
 public:
 	InputClass(HINSTANCE hinstance, HWND hwnd);
-	bool Initialize() { return true; }
 	void Frame();
 
 	POINT GetMousePositionDelta();

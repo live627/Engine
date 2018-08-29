@@ -81,7 +81,6 @@ class IGameObject
 {
 public:
 	virtual ~IGameObject() {}
-	virtual bool Initialize() = 0;
 	virtual void Shutdown() {}
 	virtual void Frame() = 0;
 	virtual bool Render() { return true; }

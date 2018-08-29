@@ -41,7 +41,6 @@ public:
 	void SetPausedState(bool);
 	void Frame();
 	bool Render();
-	bool Initialize() { return true; }
 
 	void ResizeBuffers(int, int);
 
