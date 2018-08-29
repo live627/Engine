@@ -5,6 +5,13 @@
 #define _TEXTCLASS_H_
 
 
+///////////////////////////////
+// PRE-PROCESSING DIRECTIVES //
+///////////////////////////////
+// Windows is too helpful sometimes.
+#define NOMINMAX
+
+
 //////////////
 // INCLUDES //
 //////////////
@@ -41,7 +48,7 @@ public:
 
 	void SetMousePosition(int, int);
 	void SetCameraPosition(const DirectX::XMFLOAT3 &);
-	void SetFps(int, float);
+	void SetFps(int, int);
 	void SetCpu(int);
 
 	void SetPausedState(bool);

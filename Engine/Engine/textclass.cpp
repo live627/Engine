@@ -179,7 +179,7 @@ void TextClass::RenderSentenceInstanced(
 )
 {
 	uint32_t strides[2] = { sizeof(VertexType), sizeof(InstanceType) }, offsets[2] = { 0u };
-	ID3D11Buffer* bufferPointers[2];
+	//ID3D11Buffer* bufferPointers[2];
 
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	deviceContext->IASetVertexBuffers(0, 1, sentence.vertexBuffer.GetAddressOf(), strides, offsets);
@@ -210,7 +210,7 @@ void TextClass::SetMousePosition(int mouseX, int mouseY)
 	sprintf_s(buf, 24, msg, mouseX, mouseY);
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[0], buf, ceilf(ui::ScaleX(20)), ceilf(ui::ScaleX(10)), DirectX::Colors::White);
+	UpdateSentence(m_sentences[0], buf, ceilf(ui::ScaleX(20.0f)), ceilf(ui::ScaleX(10.0f)), DirectX::Colors::White);
 }
 
 
@@ -221,14 +221,14 @@ void TextClass::SetCameraPosition(const DirectX::XMFLOAT3 & p_position)
 	sprintf_s(buf, 240, msg, p_position.x, p_position.y);
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[1], buf, ceilf(ui::ScaleX(20)), ceilf(ui::ScaleX(30)), DirectX::Colors::White);
+	UpdateSentence(m_sentences[1], buf, ceilf(ui::ScaleX(20.0f)), ceilf(ui::ScaleX(30.0f)), DirectX::Colors::White);
 }
 
 
-void TextClass::SetFps(int fps, float frameTime)
+void TextClass::SetFps(int fps, int frameTime)
 {
 	char buf[24];
-	auto msg = "FPS: %d (t=%.fms)";
+	auto msg = "FPS: %d (t=%dms)";
 	sprintf_s(buf, 24, msg, std::min(fps, 9999), frameTime);
 
 	// The green found in DirectXColors.h is too dark here.
@@ -241,7 +241,7 @@ void TextClass::SetFps(int fps, float frameTime)
 		: green;
 	
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[2], buf, ceilf(ui::ScaleX(20)), ceilf(ui::ScaleX(50)), color);
+	UpdateSentence(m_sentences[2], buf, ceilf(ui::ScaleX(20.0f)), ceilf(ui::ScaleX(50.0f)), color);
 }
 
 
@@ -252,7 +252,7 @@ void TextClass::SetCpu(int cpu)
 	sprintf_s(buf, 24, msg, cpu);
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[3], buf, ceilf(ui::ScaleX(20)), ceilf(ui::ScaleX(70)), { 0.0f, 1.0f, 0.0f });
+	UpdateSentence(m_sentences[3], buf, ceilf(ui::ScaleX(20.0f)), ceilf(ui::ScaleX(70.0f)), { 0.0f, 1.0f, 0.0f });
 }
 
 
@@ -261,5 +261,5 @@ void TextClass::SetPausedState(bool isGamePaused)
 	auto buf = isGamePaused ? "Game Paused" : "";
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[4], buf, ceilf(ui::ScaleX(200)), ceilf(ui::ScaleX(60)), DirectX::Colors::White);
+	UpdateSentence(m_sentences[4], buf, ceilf(ui::ScaleX(200.0f)), ceilf(ui::ScaleX(60.0f)), DirectX::Colors::White);
 }

@@ -86,7 +86,7 @@ bool GraphicsClass::Render()
 
 void GraphicsClass::ResizeBuffers(int width, int height)
 {
-	m_D3D.ResizeBuffers(width, height, SCREEN_DEPTH, SCREEN_NEAR);
+	m_D3D.ResizeBuffers(static_cast<float>(width), static_cast<float>(height), SCREEN_DEPTH, SCREEN_NEAR);
 	m_Bitmap.ResizeBuffers(width, height);
 	m_Text.ResizeBuffers(width, height);
 }
