@@ -98,8 +98,8 @@ private:
 
 	InputClass* m_Input;
 	GraphicsClass* m_Graphics;
+	std::vector<IGameObject *> m_gameObjects;
 
-	std::array<GameObject *, 4> m_gameObjects; 
 	std::atomic<bool> m_keepSavingFile = false;
 
 	bool m_isGameActive = false;

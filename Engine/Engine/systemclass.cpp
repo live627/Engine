@@ -17,10 +17,10 @@ SystemClass::SystemClass()
 		auto camera = new CameraClass(m_Input);
 		m_Graphics = new GraphicsClass(camera, screenWidth, screenHeight, m_hwnd);
 
-		m_gameObjects[0] = new CpuClass(m_Input, camera, m_Graphics->GetText());
-		m_gameObjects[2] = m_Input;
-		m_gameObjects[1] = camera;
-		m_gameObjects[3] = m_Graphics;
+		m_gameObjects.push_back(new CpuClass(m_Input, camera, m_Graphics->GetText()));
+		m_gameObjects.push_back(camera);
+		m_gameObjects.push_back(m_Input);
+		m_gameObjects.push_back(m_Graphics);
 
 		std::ifstream file;
 		file.open("autosave.bin", std::ios_base::binary);

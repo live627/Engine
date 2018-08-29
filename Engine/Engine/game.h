@@ -12,12 +12,12 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: GameObject
+// Class name: IGameObject
 ////////////////////////////////////////////////////////////////////////////////
-class GameObject
+class IGameObject
 {
 public:
-	virtual ~GameObject() {}
+	virtual ~IGameObject() {}
 	virtual bool Initialize() = 0;
 	virtual void Shutdown() {}
 	virtual void Frame() = 0;

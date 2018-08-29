@@ -26,11 +26,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Class name: CpuClass
 ///////////////////////////////////////////////////////////////////////////////
-class CpuClass : public GameObject
+class CpuClass : public IGameObject
 {
 public:
-	CpuClass(InputClass * p_Input,  
-		CameraClass * p_Camera, TextClass * p_Text)
+	CpuClass(InputClass * p_Input, CameraClass * p_Camera, TextClass * p_Text)
 		:
 		m_Input(p_Input),
 		m_Camera(p_Camera),
