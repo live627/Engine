@@ -8,10 +8,10 @@ TextureClass::TextureClass(ID3D11Device * p_device, const char * filename)
 	:
 	m_device(p_device)
 {
-		// Load the texture in.
-		Tga tga(filename);
-		CreateShaderResourceView(tga.GetWidth(), tga.GetHeight(), tga.GetWidth() * 4 , tga.GetPixels(), DXGI_FORMAT_B8G8R8A8_UNORM);
-	}
+	// Load the texture in.
+	DDS dds(filename);
+	CreateShaderResourceView(dds.GetWidth(), dds.GetHeight(), dds.GetPitch(), dds.GetPixels(), dds.GetFormat());
+}
 
 
 TextureClass::TextureClass(ID3D11Device * p_device)
@@ -59,81 +59,58 @@ void TextureClass::CreateShaderResourceView(
 }
 
 
-Tga::Tga(const char* FilePath)
+DDS::DDS(const char* FilePath)
 	:
-	m_file(FilePath, std::ios::in | std::ios::binary)
+	m_file(FilePath, std::ios::binary),
+	reader(m_file)
 {
 	m_file.exceptions(std::fstream::failbit | std::fstream::badbit);
 
-	std::uint8_t header[18] = {};
-	std::vector<std::uint8_t> imagedata;
-	static std::uint8_t decompressed[12] = { 0x0, 0x0, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-	static std::uint8_t iscompressed[12] = { 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+	// magic number
+	if (reader.Get<uint32_t>() != MakeFourCC("DDS "))
+		throw std::invalid_argument("Magic number (fourCC) not found.");
 
-	m_file.read(reinterpret_cast<char*>(&header), sizeof(header));
-
-	bpp = header[16];
-	width = header[13] * 256 + header[12];
-	height = header[15] * 256 + header[14];
-	auto size = ((width * bpp + 31) / 32) * 4 * height;
-
-	if (bpp != 24 && bpp != 32)
+	// DDSURFACEDESC2
+	DDSURFACEDESC2 header = reader.Get<DDSURFACEDESC2>();
+	if (header.ddpfPixelFormat.dwFlags & DDPF_FOURCC) 
 	{
-		throw std::invalid_argument("invalid file format. required: 24 or 32 bit image.");
-	}
+		width = header.dwWidth & ~3;
+		height = header.dwHeight & ~3;
+		m_pitch = 8 * (width / 4);
 
-	if (!std::memcmp(decompressed, &header, sizeof(decompressed)))
-	{
-		imagedata.resize(size);
-		ImageCompressed = false;
-		m_file.read(reinterpret_cast<char*>(imagedata.data()), size);
-	}
-	else if (!std::memcmp(iscompressed, &header, sizeof(iscompressed)))
-	{
-		PixelInfo pixel = {};
-		int currentbyte = 0;
-		std::size_t currentpixel = 0;
-		ImageCompressed = true;
-		std::uint8_t chunkheader = {};
-		int bytesperpixel = bpp / 8;
-		imagedata.resize(width * height * sizeof(PixelInfo));
+		m_pixels.reserve(header.dwPitchOrLinearSize);
+		reader.Read(m_pixels.data(), m_pixels.capacity());
 
-		while (currentpixel < width * height)
-		{
-			m_file.read(reinterpret_cast<char*>(&chunkheader), sizeof(chunkheader));
-
-			if (chunkheader < 128)
-			{
-				++chunkheader;
-				for (int i = 0; i < chunkheader; ++i, ++currentpixel)
-				{
-					m_file.read(reinterpret_cast<char*>(&pixel), bytesperpixel);
-
-					imagedata[currentbyte++] = pixel.r;
-					imagedata[currentbyte++] = pixel.g;
-					imagedata[currentbyte++] = pixel.b;
-					imagedata[currentbyte++] = pixel.a;
-				}
-			}
-			else
-			{
-				chunkheader -= 127;
-				m_file.read(reinterpret_cast<char*>(&pixel), bytesperpixel);
-
-				for (int i = 0; i < chunkheader; ++i, ++currentpixel)
-				{
-					imagedata[currentbyte++] = pixel.r;
-					imagedata[currentbyte++] = pixel.g;
-					imagedata[currentbyte++] = pixel.b;
-					imagedata[currentbyte++] = pixel.a;
-				}
-			}
-		}
+		if (MakeFourCC('D', 'X', 'T', '1') == header.ddpfPixelFormat.dwFourCC)
+			m_format = DXGI_FORMAT_BC1_UNORM;
+		else if (MakeFourCC('D', 'X', 'T', '5') == header.ddpfPixelFormat.dwFourCC)
+			m_format = DXGI_FORMAT_BC5_UNORM;
+		else
+			throw std::invalid_argument("Compressed format can only be either BC1 (DXT1) or BC3 (DXT5) UNORM.");
 	}
 	else
-	{
-		throw std::invalid_argument("invalid file format. required: 24 or 32 bit tga file.");
-	}
+		throw std::invalid_argument("Only compressed formats are supported.");
+}
 
-	m_pixels = imagedata;
+// the first argument (a) is the leasst significant byte of the fourcc
+// the function is evaluated at compile time if the arguments are known (no run-time overhead).
+constexpr uint32_t DDS::MakeFourCC(const uint8_t a, const uint8_t b, const uint8_t c, const uint8_t d) noexcept
+{
+	return (d << 24) | (c << 16) | (b << 8) | a;
+}
+
+// the last character of the argument is the most significant byte of the fourcc
+// the function is evaluated at compile time if the string argument is known (no run-time overhead).
+constexpr uint32_t DDS::MakeFourCC(const char p[5]) noexcept
+{
+	return (p[3] << 24) | (p[2] << 16) | (p[1] << 8) | p[0];
+}
+
+constexpr bool DDS::IsBitmask(uint32_t r, uint32_t g, uint32_t b, uint32_t a, const DDPIXELFORMAT & ddsPixelFormat) const noexcept
+{
+	return
+		ddsPixelFormat.dwRBitMask == r
+		&& ddsPixelFormat.dwGBitMask == g
+		&& ddsPixelFormat.dwBBitMask == b
+		&& ddsPixelFormat.dwRGBAlphaBitMask == a;
 }

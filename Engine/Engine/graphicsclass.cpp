@@ -17,7 +17,7 @@ GraphicsClass::GraphicsClass(CameraClass * p_Camera,
 	m_Shader(m_D3D.GetDevice(), m_D3D.GetDeviceContext()),
 	m_Bitmap(
 		m_D3D.GetDevice(), m_D3D.GetDeviceContext(),
-		screenWidth, screenHeight, "../Engine/data/seafloor.tga"
+		screenWidth, screenHeight, "../Engine/data/seafloor.dds"
 	),
 	m_Text(
 		m_D3D.GetDevice(), m_D3D.GetDeviceContext(),
