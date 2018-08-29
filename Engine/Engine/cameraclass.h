@@ -71,13 +71,10 @@ public:
 	void SetPosition(float x, float y, float z) { m_position = DirectX::XMFLOAT3(x, y, z); }
 	void SetRotation(float x, float y, float z) { m_rotation = DirectX::XMFLOAT3(x, y, z); }
 
-	void Save(std::ofstream& file)
+	void Save(BinaryWriter & writer)
 	{
-		float x = m_position.x;
-		file.write(reinterpret_cast<const char*>(&x), sizeof x);
-
-		x = m_position.y;
-		file.write(reinterpret_cast<const char*>(&x), sizeof x);
+		writer.Write(m_position.x);
+		writer.Write(m_position.y);
 	}
 
 	void Load(BinaryReader & reader)
