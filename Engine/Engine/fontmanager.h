@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 ///////////////////////////////
@@ -43,7 +43,7 @@ public:
 		m_numGlyphs(127 - 32)
 	{}
 
-	bool LoadTTF(FT_Library, FT_Byte *, long long);
+	bool LoadTTF(FT_Library, FT_Byte *, FT_Long);
 	auto GetTexture() { return m_texture.Get(); }
 	void BuildVertexArray(void *, const char *, float, float);
 
@@ -101,7 +101,7 @@ public:
 	}
 	~Fonts() { FT_Done_FreeType(m_library); }
 	void LoadFonts(const char *);
-	void LoadFont(FT_Byte *, long long, int);
+	void LoadFont(FT_Byte *, int32_t, int);
 	Font * GetFont(int idx) { return &m_fonts[idx]; }
 
 private:

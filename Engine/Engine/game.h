@@ -11,6 +11,41 @@
 #include <Windows.h>
 
 
+///////////////////////////////////////////////////////////////////////////////
+// BinaryReader
+///////////////////////////////////////////////////////////////////////////////
+class BinaryReader
+{
+	std::istream &io;
+
+public:
+	BinaryReader(std::istream &io)
+		: 
+		io(io)
+	{}
+
+	std::string GetString()
+	{
+		std::vector<char> buf(Get<size_t>());
+		io.read(&buf[0], buf.size());
+		return std::string(buf.begin(), buf.end());
+	}
+
+	void Read(void *p, size_t size)
+	{
+		io.read(reinterpret_cast<char *>(p), size);
+	}
+
+	template<typename T>
+	T Get()
+	{
+		T buf;
+		io.read(reinterpret_cast<char *>(&buf), sizeof T);
+		return buf;
+	}
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: IGameObject
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,8 +57,8 @@ public:
 	virtual void Shutdown() {}
 	virtual void Frame() = 0;
 	virtual bool Render() { return true; }
-	virtual void Save(std::ofstream&) {}
-	virtual void Load(std::ifstream&) {}
+	virtual void Save(BinaryWriter &) {}
+	virtual void Load(BinaryReader &) {}
 };
 
 

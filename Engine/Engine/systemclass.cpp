@@ -26,10 +26,9 @@ SystemClass::SystemClass()
 		file.open("autosave.bin", std::ios_base::binary);
 		if (file.is_open())
 		{
+			BinaryReader reader(file);
 			for (const auto & gameObject : m_gameObjects)
-			{
-				gameObject->Load(file);
-			}
+				gameObject->Load(reader);
 		}
 		file.close();
 

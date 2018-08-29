@@ -8,17 +8,15 @@ void Fonts::LoadFonts(const char* filename)
 {
 	std::ifstream file(filename, std::ios::binary);
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
-	char numFonts = 0;
-	file.read(&numFonts, sizeof(char));
-	m_fonts = std::make_unique<Font[]>((uint32_t)numFonts);
+	BinaryReader reader(file);
+	int32_t numFonts = reader.Get<int32_t>();
+	m_fonts = std::make_unique<Font[]>(numFonts);
 
-  	for (uint32_t i = 0; i < (uint32_t)numFonts; i++)
+  	for (int i = 0; i < numFonts; i++)
 	{
-		long long fontLength = 0;
-		file.read(reinterpret_cast<char*>(&fontLength), sizeof(long long));
-
+		int32_t fontLength = reader.Get<int32_t>();
 		auto buffer = std::make_unique<FT_Byte[]>(fontLength);
-		file.read(reinterpret_cast<char*>(&buffer[0]), fontLength);
+		reader.Read(buffer.get(), fontLength);
 		LoadFont(buffer.get(), fontLength, i);
 	}
 
@@ -26,13 +24,13 @@ void Fonts::LoadFonts(const char* filename)
 }
 
 
-void Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
+void Fonts::LoadFont(FT_Byte* m_buffer, int32_t m_length, int p_idx)
 {
 	try
 	{
 		Font font(m_device, m_deviceContext);
 
-		if (!font.LoadTTF(m_library, m_buffer, m_length))
+		if (!font.LoadTTF(m_library, m_buffer, static_cast<FT_Long>(m_length)))
 		{
 			throw std::runtime_error(
 				FormatString(
@@ -55,12 +53,12 @@ void Fonts::LoadFont(FT_Byte* m_buffer, long long m_length, int p_idx)
 }
 
 
-bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, long long m_length)
+bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, FT_Long m_length)
 {
 	if (FT_New_Memory_Face(p_library, m_buffer, m_length, 0, &m_face))
 		return false;
 
-	if (FT_Set_Pixel_Sizes(m_face, 0, ceilf(ui::ScaleX(16))))
+	if (FT_Set_Pixel_Sizes(m_face, 0, ui::ScaleX(16)))
 		return false;
 
 	uint32_t x = 0, y = 0, sx = 1, sy = 1;

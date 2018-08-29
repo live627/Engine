@@ -80,14 +80,10 @@ public:
 		file.write(reinterpret_cast<const char*>(&x), sizeof x);
 	}
 
-	void Load(std::ifstream& file)
+	void Load(BinaryReader & reader)
 	{
-		float x = 0;
-		file.read(reinterpret_cast<char*>(&x), sizeof x);
-		m_position.x = x;
-
-		file.read(reinterpret_cast<char*>(&x), sizeof x);
-		m_position.y = x;
+		m_position.x = reader.Get<float>();
+		m_position.y = reader.Get<float>();
 	}
 
 	DirectX::XMMATRIX GetViewMatrix() const { return m_viewMatrix; }
