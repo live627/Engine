@@ -8,20 +8,20 @@ TextureClass::TextureClass(ID3D11Device * p_device, const char * filename)
 	:
 	m_device(p_device)
 {
-	try
-	{
 		// Load the texture in.
 		Tga tga(filename);
 		CreateShaderResourceView(tga.GetWidth(), tga.GetHeight(), tga.GetWidth() * 4 , tga.GetPixels(), DXGI_FORMAT_B8G8R8A8_UNORM);
 	}
-	catch (std::ios::failure & e)
-	{
-		// Create a single-channel pixel. Use the
-		// same pixel shader that we use to draw fonts.
-		static const byte s_pixel = 0xffu;
-		CreateShaderResourceView(1, 1, 1, &s_pixel, DXGI_FORMAT_R8_UNORM);
-		//throw;
-	}
+
+
+TextureClass::TextureClass(ID3D11Device * p_device)
+	:
+	m_device(p_device)
+{
+	// Create a single-channel pixel. Use the
+	// same pixel shader that we use to draw fonts.
+	static const byte s_pixel = 0xffu;
+	CreateShaderResourceView(1, 1, 1, &s_pixel, DXGI_FORMAT_R8_UNORM);
 }
 
 

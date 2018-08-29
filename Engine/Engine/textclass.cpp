@@ -25,7 +25,7 @@ TextClass::TextClass(
 	m_FontShader(device, deviceContext, true),
 
 	// Create the bitmap object.
-	m_Bitmap(device, deviceContext, m_screenWidth, m_screenHeight, "")
+	m_Bitmap(device, deviceContext, m_screenWidth, m_screenHeight)
 {
 	m_Font = p_fontManager->GetFont(1);
 

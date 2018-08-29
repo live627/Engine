@@ -5,7 +5,7 @@
 
 BitmapClass::BitmapClass(
 	ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext,
-	int screenWidth, int screenHeight, CHAR* textureFilename)
+	int screenWidth, int screenHeight, CHAR * textureFilename)
 	:
 	device(p_device),
 	deviceContext(pdeviceContext),
@@ -16,6 +16,27 @@ BitmapClass::BitmapClass(
 
 	// Create the texture object.
 	m_Texture(device, textureFilename),
+
+	// Sttore an initial position that should be invalid.
+	m_previousPos({ -1, -1, 0, 0 })
+{
+	// Initialize the vertex and index buffers.
+	InitializeBuffers();
+}
+
+BitmapClass::BitmapClass(
+	ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext,
+	int screenWidth, int screenHeight)
+	:
+	device(p_device),
+	deviceContext(pdeviceContext),
+
+	// Store the screen width and height.
+	m_screenWidth(screenWidth),
+	m_screenHeight(screenHeight),
+
+	// Create the texture object.
+	m_Texture(device),
 
 	// Sttore an initial position that should be invalid.
 	m_previousPos({ -1, -1, 0, 0 })

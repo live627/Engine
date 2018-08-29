@@ -34,7 +34,8 @@ private:
 	};
 
 public:
-	BitmapClass(ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext, int screenWidth, int screenHeight, CHAR * textureFilename);
+	BitmapClass(ID3D11Device *, ID3D11DeviceContext *, int, int, CHAR *);
+	BitmapClass(ID3D11Device *, ID3D11DeviceContext *, int, int);
 	~BitmapClass();
 	void Render(RECT);
 

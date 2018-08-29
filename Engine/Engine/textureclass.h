@@ -28,7 +28,8 @@ class TextureClass
 {
 public:
 	void CreateShaderResourceView(unsigned int, unsigned int, unsigned int, const byte *, DXGI_FORMAT);
-	TextureClass(ID3D11Device * p_device, const char *);
+	TextureClass(ID3D11Device *, const char *);
+	TextureClass(ID3D11Device *);
 	auto GetTexture() { return m_texture.Get(); }
 
 private:
