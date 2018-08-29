@@ -2,9 +2,9 @@
 // Filename: main.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "systemclass.h"
-#include <thread>
 #include <iomanip>
 #include <ctime>
+#pragma warning(disable:4996)
 
 
 class MyStream : public std::ostream
@@ -12,7 +12,7 @@ class MyStream : public std::ostream
 	// Write a stream buffer that prefixes each line with Plop
 	class MyStreamBuf : public std::stringbuf
 	{
-		std::ostream&   output;
+		std::ostream& output;
 	public:
 		MyStreamBuf(std::ostream& str)
 			:
@@ -55,7 +55,9 @@ class MyStream : public std::ostream
 	MyStreamBuf buffer;
 public:
 	MyStream(std::ostream& str)
-		:std::ostream(&buffer), buffer(str)
+		:
+		std::ostream(&buffer),
+		buffer(str)
 	{}
 };
 
@@ -65,27 +67,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	// Log stderr to a file.
 	// cerr always flushes on every command, so use clog since it only
 	// flushes as expected (when explicitly told to or by calling endl).
-	std::ofstream ofs("logfile");
+	std::ofstream ofs("logfile", std::ios::app);
 	MyStream myStream(ofs);
 	std::clog.rdbuf(myStream.rdbuf());
 
-	std::thread thread_to_save_file;
-
-	{
-		// Create the system object.
-		SystemClass System;
-
-		// Fire up the autosave thread.
-		thread_to_save_file = std::thread([&System]()
-		{
-			System.Autosave();
-		});
-
-		System.Run();
-	}
-	
-	// Wait until the autosave thread finishes.	
-	thread_to_save_file.join();
+	// Create the system object.
+	SystemClass System;
 
 	// Success! We did it!
 	return EXIT_SUCCESS;

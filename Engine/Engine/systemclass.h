@@ -82,11 +82,11 @@ class SystemClass
 public:
 	SystemClass();
 	~SystemClass();
-	void Run();
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 	void Autosave();
 
 private:
+	void Run();
 	void InitializeWindows(int&, int&);
 	void InitializeScaling();
 	void ShutdownWindows();
@@ -100,6 +100,7 @@ private:
 	GraphicsClass* m_Graphics;
 	std::vector<IGameObject *> m_gameObjects;
 
+	std::thread thread_to_save_file;
 	std::atomic<bool> m_keepSavingFile = false;
 
 	bool m_isGameActive = false;

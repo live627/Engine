@@ -32,11 +32,14 @@ SystemClass::SystemClass()
 		}
 		file.close();
 
+		// Fire up the autosave thread.
+		thread_to_save_file = std::thread(&SystemClass::Autosave, this);
+
 		// Allow the autosave loop to start.
 		m_keepSavingFile.store(true);
 
 		// Game can start now.
-		m_isGameLoaded = true;
+		Run();
 	}
 	catch (std::exception & e)
 	{
@@ -57,12 +60,15 @@ SystemClass::~SystemClass()
 	// All GameObjects must be ended.
 	for (auto gameObject : m_gameObjects)
 	{
-		gameObject->Shutdown();
+ 		gameObject->Shutdown();
 		delete gameObject;
 	}
 
 	// Shutdown the window.
 	ShutdownWindows();
+
+	// Wait until the autosave thread finishes.	
+	thread_to_save_file.join();
 }
 
 
@@ -74,56 +80,49 @@ void SystemClass::Run()
 	bool done = false;
 	while (!done)
 	{
-		if (m_isGameLoaded)
+		// Handle the windows messages.
+		if (!m_isGameHalted && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			// Handle the windows messages.
-			if (!m_isGameHalted && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-			// Oh, but we minimized, so freeze while waiting for a message.
-			else if (m_isGameHalted && GetMessage(&msg, 0, 0, 0))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-
-			// If windows signals to end the application then exit out.
-			if (msg.message == WM_QUIT)
-			{
-				done = true;
-			}
-			else if (!m_isGameHalted)
-			{
-				// Otherwise do the frame processing.  If frame processing fails then exit.
-				try
-				{
-					m_Graphics->SetPausedState(!m_isGameActive);
-
-					for (const auto & gameObject : m_gameObjects)
-					{
-						gameObject->Frame();
-					}
-				}
-				catch (std::exception & e)
-				{
-					char * buf = new char[1060];
-					char * msg = "Failed to process frames:\n\n%s\n\nApplication will now quit.";
-					sprintf_s(buf, 1060, msg, e.what());
-					MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
-					done = true;
-				}
-			}
-
-			// Check if the user pressed escape and wants to exit the application.
-			if (m_Input->IsKeyDown(VK_ESCAPE))
-			{
-				done = true;
-			}
-			if (m_Input->IsKeyDown(VK_XBUTTON1))
-				PostQuitMessage(0);
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
+		// Oh, but we minimized, so freeze while waiting for a message.
+		else if (m_isGameHalted && GetMessage(&msg, 0, 0, 0))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		// If windows signals to end the application then exit out.
+		if (msg.message == WM_QUIT)
+		{
+			done = true;
+		}
+		else if (!m_isGameHalted)
+		{
+			// Otherwise do the frame processing.  If frame processing fails then exit.
+			try
+			{
+				m_Graphics->SetPausedState(!m_isGameActive);
+
+				for (const auto & gameObject : m_gameObjects)
+				{
+					gameObject->Frame();
+				}
+			}
+			catch (std::exception & e)
+			{
+				char * buf = new char[1060];
+				char * msg = "Failed to process frames:\n\n%s\n\nApplication will now quit.";
+				sprintf_s(buf, 1060, msg, e.what());
+				MessageBoxA(m_hwnd, buf, "Error", MB_OK | MB_ICONERROR);
+				done = true;
+			}
+		}
+
+		// Check if the user pressed escape and wants to exit the application.
+		if (m_Input->IsKeyDown(VK_ESCAPE))
+			done = true;
 	}
 }
 
@@ -317,25 +316,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void SystemClass::Autosave()
 {
+	using namespace std::chrono_literals;
 	bool canRetry = false;
-	const uint32_t retryTime = 1;
-	const uint32_t spinTime = 5;
+	const auto retryTime = 1s;
+	auto spinTime = 5s;
 	std::ofstream file;
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 
 	while (true)
 	{
-		std::this_thread::sleep_for(
-			std::chrono::duration<uint32_t>(canRetry ? retryTime : spinTime)
-		);
+		std::this_thread::sleep_for(canRetry ? retryTime : spinTime);
 		canRetry = false;
 		if (m_keepSavingFile)
 		{
 			try
 			{
 				file.open("autosave.bin", std::ios_base::binary);
+				BinaryWriter writer(file);
 				for (const auto & gameObject : m_gameObjects)
-					gameObject->Save(file);
+					gameObject->Save(writer);
 				file.close();
 			}
 			catch (const std::ios_base::failure & e)
