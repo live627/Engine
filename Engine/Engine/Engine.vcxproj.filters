@@ -83,25 +83,16 @@
     <ClInclude Include="game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shaders.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="texture.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="texture.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="font.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="font.ps">
-      <Filter>Shader Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="TextureVertexShader.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="TexturePixelShader.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

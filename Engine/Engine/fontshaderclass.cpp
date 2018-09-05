@@ -40,37 +40,42 @@ void ShaderClass::InitializeShader()
 #if defined( DEBUG ) || defined( _DEBUG )
 	flags |= D3DCOMPILE_DEBUG;
 #endif
-
-	// Compile the vertex shader code.
-	result = D3DCompile(vertexShader, strlen(vertexShader), NULL, NULL, NULL,
-		"TextureVertexShader", "vs_5_0", flags, 0,
-		&vertexShaderBuffer, &errorMessage);
-	if (FAILED(result) && errorMessage)
 	{
-		// Pop a message up on the screen to notify the user to check the text file for compile errors.
-		throw std::runtime_error(
-			FormatString(
-				"Error compiling vertex shader.\n\n%s",
-				(char*)(errorMessage->GetBufferPointer())
-			).data()
-		);
+		// Compile the vertex shader code.
+		std::ifstream infile("VertexShader.hlsl");
+		std::string lines((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+		result = D3DCompile(lines.c_str(), lines.size(), NULL, NULL, NULL,
+			"TextureVertexShader", "vs_5_0", flags, 0,
+			&vertexShaderBuffer, &errorMessage);
+		if (FAILED(result) && errorMessage)
+		{
+			// Pop a message up on the screen to notify the user to check the text file for compile errors.
+			throw std::runtime_error(
+				FormatString(
+					"Error compiling vertex shader.\n\n%s",
+					(char*)(errorMessage->GetBufferPointer())
+				).data()
+			);
+		}
 	}
-
-	// Compile the pixel shader code.
-	result = D3DCompile(pixelShader, strlen(pixelShader), NULL, NULL, NULL,
-		m_isFont ? "FontPixelShader" : "TexturePixelShader", "ps_5_0", flags, 0,
-		&pixelShaderBuffer, &errorMessage);
-	if (FAILED(result) && errorMessage)
 	{
-		// Pop a message up on the screen to notify the user to check the text file for compile errors.
-		throw std::runtime_error(
-			FormatString(
-				"Error compiling pixel shader.\n\n%s",
-				(char*)(errorMessage->GetBufferPointer())
-			).data()
-		);
+		// Compile the pixel shader code.
+		std::ifstream infile("PixelShader.hlsl");
+		std::string lines((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+		result = D3DCompile(lines.c_str(), lines.size(), NULL, NULL, NULL,
+			m_isFont ? "FontPixelShader" : "TexturePixelShader", "ps_5_0", flags, 0,
+			&pixelShaderBuffer, &errorMessage);
+		if (FAILED(result) && errorMessage)
+		{
+			// Pop a message up on the screen to notify the user to check the text file for compile errors.
+			throw std::runtime_error(
+				FormatString(
+					"Error compiling pixel shader.\n\n%s",
+					(char*)(errorMessage->GetBufferPointer())
+				).data()
+			);
+		}
 	}
-
 	// Create the vertex shader from the buffer.
 	ThrowIfFailed(
 		m_device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
@@ -97,7 +102,7 @@ void ShaderClass::InitializeShader()
 	};
 
 	// Get a count of the elements in the layout.
-	uint32_t numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+	auto numElements = std::size(polygonLayout);
 
 	// Create the vertex input layout.
 	ThrowIfFailed(

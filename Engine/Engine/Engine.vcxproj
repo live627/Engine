@@ -76,6 +76,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -106,19 +107,24 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="graphicsclass.h" />
     <ClInclude Include="inputclass.h" />
-    <ClInclude Include="shaders.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="textclass.h" />
     <ClInclude Include="textureclass.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="font.ps" />
-    <None Include="font.vs" />
-    <None Include="texture.ps" />
-    <None Include="texture.vs" />
+    <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="app.manifest" />
+    <None Include="PixelShader.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <FileType>Document</FileType>
+    </None>
+    <None Include="VertexShader.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

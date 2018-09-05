@@ -12,13 +12,14 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <fstream>
+#include <string>
+#include <iterator>
 #include <wrl\client.h>
 
 
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
-#include "shaders.h"
 #include "game.h"
 
 
@@ -74,6 +75,14 @@ private:
 	void SetShaderParameters(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, ID3D11ShaderResourceView *, const DirectX::XMVECTORF32 &);
 	void RenderShader(int);
 	void RenderShaderInstanced(uint32_t, uint32_t);
+
+
+	template<class OutIt>
+	void read_lines(std::istream& is, OutIt dest)
+	{
+		typedef std::istream_iterator<detail::Line> InIt;
+		std::copy(InIt(is), InIt(), dest);
+	}
 
 private:
 	ID3D11Device * m_device;
