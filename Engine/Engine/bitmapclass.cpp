@@ -172,12 +172,9 @@ void BitmapClass::UpdateBuffers(RECT position)
 		"Could not lock the vertex buffer."
 	);
 
-	// Get a pointer to the data in the vertex buffer.
-	auto verticesPtr = (VertexType*)mappedResource.pData;
-
 	// Copy the data into the vertex buffer.
-	memcpy(verticesPtr, (void*)vertices.data(), (sizeof(VertexType) * m_vertexCount));
-
+	memcpy(mappedResource.pData, vertices.data(), (sizeof(VertexType) * m_vertexCount));
+	
 	// Unlock the vertex buffer.
 	deviceContext->Unmap(m_vertexBuffer, 0);
 }
