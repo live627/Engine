@@ -85,7 +85,7 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, FT_Long m_length)
 		}
 		auto glyphInfo = GlyphInfo();
 
-		// Advance is in 1/64 pixels, so bitshift by 6 to get value in pixels (2^6 = 64).
+		// Advance is in 1/64 pixels, so bitshift by 6 to Get value in pixels (2^6 = 64).
 		glyphInfo.ax = m_face->glyph->advance.x >> 6;
 		glyphInfo.ay = m_face->glyph->advance.y >> 6;
 
@@ -138,7 +138,8 @@ bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, FT_Long m_length)
 	}
 	
 	flip(charmap.get(), m_width, m_height);
-	CreateShaderResourceView(m_width, m_height, m_width, charmap.get());
+	TextureClass tex(m_device, m_width, m_height, m_width, charmap.get(), DXGI_FORMAT_R8_UNORM);
+	m_texture = tex.GetTexture();
 
 	FT_Done_Face(m_face);
 
@@ -167,7 +168,7 @@ void Font::StitchGlyph(
 
 void Font::flip(std::byte * buffer, uint32_t width, uint32_t height)
 {
-	uint32_t rows = height / 2; // Iterate only half the buffer to get a full flip
+	uint32_t rows = height / 2; // Iterate only half the buffer to Get a full flip
 	std::byte * tempRow = (std::byte *)malloc(width * sizeof(std::byte));
 
 	for (uint32_t rowIndex = 0; rowIndex < rows; rowIndex++)
@@ -178,39 +179,6 @@ void Font::flip(std::byte * buffer, uint32_t width, uint32_t height)
 	}
 
 	free(tempRow);
-}
-
-
-void Font::CreateShaderResourceView(
-	uint32_t width, uint32_t height,
-	uint32_t pitch, const std::byte * buffer)
-{
-	D3D11_TEXTURE2D_DESC textureDesc = {};
-	textureDesc.Width = width;
-	textureDesc.Height = height;
-	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R8_UNORM;
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2D;
-	D3D11_SUBRESOURCE_DATA resourceData = { buffer, pitch, 0 };
-	ThrowIfFailed(
-		m_device->CreateTexture2D(&textureDesc, &resourceData, &texture2D),
-		"Could not create the texture."
-	);
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format = textureDesc.Format;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-	ThrowIfFailed(
-		m_device->CreateShaderResourceView(texture2D.Get(), &shaderResourceViewDesc, &m_texture),
-		"Could not create the shader resource view."
-	);
 }
 
 

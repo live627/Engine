@@ -25,6 +25,17 @@ TextureClass::TextureClass(ID3D11Device * p_device)
 }
 
 
+TextureClass::TextureClass(ID3D11Device * p_device,
+	unsigned int width, unsigned int height,
+	unsigned int pitch, const std::byte * buffer,
+	DXGI_FORMAT format)
+	:
+	m_device(p_device)
+{
+	CreateShaderResourceView(width, height, pitch, buffer, format);
+}
+
+
 void TextureClass::CreateShaderResourceView(
 	unsigned int width, unsigned int height,
 	unsigned int pitch, const std::byte * buffer,

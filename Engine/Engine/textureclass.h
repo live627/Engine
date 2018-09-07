@@ -29,7 +29,8 @@ class TextureClass
 public:
 	TextureClass(ID3D11Device *, const char *);
 	TextureClass(ID3D11Device *);
-	auto GetTexture() { return m_texture.Get(); }
+	TextureClass(ID3D11Device *, unsigned int, unsigned int, unsigned int, const std::byte *, DXGI_FORMAT);
+	auto GetTexture() const { return m_texture.Get(); }
 
 private:
 	void CreateShaderResourceView(unsigned int, unsigned int, unsigned int, const std::byte *, DXGI_FORMAT);
