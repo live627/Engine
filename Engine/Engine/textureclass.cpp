@@ -59,7 +59,7 @@ void TextureClass::CreateShaderResourceView(
 }
 
 
-DDS::DDS(const char* FilePath)
+TextureClass::DDS::DDS(const char* FilePath)
 	:
 	m_file(FilePath, std::ios::binary),
 	reader(m_file)
@@ -92,21 +92,21 @@ DDS::DDS(const char* FilePath)
 		throw std::invalid_argument("Only compressed formats are supported.");
 }
 
-// the first argument (a) is the leasst significant byte of the fourcc
+// the first argument (a) is the least significant byte of the fourcc (endianness doesn't matter)
 // the function is evaluated at compile time if the arguments are known (no run-time overhead).
-constexpr uint32_t DDS::MakeFourCC(const uint8_t a, const uint8_t b, const uint8_t c, const uint8_t d) noexcept
+constexpr uint32_t TextureClass::DDS::MakeFourCC(const uint8_t a, const uint8_t b, const uint8_t c, const uint8_t d) noexcept
 {
 	return (d << 24) | (c << 16) | (b << 8) | a;
 }
 
 // the last character of the argument is the most significant byte of the fourcc
 // the function is evaluated at compile time if the string argument is known (no run-time overhead).
-constexpr uint32_t DDS::MakeFourCC(const char p[5]) noexcept
+constexpr uint32_t TextureClass::DDS::MakeFourCC(const char p[5]) noexcept
 {
 	return (p[3] << 24) | (p[2] << 16) | (p[1] << 8) | p[0];
 }
 
-constexpr bool DDS::IsBitmask(uint32_t r, uint32_t g, uint32_t b, uint32_t a, const DDPIXELFORMAT & ddsPixelFormat) const noexcept
+constexpr bool TextureClass::DDS::IsBitmask(uint32_t r, uint32_t g, uint32_t b, uint32_t a, const DDPIXELFORMAT & ddsPixelFormat) const noexcept
 {
 	return
 		ddsPixelFormat.dwRBitMask == r
