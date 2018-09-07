@@ -20,14 +20,14 @@ TextureClass::TextureClass(ID3D11Device * p_device)
 {
 	// Create a single-channel pixel. Use the
 	// same pixel shader that we use to draw fonts.
-	static const byte s_pixel = 0xffu;
+	static const std::byte s_pixel = std::byte(0xffu);
 	CreateShaderResourceView(1, 1, 1, &s_pixel, DXGI_FORMAT_R8_UNORM);
 }
 
 
 void TextureClass::CreateShaderResourceView(
 	unsigned int width, unsigned int height,
-	unsigned int pitch, const byte * buffer,
+	unsigned int pitch, const std::byte * buffer,
 	DXGI_FORMAT format)
 {
 	D3D11_TEXTURE2D_DESC textureDesc = {};

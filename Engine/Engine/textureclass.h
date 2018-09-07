@@ -27,12 +27,12 @@
 class TextureClass
 {
 public:
-	void CreateShaderResourceView(unsigned int, unsigned int, unsigned int, const byte *, DXGI_FORMAT);
 	TextureClass(ID3D11Device *, const char *);
 	TextureClass(ID3D11Device *);
 	auto GetTexture() { return m_texture.Get(); }
 
 private:
+	void CreateShaderResourceView(unsigned int, unsigned int, unsigned int, const std::byte *, DXGI_FORMAT);
 	ID3D11Device * m_device;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 };
@@ -133,7 +133,7 @@ private:
 
 	BinaryReader reader;
 	std::ifstream m_file;
-	std::vector<std::uint8_t> m_pixels;
+		std::vector<std::byte> m_pixels;
 	DXGI_FORMAT m_format;
 	uint32_t m_pitch;
 	uint16_t width, height, bpp;
