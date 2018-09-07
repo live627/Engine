@@ -76,14 +76,6 @@ private:
 	void RenderShader(int);
 	void RenderShaderInstanced(uint32_t, uint32_t);
 
-
-	template<class OutIt>
-	void read_lines(std::istream& is, OutIt dest)
-	{
-		typedef std::istream_iterator<detail::Line> InIt;
-		std::copy(InIt(is), InIt(), dest);
-	}
-
 private:
 	ID3D11Device * m_device;
 	ID3D11DeviceContext* m_deviceContext;
