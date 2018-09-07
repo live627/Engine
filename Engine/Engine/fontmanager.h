@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 ///////////////////////////////
@@ -45,7 +45,7 @@ public:
 	{}
 
 	bool LoadTTF(FT_Library, FT_Byte *, FT_Long);
-	auto GetTexture() { return m_texture.Get(); }
+	auto GetTexture() const { return m_texture.Get(); }
 	void BuildVertexArray(void *, const char *, float, float);
 
 private:

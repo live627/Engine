@@ -42,7 +42,7 @@ public:
 	void ResizeBuffers(int screenWidth, int screenHeight);
 
 	int GetIndexCount() const { return m_indexCount; }
-	auto GetTexture() { return m_Texture.GetTexture(); }
+	auto GetTexture() const { return m_Texture.GetTexture(); }
 
 private:
 	void InitializeBuffers();
