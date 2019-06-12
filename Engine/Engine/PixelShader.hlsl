@@ -10,6 +10,7 @@ struct PixelInputType
 {
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
+	float4 Color : COLOR0;
 };
 
 float4 FlashlightPixelShader(PixelInputType input) : SV_TARGET

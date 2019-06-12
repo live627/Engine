@@ -33,6 +33,14 @@ struct VertexType
 };
 
 
+struct VertexColorType
+{
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT2 texture;
+	DirectX::XMFLOAT4 color;
+};
+
+
 struct InstanceType
 {
 	DirectX::XMFLOAT3 position;
