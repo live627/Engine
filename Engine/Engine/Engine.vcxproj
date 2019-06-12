@@ -92,6 +92,7 @@
     <ClCompile Include="fontshaderclass.cpp" />
     <ClCompile Include="graphicsclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
+    <ClCompile Include="LargeBitmap.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="textclass.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="graphicsclass.h" />
     <ClInclude Include="inputclass.h" />
+    <ClInclude Include="LargeBitmap.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="textclass.h" />
     <ClInclude Include="textureclass.h" />

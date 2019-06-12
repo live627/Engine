@@ -30,5 +30,5 @@ float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 
 float4 FontPixelShader(PixelInputType input) : SV_TARGET
 {
-	return shaderTexture.Sample(SampleType, input.tex).rrrr * pixelColor;
+	return input.Color;
 }

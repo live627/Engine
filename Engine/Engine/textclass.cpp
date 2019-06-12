@@ -25,7 +25,7 @@ TextClass::TextClass(
 	m_FontShader(device, deviceContext, true),
 
 	// Create the bitmap object.
-	m_Bitmap(device, deviceContext, m_screenWidth, m_screenHeight)
+	m_Bitmap(device, deviceContext, screenWidth, screenHeight, baseViewMatrix),
 {
 	m_Font = p_fontManager->GetFont(1);
 
@@ -47,37 +47,48 @@ TextClass::TextClass(
 			);
 		}
 	}
+	CreateColoredRects();
+}
+
+
+void TextClass::CreateColoredRects()
+{
+	int
+		width = 400,
+		height = ui::ScaleX(50),
+		top = (m_screenHeight - height) / 3,
+		left = (m_screenWidth - width) / 2;
+
+	m_Bitmap.UpdateColoredRects(std::move(std::vector<ColoredRect>({
+		{ { ui::ScaleX(30), ui::ScaleX(10), ui::ScaleX(160), ui::ScaleX(90) }, { 0, 0, 0, 0.5f } },
+		{ { 0, top, m_screenWidth, ui::ScaleX(50) }, { 0, 0, 0, 0.5f }, true },
+		{ { 0, top, m_screenWidth, ui::ScaleX(1) }, { 1, 1, 1, 1 }, true },
+		{ { 0, top + height, m_screenWidth, ui::ScaleX(1) }, { 1, 1, 1, 1 }, true },
+		{ { 0, m_screenHeight - height, m_screenWidth, ui::ScaleX(50) }, { 0, 0, 0, 0.5f } },
+		{ { 0, m_screenHeight - height, m_screenWidth, ui::ScaleX(1) }, { 1, 1, 1, 1} },
+		{ { 0, top + height, m_screenWidth, ui::ScaleX(1) }, { 1, 1, 1, 0.25f }, true },
+	})));
 }
 
 
 void TextClass::Render(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & orthoMatrix)
 {
+	m_Bitmap.Render(worldMatrix, orthoMatrix);
+	int width = 0;
 	for (auto & sentence : m_sentences)
+	{
+		width = std::max(width, static_cast<int>(m_FontManager->MeasureString(sentence.text.c_str()).x));
 		RenderSentence(sentence, worldMatrix, orthoMatrix);
-
-	int
-		width = 400,
-		height = 500,
-		top = (m_screenHeight - height) / 2,
-		left = (m_screenWidth - width) / 2;
-
-	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Bitmap.Render({ left, top, width, height });
-
-	// Create a pixel color vector with the input sentence color.
-	auto pixelColor = DirectX::Colors::AntiqueWhite;
-
-	// Render the text using the font shader.
-	m_FontShader.Render(m_Bitmap.GetIndexCount(), worldMatrix, m_baseViewMatrix,
-		orthoMatrix, m_Bitmap.GetTexture(), pixelColor);
+	}
+	m_Bitmap.UpdateColoredRect(0, { { ui::ScaleX(30), ui::ScaleX(10), width + ui::ScaleX(40), ui::ScaleX(90) },{ 0, 0, 0, 0.5f } });
 }
 
 
 void TextClass::InitializeSentence(SentenceType & sentence, int maxLength)
 {
 	sentence.maxLength = maxLength;
-	sentence.vertexCount = 6 * maxLength;
-	sentence.indexCount = sentence.vertexCount;
+	sentence.vertexCount = 4 * maxLength;
+	sentence.indexCount = 6 * maxLength;
 
 	// Create the vertex buffer.
 	D3D11_BUFFER_DESC vertexBufferDesc =
@@ -252,14 +263,32 @@ void TextClass::SetCpu(int cpu)
 	sprintf_s(buf, 24, msg, cpu);
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[3], buf, ceilf(ui::ScaleX(20.0f)), ceilf(ui::ScaleX(70.0f)), { 0.0f, 1.0f, 0.0f });
+	UpdateSentence(m_sentences[3], buf, ceilf(ui::ScaleX(40.0f)), ceilf(ui::ScaleX(90.0f)), { 0.0f, 1.0f, 0.0f });
 }
 
 
 void TextClass::SetPausedState(bool isGamePaused)
 {
-	auto buf = isGamePaused ? "Game Paused" : "";
+	static bool state;
 
-	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[4], buf, ceilf(ui::ScaleX(200.0f)), ceilf(ui::ScaleX(60.0f)), DirectX::Colors::White);
+	if (isGamePaused != state)
+	{
+		state = isGamePaused;
+		auto buf = isGamePaused ? "Game Paused" : "";
+		int
+			width = static_cast<int>(m_FontManager->MeasureString(buf).x),
+			height = ui::ScaleX(50),
+			top = (m_screenHeight - height) / 3,
+			left = (m_screenWidth - width) / 2;
+
+		m_Bitmap.UpdateColoredRect(0, { { ui::ScaleX(30), ui::ScaleX(10), ui::ScaleX(160), ui::ScaleX(90) },{ 0, 0, 0, 0.5f } });
+		m_Bitmap.UpdateColoredRect(1, { { 0, top, m_screenWidth, ui::ScaleX(50) },{ 0, 0, 0, 0.5f }, !state });
+		m_Bitmap.UpdateColoredRect(2, { { 0, top, m_screenWidth, ui::ScaleX(1) },{ 1, 1, 1, 1 }, !state });
+		m_Bitmap.UpdateColoredRect(3, { { 0, top + height, m_screenWidth, ui::ScaleX(1) },{ 1, 1, 1, 1 }, !state });
+		m_Bitmap.UpdateColoredRect(4, { { 0, m_screenHeight - height, m_screenWidth, ui::ScaleX(50) },{ 0, 0, 0, 0.5f } });
+		m_Bitmap.UpdateColoredRect(5, { { 0, m_screenHeight - height, m_screenWidth, ui::ScaleX(1) },{ 1, 1, 1, 1 } });
+
+		// Update the sentence vertex buffer with the new string information.
+		UpdateSentence(m_sentences[4], buf, left, top + ui::ScaleX(30), DirectX::Colors::White);
+	}
 }

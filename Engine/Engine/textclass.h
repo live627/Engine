@@ -24,7 +24,7 @@
 ///////////////////////
 #include "fontmanager.h"
 #include "fontshaderclass.h"
-#include "bitmapclass.h"
+#include "LargeBitmap.h"
 #include "game.h"
 
 
@@ -44,6 +44,7 @@ private:
 public:
 	TextClass(ID3D11Device*, ID3D11DeviceContext*, int, int, Fonts *, const DirectX::XMMATRIX &);
 
+	void CreateColoredRects();
 	void Render(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
 
 	void SetMousePosition(int, int);
@@ -67,7 +68,7 @@ private:
 	ShaderClass m_FontShader;
 	int m_screenWidth, m_screenHeight;
 	DirectX::XMMATRIX m_baseViewMatrix;
-	BitmapClass m_Bitmap;
+	LargeBitmap m_Bitmap;
 	std::vector<SentenceType> m_sentences;
 };
 
