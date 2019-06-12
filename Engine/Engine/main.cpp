@@ -39,7 +39,7 @@ class MyStream : public std::ostream
 			output << std::setw(80) << std::setfill('=') << "=" << "\n"
 				<< std::setw(80) << std::setfill(' ') << std::right
 				<< buffer.data()
-				// BUG I cannot get this to align properly.
+				// BUG I cannot Get this to align properly.
 				//<< std::put_time(std::localtime(&t), "[%F %r]")
 				<< "\n" << str() << "\n\n";
 
