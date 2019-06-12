@@ -150,10 +150,7 @@ void BitmapClass::UpdateBuffers(RECT position)
 		bottom = top - (float)position.bottom;
 
 	// Create the vertex array.
-	auto vertices = std::vector<VertexType>(m_vertexCount);
-
-	// Load the vertex array with data.
-	vertices.assign({
+	auto vertices = std::vector<VertexType>({
 		// First triangle.
 		{ { left, top, 0.0f }, { 0.0f, 0.0f } },  // Top left.
 		{ { right, bottom, 0.0f }, { 1.0f, 1.0f } }, // Bottom right.
