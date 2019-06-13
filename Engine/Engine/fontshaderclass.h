@@ -66,6 +66,15 @@ private:
 	};
 
 public:
+	ShaderClass(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext, const char * p_psentrypoint)
+		:
+		m_device(p_device),
+		m_deviceContext(p_deviceContext),
+		m_psentrypoint(p_psentrypoint)
+	{
+		InitializeShader();
+	}
+
 	ShaderClass(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext, bool p_isFont = false)
 		:
 		m_device(p_device),
@@ -88,6 +97,7 @@ private:
 	ID3D11Device * m_device;
 	ID3D11DeviceContext* m_deviceContext;
 	bool m_isFont;
+	const char * m_psentrypoint = "";
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_layout;

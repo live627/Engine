@@ -59,11 +59,13 @@ void ShaderClass::InitializeShader()
 		}
 	}
 	{
+		auto psentrypoint = m_isFont ? "FontPixelShader" : "TexturePixelShader";
+
 		// Compile the pixel shader code.
 		std::ifstream infile("PixelShader.hlsl");
 		std::string lines((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
 		result = D3DCompile(lines.c_str(), lines.size(), NULL, NULL, NULL,
-			m_isFont ? "FontPixelShader" : "TexturePixelShader", "ps_5_0", flags, 0,
+			strlen(m_psentrypoint) > 0 ? m_psentrypoint : psentrypoint, "ps_5_0", flags, 0,
 			&pixelShaderBuffer, &errorMessage);
 		if (FAILED(result) && errorMessage)
 		{
