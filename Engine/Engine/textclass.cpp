@@ -12,8 +12,6 @@ TextClass::TextClass(
 	device(p_device),
 	deviceContext(pdeviceContext),
 
-	m_Font(0),
-
 	// Store the screen width and height.
 	m_screenWidth(screenWidth),
 	m_screenHeight(screenHeight),
@@ -22,18 +20,18 @@ TextClass::TextClass(
 	m_baseViewMatrix(baseViewMatrix),
 
 	// Create the font shader object.
-	m_FontShader(device, deviceContext, true),
+	m_FontShader(device, deviceContext, "SDFPixelShader"),
 
 	// Create the bitmap object.
 	m_Bitmap(device, deviceContext, screenWidth, screenHeight, baseViewMatrix),
+	m_FontManager(p_fontManager)
 {
-	m_Font = p_fontManager->GetFont(1);
-
 	for (int i = 0; i < 5; i++)
 	{
 		try
 		{
 			auto sentence = SentenceType();
+			sentence.texidx = i < 4 ? 1 : 0;
 			InitializeSentence(sentence, 24);
 			m_sentences.push_back(sentence);
 		}
@@ -77,10 +75,10 @@ void TextClass::Render(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMM
 	int width = 0;
 	for (auto & sentence : m_sentences)
 	{
-		width = std::max(width, static_cast<int>(m_FontManager->MeasureString(sentence.text.c_str()).x));
+		width = std::max(width, static_cast<int>(m_FontManager->MeasureString2(sentence.text.c_str()).x));
 		RenderSentence(sentence, worldMatrix, orthoMatrix);
 	}
-	m_Bitmap.UpdateColoredRect(0, { { ui::ScaleX(30), ui::ScaleX(10), width + ui::ScaleX(40), ui::ScaleX(90) },{ 0, 0, 0, 0.5f } });
+	m_Bitmap.UpdateColoredRect(0, { { ui::ScaleX(30), ui::ScaleX(10), width + ui::ScaleX(30), ui::ScaleX(90) },{ 0, 0, 0, 0.5f } });
 }
 
 
@@ -112,7 +110,16 @@ void TextClass::InitializeSentence(SentenceType & sentence, int maxLength)
 	};
 
 	auto indices = std::vector<unsigned long>(sentence.indexCount);
-	std::iota(indices.begin(), indices.end(), 0);
+	for (int i = 0, v = 0, iii = 0; i < maxLength; i++, v += 6, iii += 4)
+	{
+		indices[v] = iii;
+		indices[v + 1] = iii + 1;
+		indices[v + 2] = iii + 2;
+
+		indices[v + 3] = iii + 1;
+		indices[v + 4] = iii + 3;
+		indices[v + 5] = iii + 2;
+	}
 
 	D3D11_SUBRESOURCE_DATA indexData = { indices.data() };
 
@@ -127,7 +134,7 @@ void TextClass::UpdateSentence(SentenceType & sentence, const char* text,
 	float positionX, float positionY, const DirectX::XMVECTORF32 & color)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-
+	sentence.text.assign(text);
 
 	// Store the color of the sentence.
 	sentence.color = color;
@@ -153,7 +160,10 @@ void TextClass::UpdateSentence(SentenceType & sentence, const char* text,
 	std::memset(mappedResource.pData, 0, (sizeof(VertexType) * sentence.vertexCount));
 
 	// Use the font class to build the vertex array from the sentence text and sentence draw location.
-	m_Font->BuildVertexArray(mappedResource.pData, text, drawX, drawY);
+	if (sentence.texidx == 0)
+		m_FontManager->BuildVertexArray(mappedResource.pData, text, drawX, drawY);
+	else
+		m_FontManager->BuildVertexArray2(mappedResource.pData, text, drawX, drawY);
 
 	// Unlock the vertex buffer.
 	deviceContext->Unmap(sentence.vertexBuffer.Get(), 0);
@@ -179,31 +189,7 @@ void TextClass::RenderSentence(
 
 	// Render the text using the font shader.
 	m_FontShader.Render(sentence.indexCount, worldMatrix, m_baseViewMatrix,
-		orthoMatrix, m_Font->GetTexture(), sentence.color);
-}
-
-
-void TextClass::RenderSentenceInstanced(
-	const SentenceType & sentence, 
-	const DirectX::XMMATRIX & worldMatrix,
-	const DirectX::XMMATRIX & orthoMatrix
-)
-{
-	uint32_t strides[2] = { sizeof(VertexType), sizeof(InstanceType) }, offsets[2] = { 0u };
-	//ID3D11Buffer* bufferPointers[2];
-
-	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 1, sentence.vertexBuffer.GetAddressOf(), strides, offsets);
-
-	// Set the index buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetIndexBuffer(sentence.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
-	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// Render the text using the font shader.
-	m_FontShader.RenderInstanced(sentence.indexCount, m_sentences.size(), worldMatrix, m_baseViewMatrix,
-		orthoMatrix, m_Font->GetTexture(), sentence.color);
+		orthoMatrix, m_FontManager->GetTexture(sentence.texidx), sentence.color);
 }
 
 
@@ -216,54 +202,80 @@ void TextClass::ResizeBuffers(int screenWidth, int screenHeight)
 
 void TextClass::SetMousePosition(int mouseX, int mouseY)
 {
-	char buf[24];
-	auto msg = "Mouse {%d, %d}";
-	sprintf_s(buf, 24, msg, mouseX, mouseY);
+	static float lastX, lastY;
 
-	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[0], buf, ceilf(ui::ScaleX(20.0f)), ceilf(ui::ScaleX(10.0f)), DirectX::Colors::White);
+	if (lastX != mouseX || lastY != mouseY)
+	{
+		lastX = mouseX;
+		lastY != mouseY;
+		char buf[24];
+		auto msg = "Mouse {%d, %d}";
+		sprintf_s(buf, 24, msg, mouseX, mouseY);
+
+		// Update the sentence vertex buffer with the new string information.
+		UpdateSentence(m_sentences[0], buf, ui::ScaleX(40.0f), ui::ScaleX(30.0f), DirectX::Colors::White);
+	}
 }
 
 
 void TextClass::SetCameraPosition(const DirectX::XMFLOAT3 & p_position)
 {
-	char buf[240];
-	auto msg = "Location {%.f, %.f}";
-	sprintf_s(buf, 240, msg, p_position.x, p_position.y);
+	static float lastX, lastY;
 
-	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[1], buf, ceilf(ui::ScaleX(20.0f)), ceilf(ui::ScaleX(30.0f)), DirectX::Colors::White);
+	if (lastX != p_position.x || lastY != p_position.y)
+	{
+		lastX = p_position.x;
+		lastY != p_position.y;
+		char buf[240];
+		auto msg = "Location {%.f, %.f}";
+		sprintf_s(buf, 240, msg, p_position.x, p_position.y);
+
+		// Update the sentence vertex buffer with the new string information.
+		UpdateSentence(m_sentences[1], buf, ui::ScaleX(40.0f), ui::ScaleX(50.0f), DirectX::Colors::White);
+	}
 }
 
 
 void TextClass::SetFps(int fps, int frameTime)
 {
-	char buf[24];
-	auto msg = "FPS: %d (t=%dms)";
-	sprintf_s(buf, 24, msg, std::min(fps, 9999), frameTime);
+	static int state;
 
-	// The green found in DirectXColors.h is too dark here.
-	const DirectX::XMVECTORF32 green = { 0.0f, 1.0f, 0.0f };
+	if (frameTime != state)
+	{
+		state = frameTime;
+		char buf[24];
+		auto msg = "FPS: %d (t=%dms)";
+		sprintf_s(buf, 24, msg, std::min(fps, 9999), frameTime);
 
-	const auto color = fps < 60 
-		? DirectX::Colors::Yellow
-		: fps < 30 
-		? DirectX::Colors::Red
-		: green;
-	
-	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[2], buf, ceilf(ui::ScaleX(20.0f)), ceilf(ui::ScaleX(50.0f)), color);
+		// The green found in DirectXColors.h is too dark here.
+		const DirectX::XMVECTORF32 green = { 0.0f, 1.0f, 0.0f };
+
+		const auto color = fps < 60
+			? DirectX::Colors::Yellow
+			: fps < 30
+			? DirectX::Colors::Red
+			: green;
+
+		// Update the sentence vertex buffer with the new string information.
+		UpdateSentence(m_sentences[2], buf, ui::ScaleX(40.0f), ui::ScaleX(70.0f), color);
+	}
 }
 
 
 void TextClass::SetCpu(int cpu)
 {
-	char buf[24];
-	auto msg = "CPU: %d%%";
-	sprintf_s(buf, 24, msg, cpu);
+	static int state;
 
-	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[3], buf, ceilf(ui::ScaleX(40.0f)), ceilf(ui::ScaleX(90.0f)), { 0.0f, 1.0f, 0.0f });
+	if (cpu != state)
+	{
+		state = cpu;
+		char buf[24];
+		auto msg = "CPU: %d%%";
+		sprintf_s(buf, 24, msg, cpu);
+
+		// Update the sentence vertex buffer with the new string information.
+		UpdateSentence(m_sentences[3], buf, ui::ScaleX(40.0f), ui::ScaleX(90.0f), { 0.0f, 1.0f, 0.0f });
+	}
 }
 
 
@@ -281,7 +293,6 @@ void TextClass::SetPausedState(bool isGamePaused)
 			top = (m_screenHeight - height) / 3,
 			left = (m_screenWidth - width) / 2;
 
-		m_Bitmap.UpdateColoredRect(0, { { ui::ScaleX(30), ui::ScaleX(10), ui::ScaleX(160), ui::ScaleX(90) },{ 0, 0, 0, 0.5f } });
 		m_Bitmap.UpdateColoredRect(1, { { 0, top, m_screenWidth, ui::ScaleX(50) },{ 0, 0, 0, 0.5f }, !state });
 		m_Bitmap.UpdateColoredRect(2, { { 0, top, m_screenWidth, ui::ScaleX(1) },{ 1, 1, 1, 1 }, !state });
 		m_Bitmap.UpdateColoredRect(3, { { 0, top + height, m_screenWidth, ui::ScaleX(1) },{ 1, 1, 1, 1 }, !state });

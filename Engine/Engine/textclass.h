@@ -16,7 +16,6 @@
 // INCLUDES //
 //////////////
 #include <DirectXColors.h>
-#include <numeric>
 
 
 ///////////////////////
@@ -37,7 +36,8 @@ private:
 	struct SentenceType
 	{
 		Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer, indexBuffer;
-		size_t vertexCount, indexCount, maxLength;
+		size_t vertexCount, indexCount, maxLength, texidx;
+		std::string text = "";
 		DirectX::XMVECTORF32 color;
 	};
 
@@ -64,7 +64,6 @@ private:
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;
 	Fonts* m_FontManager;
-	Font* m_Font;
 	ShaderClass m_FontShader;
 	int m_screenWidth, m_screenHeight;
 	DirectX::XMMATRIX m_baseViewMatrix;

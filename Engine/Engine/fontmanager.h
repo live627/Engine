@@ -11,8 +11,6 @@
 ///////////////////////
 // INCLUDES //
 ///////////////////////
-#include "ft2build.h"
-#include FT_FREETYPE_H
 #include <wrl\client.h>
 
 
@@ -24,89 +22,62 @@
 #include "game.h"
 
 
-/////////////
-// LINKING //
-/////////////
-#pragma comment(lib, "libfreetype.lib")
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Class name: Fonts
-////////////////////////////////////////////////////////////////////////////////
-class Font
-{
-public:
-	Font() = default;
-	Font(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
-	:
-		m_device(p_device),
-		m_deviceContext(p_deviceContext),
-		m_numGlyphs(127 - 32)
-	{}
-
-	bool LoadTTF(FT_Library, FT_Byte *, FT_Long);
-	auto GetTexture() const { return m_texture.Get(); }
-	void BuildVertexArray(void *, const char *, float, float);
-
-private:
-	struct GlyphInfo 
-	{
-		unsigned int 
-			ax, // advance.x
-			ay, // advance.y
-
-			bw, // bitmap.width
-			bh, // bitmap.rows
-
-			x, y; // Position of glyph on texture map in pixels.
-
-		float left, right; // UV coords of glyph on texture map.
-	};
-
-	int GetNextPow2(int a)
-	{
-		int rval = 1;
-
-		while (rval < a)
-			rval <<= 1;
-
-		return rval;
-	}
-
-	void StitchGlyph(const std::byte *, const GlyphInfo &, uint32_t, uint32_t, std::byte *);
-	void flip(std::byte *, uint32_t, uint32_t);
-	
-private:
-	ID3D11Device * m_device;
-	ID3D11DeviceContext * m_deviceContext;
-	FT_Face m_face;
-	std::unique_ptr<GlyphInfo[]> m_glyphSlots;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
-	size_t
-		m_width,
-		m_height,
-		m_numGlyphs;
-};
-
 class Fonts
 {
 public:
 	Fonts(ID3D11Device * p_device, ID3D11DeviceContext * p_deviceContext)
 		:
 		m_device(p_device),
-		m_deviceContext(p_deviceContext)
+		m_deviceContext(p_deviceContext),
+		m_textures(std::make_unique<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>[]>(2))
 	{
-		FT_Init_FreeType(&m_library);
-		LoadFonts("data\\fonts.dat");
+		LoadFontBitmap("data\\Verdana - Copy.dds", "data\\Verdana.dat");
+		LoadFontBitmap2("data\\Consolas.dds");
 	}
-	~Fonts() { FT_Done_FreeType(m_library); }
-	void LoadFonts(const char *);
-	void LoadFont(FT_Byte *, int32_t, int);
-	Font * GetFont(int idx) { return &m_fonts[idx]; }
+	void LoadFontBitmap(const char *, const char *);
+	auto GetTexture(int idx) const { return m_textures[idx].Get(); }
+	void BuildVertexArray(void *, const char *, float, float);
+	POINT && MeasureString(const char *);
+	void LoadFontBitmap2(const char*);
+	void BuildVertexArray2(void *, const char *, float, float);
+	POINT && MeasureString2(const char *);
 
 private:
 	ID3D11Device * m_device;
 	ID3D11DeviceContext * m_deviceContext;
-	FT_Library m_library;
-	std::unique_ptr<Font[]> m_fonts;
+
+	struct CharRecord
+	{
+		float X;
+		float Y;
+		float Width;
+		float Height;
+
+		float xoffset;
+		float yoffset;
+		float xadvance;
+	};
+
+	std::unique_ptr<CharRecord[]> m_chars;
+	std::unique_ptr<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>[]> m_textures;
+
+	struct Character {
+		int codePoint;
+
+		float X;
+		float Y;
+		float Width;
+		float Height;
+
+		float xoffset;
+		float yoffset;
+	};
+
+	struct FontType {
+		const char * name;
+		int size, bold, italic, width, height, characterCount;
+		std::vector<Character> characters;
+	};
+
+	FontType m_font_Consolas;
 };
