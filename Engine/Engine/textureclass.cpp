@@ -87,17 +87,62 @@ TextureClass::DDS::DDS(const char* FilePath)
 	{
 		width = header.dwWidth & ~3;
 		height = header.dwHeight & ~3;
-		m_pitch = 8 * (width / 4);
+		m_pitch = 16 * (width / 4);
 
 		m_pixels.reserve(header.dwPitchOrLinearSize);
 		reader.Read(m_pixels.data(), m_pixels.capacity());
 
 		if (MakeFourCC('D', 'X', 'T', '1') == header.ddpfPixelFormat.dwFourCC)
+		{
+			m_pitch = 8 * (width / 4);
 			m_format = DXGI_FORMAT_BC1_UNORM;
+		}
 		else if (MakeFourCC('D', 'X', 'T', '5') == header.ddpfPixelFormat.dwFourCC)
-			m_format = DXGI_FORMAT_BC5_UNORM;
+			m_format = DXGI_FORMAT_BC3_UNORM;
 		else
 			throw std::invalid_argument("Compressed format can only be either BC1 (DXT1) or BC3 (DXT5) UNORM.");
+	}
+	else if (header.ddpfPixelFormat.dwFlags & DDPF_RGB) {
+		width = header.dwWidth & ~3;
+		height = header.dwHeight & ~3;
+		m_pitch = header.dwFlags & DDSD_PITCH
+			? header.dwPitchOrLinearSize
+			: header.dwWidth * header.ddpfPixelFormat.dwRGBBitCount / 8;
+		m_pixels.reserve(header.dwHeight * m_pitch);
+		reader.Read(m_pixels.data(), m_pixels.capacity());
+
+		switch (header.ddpfPixelFormat.dwRGBBitCount)
+		{
+		case 32:
+		{
+			assert(header.ddpfPixelFormat.dwRBitMask == 0x00ff0000);
+			assert(header.ddpfPixelFormat.dwGBitMask == 0x0000ff00);
+			assert(header.ddpfPixelFormat.dwBBitMask == 0x000000ff);
+			m_format = DXGI_FORMAT_B8G8R8A8_UNORM;
+			if (header.ddpfPixelFormat.dwFlags & DDPF_ALPHAPIXELS) {
+				assert(header.ddpfPixelFormat.dwRGBAlphaBitMask == 0xff000000);
+			//	m_format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			}
+		}
+		break;
+		case 16:
+		{
+			assert(header.ddpfPixelFormat.dwRBitMask == 0xf800);
+			assert(header.ddpfPixelFormat.dwGBitMask == 0x7e0);
+			assert(header.ddpfPixelFormat.dwBBitMask == 0x1f);
+			m_format = DXGI_FORMAT_B5G6R5_UNORM;
+			break;
+		}
+
+		default:
+			throw std::invalid_argument(
+				FormatString(
+					"%d bit image not supported",
+					header.ddpfPixelFormat.dwRGBBitCount
+				).data()
+			);
+			break;
+		}
 	}
 	else
 		throw std::invalid_argument("Only compressed formats are supported.");
