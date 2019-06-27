@@ -267,5 +267,31 @@ auto FormatString(const char * fmt, Args... args)
 	std::vector<char> buf(sz + 1); // note +1 for null terminator
 	std::snprintf(&buf[0], buf.size(), fmt, args...);
 
-	return buf;
+	return std::move(buf);
 }
+class Formatting
+{
+public:
+	/*add commas between groups of 3 digits with remainder on left side*/
+	static auto CommaFormat(std::vector<char> & in)
+	{
+		int length = in.size();
+		if (length > 3)
+		{
+			int i = length % 3, count = 0;
+			for (char c : in)
+				count += in[i] == '.';
+			length = count == 0 ? length : count;
+			if (i == 0)
+				i = 3;
+			in.reserve(length + length / 3);
+			for (int inserted = 0; i < length + inserted; i += 4)
+			{
+				in.insert(in.begin() + i, ',');
+				inserted++;
+			}
+		}
+		return in;
+	}
+};
+
