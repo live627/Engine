@@ -127,6 +127,74 @@ public:
 	}
 };
 
+struct RectangleI
+{
+	int X;
+	int left;
+	int Y;
+	int Top;
+	int Width;
+	int Height;
+	int Right;
+	int Bottom;
+
+	RectangleI(int x, int y, int width, int height)
+		:
+		X(x),
+		left(x),
+		Y(y),
+		Top(y),
+		Width(width),
+		Height(height),
+		Right(x + width),
+		Bottom(y + height)
+	{}
+
+	bool Contains(int x, int y)
+	{
+		return X <= x && x < Right && Y <= y && y < Bottom;
+	}
+
+	bool Contains(DirectX::XMFLOAT3 value)
+	{
+		return Contains(value.x, value.y);
+	}
+};
+
+struct ColoredRect
+{
+	RECT rect;
+	DirectX::XMFLOAT4 color;
+	bool hidden = false;
+
+	ColoredRect(RectangleI rect)
+		:
+		//rect({ rect.left, rect.Top, rect.Right, rect.Bottom })
+		rect({ rect.left, rect.Top, rect.Width, rect.Height })
+	{}
+
+	ColoredRect(RectangleI rect, DirectX::XMFLOAT4 color)
+		:
+		//rect({ rect.left, rect.Top, rect.Right, rect.Bottom }),
+		rect({ rect.left, rect.Top, rect.Width, rect.Height }),
+		color(color)
+	{}
+
+	ColoredRect(int x, int y, int width, int height, DirectX::XMFLOAT4 color)
+		:
+		//rect({ x, y, x + width, y + height }),
+		rect({ x, y, width, height }),
+		color(color)
+	{}
+
+	ColoredRect(int x, int y, int width, int height, DirectX::XMFLOAT4 color, bool hidden)
+		:
+		//rect({ x, y, x + width, y + height }),
+		rect({ x, y, width, height }),
+		color(color),
+		hidden(hidden)
+	{}
+};
 
 // Helper class for COM exceptions
 class com_exception : public std::runtime_error
