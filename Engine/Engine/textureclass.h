@@ -140,4 +140,37 @@ private:
 	};
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// Class name: RenderTextureClass
+////////////////////////////////////////////////////////////////////////////////
+class RenderTextureClass
+{
+public:
+	RenderTextureClass(
+		ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext,
+		ID3D11DepthStencilView* depthStencilView, int screenWidth, int screenHeight)
+		:
+		m_device(p_device),
+		deviceContext(pdeviceContext),
+		depthStencilView(depthStencilView),
+		m_screenWidth(screenWidth),
+		m_screenHeight(screenHeight)
+	{
+		CreateShaderResourceView();
+	}
+
+	void CreateShaderResourceView();
+	void SetRenderTarget();
+	void ClearRenderTarget(float, float, float, float);
+	ID3D11ShaderResourceView* GetShaderResourceView() { return m_texture.Get(); }
+
+private:
+	ID3D11Device * m_device;
+	ID3D11DeviceContext * deviceContext;
+	ID3D11DepthStencilView * depthStencilView;
+	int m_screenWidth, m_screenHeight;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
+};
+
 #endif

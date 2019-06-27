@@ -4,13 +4,14 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass(float screenWidth, float screenHeight, HWND hwnd, 
+D3DClass::D3DClass(size_t screenWidth, size_t screenHeight, size_t scale, HWND hwnd,
 	bool vsync, bool fullscreen, float screenDepth, float screenNear)
 	:
 	m_screenWidth(screenWidth),
 	m_screenHeight(screenHeight),
 	m_hwnd(hwnd),
-	m_vsync_enabled(vsync)
+	m_vsync_enabled(vsync),
+	m_scale(scale)
 {
 	FillDisplayModes();
 	Initialize(fullscreen, screenDepth, screenNear);
@@ -286,6 +287,13 @@ void D3DClass::ResizeBuffers(float screenWidth, float screenHeight, float screen
 	SetViewport(screenWidth, screenHeight);
 	CreateMatrices(screenWidth, screenHeight, screenDepth, screenNear);
 }
+
+void D3DClass::SetBackBufferRenderTarget()
+{
+	// Bind the render target view and depth stencil buffer to the output render pipeline.
+	m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
+}
+
 
 
 void D3DClass::CreateRenderTargetView()

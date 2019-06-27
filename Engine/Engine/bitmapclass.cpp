@@ -46,12 +46,25 @@ BitmapClass::BitmapClass(
 }
 
 
-void BitmapClass::Render(RECT position)
+void BitmapClass::Render(RECT position, float scale)
 {
 	// If the position we are rendering this bitmap to has not
 	// changed then don't update the vertex buffer since it
 	// currently has the correct parameters.
 	if (position != m_previousPos)
+		UpdateBuffers(position, scale);
+
+	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	RenderBuffers();
+}
+
+
+void BitmapClass::Render(RECT position)
+{
+	// If the position we are rendering this bitmap to has not
+	// changed then don't update the vertex buffer since it
+	// currently has the correct parameters.
+	//if (position != m_previousPos)
 		UpdateBuffers(position);
 
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
@@ -159,8 +172,47 @@ void BitmapClass::UpdateBuffers(RECT position)
 		// Second triangle.
 		{ { left, top, 0.0f }, { 0.0f, 0.0f } }, // Top left.
 		{ { right, top, 0.0f }, { 1.0f, 0.0f } }, // Top right.
-		{ { right, bottom, 0.0f }, { 1.0f, 1.0f } } // Bottom right.
+		{ { right, bottom, 0.0f }, { 1.0f, 1.0f  } } // Bottom right.
 	});
+
+	// Lock the vertex buffer so it can be written to.
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ThrowIfFailed(
+		deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource),
+		"Could not lock the vertex buffer."
+	);
+
+	// Copy the data into the vertex buffer.
+	memcpy(mappedResource.pData, vertices.data(), (sizeof(VertexType) * m_vertexCount));
+	
+	// Unlock the vertex buffer.
+	deviceContext->Unmap(m_vertexBuffer, 0);
+}
+
+
+void BitmapClass::UpdateBuffers(RECT position, float scale)
+{
+	m_previousPos = position;
+
+	// Calculate the screen coordinates of the bitmap.
+	float
+		left = (float)position.left - (float)(m_screenWidth / 2),
+		right = left + (float)position.right,
+		top = (float)(m_screenHeight / 2) - (float)position.top,
+		bottom = top - (float)position.bottom;
+
+	// Create the vertex array.
+	auto vertices = std::vector<VertexType>({
+		// First triangle.
+		{ { left, top, 0.0f }, { 0.0f, 0.0f } },  // Top left.
+		{ { right * scale, bottom * scale, 0.0f }, { 1.0f, 1.0f } }, // Bottom right.
+		{ { left, bottom * scale, 0.0f }, { 0.0f, 1.0f } }, // Bottom left.
+
+		// Second triangle.
+		{ { left, top, 0.0f }, { 0.0f, 0.0f } }, // Top left.
+		{ { right * scale, top, 0.0f }, { 1.0f, 0.0f } }, // Top right.
+		{ { right * scale, bottom * scale, 0.0f }, { 1.0f, 1.0f } } // Bottom right.
+	}); 
 
 	// Lock the vertex buffer so it can be written to.
 	D3D11_MAPPED_SUBRESOURCE mappedResource;

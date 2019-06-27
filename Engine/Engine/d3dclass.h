@@ -34,7 +34,7 @@
 class D3DClass
 {
 public:
-	D3DClass(float, float, HWND, bool, bool, float, float);
+	D3DClass(size_t, size_t, size_t, HWND, bool, bool, float, float);
 
 	void ResizeBuffers(float, float, float, float);
 
@@ -55,8 +55,12 @@ public:
 	void TurnOnAlphaBlending();
 	void TurnOffAlphaBlending();
 
+	ID3D11DepthStencilView* GetDepthStencilView() { return m_depthStencilView.Get(); }
+	void SetBackBufferRenderTarget();
+	void SetViewport(float, float);
+
 private:
-	float m_screenWidth, m_screenHeight;
+	size_t m_screenWidth, m_screenHeight, m_scale;
 	HWND m_hwnd;
 	bool m_vsync_enabled;
 
@@ -81,7 +85,6 @@ private:
 	void FillDisplayModes();
 	void Initialize(bool, float, float);
 	void CreateRenderTargetView();
-	void SetViewport(float, float);
 	void CreateMatrices(float, float, float, float);
 };
 

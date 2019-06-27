@@ -13,9 +13,10 @@ SystemClass::SystemClass()
 		// Initialize the windows api.
 		InitializeWindows(screenWidth, screenHeight);
 
+		m_Settings = Settings();
 		m_Input = new InputClass(m_hinstance, m_hwnd);
-		auto camera = new CameraClass(m_Input);
-		m_Graphics = new GraphicsClass(camera, screenWidth, screenHeight, m_hwnd);
+		auto camera = new CameraClass(m_Input, screenWidth, screenHeight);
+		m_Graphics = new GraphicsClass(camera, screenWidth, screenHeight, 1, m_hwnd, &m_Settings);
 
 		m_gameObjects.push_back(new CpuClass(m_Input, camera, m_Graphics->GetText()));
 		m_gameObjects.push_back(camera);

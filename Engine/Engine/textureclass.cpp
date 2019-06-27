@@ -170,3 +170,66 @@ constexpr bool TextureClass::DDS::IsBitmask(uint32_t r, uint32_t g, uint32_t b, 
 		&& ddsPixelFormat.dwBBitMask == b
 		&& ddsPixelFormat.dwRGBAlphaBitMask == a;
 }
+
+
+void RenderTextureClass::CreateShaderResourceView()
+{
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = m_screenWidth;
+	textureDesc.Height = m_screenHeight;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2D;
+	ThrowIfFailed(
+		m_device->CreateTexture2D(&textureDesc, NULL, &texture2D),
+		"Could not create the texture."
+	);
+
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = { textureDesc.Format, D3D11_RTV_DIMENSION_TEXTURE2D };
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+
+	// Create the render target view.
+	ThrowIfFailed(
+		m_device->CreateRenderTargetView(texture2D.Get(), &renderTargetViewDesc, m_renderTargetView.GetAddressOf()),
+		"Failed to create the render target view"
+	);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	shaderResourceViewDesc.Format = textureDesc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	ThrowIfFailed(
+		m_device->CreateShaderResourceView(texture2D.Get(), &shaderResourceViewDesc, &m_texture),
+		"Could not create the shader resource view."
+	);
+}
+
+void RenderTextureClass::SetRenderTarget()
+{
+	// Bind the render target view and depth stencil buffer to the output render pipeline.
+	deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), depthStencilView);
+}
+
+void RenderTextureClass::ClearRenderTarget(float red, float green, float blue, float alpha)
+{
+	float color[4];
+
+
+	// Setup the color to clear the buffer to.
+	color[0] = red;
+	color[1] = green;
+	color[2] = blue;
+	color[3] = alpha;
+
+	// Clear the back buffer.
+	deviceContext->ClearRenderTargetView(m_renderTargetView.Get(), color);
+
+	// Clear the depth buffer.
+	deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}

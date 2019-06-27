@@ -35,10 +35,11 @@ private:
 public:
 	BitmapClass(ID3D11Device *, ID3D11DeviceContext *, int, int, CHAR *);
 	BitmapClass(ID3D11Device *, ID3D11DeviceContext *, int, int);
+	void Render(RECT, float);
 	~BitmapClass();
 	void Render(RECT);
 
-	void ResizeBuffers(int screenWidth, int screenHeight);
+	void ResizeBuffers(int, int);
 
 	int GetIndexCount() const { return m_indexCount; }
 	auto GetTexture() const { return m_Texture.GetTexture(); }
@@ -46,6 +47,7 @@ public:
 private:
 	void InitializeBuffers();
 	void UpdateBuffers(RECT);
+	void UpdateBuffers(RECT, float);
 	void RenderBuffers();
 
 private:

@@ -83,9 +83,33 @@ public:
 	virtual ~IGameObject() {}
 	virtual void Shutdown() {}
 	virtual void Frame() = 0;
-	virtual bool Render() { return true; }
+	virtual void Render(
+		const DirectX::XMMATRIX &,
+		const DirectX::XMMATRIX &,
+		const DirectX::XMMATRIX &) {}
+	virtual void RenderUI(
+		const DirectX::XMMATRIX &,
+		const DirectX::XMMATRIX &) {}
 	virtual void Save(BinaryWriter &) {}
 	virtual void Load(BinaryReader &) {}
+	virtual void OnClick(const std::vector<bool>, POINT) {}
+};
+
+
+class Settings
+{
+public:
+	enum GameMode { normal, sandbox };
+	int money = 100000;
+	int Ore;
+	int OreConversionRate = 10;
+	int OreConversionRateBoost = 1;
+	int NumStars = 5;
+	int Maintenance = 0;
+	int drillCost = 10000;
+	int MaintenanceRate = 30;
+	int MaintCooldown = 30;
+	GameMode gameMode = GameMode::normal;
 };
 
 
