@@ -107,6 +107,7 @@
     <ClInclude Include="fontshaderclass.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="graphicsclass.h" />
+    <ClInclude Include="gui.h" />
     <ClInclude Include="inputclass.h" />
     <ClInclude Include="LargeBitmap.h" />
     <ClInclude Include="systemclass.h" />
