@@ -13,14 +13,12 @@ struct PixelInputType
 	float4 Color : COLOR0;
 };
 
-float4 FlashlightPixelShader(PixelInputType input) : SV_TARGET
+float3 HSV2RGBPixelShader(PixelInputType input) : SV_TARGET
 {
-	input.tex -= 0.5f;
-	float dist = input.tex.x * input.tex.x + input.tex.y * input.tex.y;
-	float distFromEdge = 0.15 - dist;  // positive when inside the circle
-	float thresholdWidth = 0.25;  // a constant you'd tune to get the right level of softness
-	float antialiasedCircle = saturate((distFromEdge / thresholdWidth) + 0.5);
-	return lerp(0, 1, antialiasedCircle);
+	float4 K = float4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+	float3 p = abs(frac(input.Color.xxx + K.xyz) * 6.0 - K.www);
+
+	return input.Color.z * lerp(K.xxx, saturate(p - K.xxx), input.Color.y);
 }
 
 float4 TexturePixelShader(PixelInputType input) : SV_TARGET
@@ -35,5 +33,5 @@ float4 FontPixelShader(PixelInputType input) : SV_TARGET
 
 float4 SDFPixelShader(PixelInputType input) : SV_TARGET
 {
-	return smoothstep(0.2, 0.7, shaderTexture.Sample(SampleType, input.tex).r) * pixelColor;
+	return smoothstep(0.3, 0.7, shaderTexture.Sample(SampleType, input.tex).r) * pixelColor;
 }

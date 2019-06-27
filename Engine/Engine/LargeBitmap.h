@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DirectXColors.h>
+#include <numeric>
 #include "fontmanager.h"
 #include "fontshaderclass.h"
 
@@ -22,13 +23,15 @@ public:
 	void Render(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
 	void ResizeBuffers(int, int);
 
-private:
+protected:
 	void CreateBuffers();
 	void UpdateBuffers();
 	virtual void BuildVertexArray(void *);
-	void RenderBuffers();
+	virtual void RenderBuffers();
+	virtual size_t GetVertexCount();
+	virtual size_t GetIndexCount();
+	virtual std::vector<unsigned long> BuildIndexArray();
 
-protected:
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;
 	ShaderClass * m_FontShader;
@@ -54,4 +57,26 @@ private:
 	std::vector<RECT> m_uvrects;
 	std::vector<int> m_uvrectmap;
 	void BuildVertexArray(void *) override;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Class name: PieChart
+////////////////////////////////////////////////////////////////////////////////
+class PieChart : public LargeBitmap
+{
+public:
+	PieChart(ID3D11Device *, ID3D11DeviceContext *, ShaderClass *, int, int);
+	void MakeChart(POINT, std::vector<float>);
+
+private:
+	void BuildVertexArray(void *) override;
+	void RenderBuffers();
+	size_t GetVertexCount() override;
+	size_t GetIndexCount() override;
+	std::vector<unsigned long> BuildIndexArray();
+
+	double Lerp(double a, double b, double t)
+	{
+		return a + t * (b - a);
+	}
 };

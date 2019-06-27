@@ -57,41 +57,24 @@ void LargeBitmap::UpdateColoredRect(int i, bool val)
 	UpdateBuffers();
 }
 
-
 void LargeBitmap::Render(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & orthoMatrix, const DirectX::XMMATRIX & viewMatrix)
 {
 	RenderBuffers();
 	m_FontShader->Render(indexCount, worldMatrix, viewMatrix,
 		orthoMatrix, m_texture.Get(), {1,1,1,1});
 }
-
-
-void LargeBitmap::CreateBuffers()
+size_t LargeBitmap::GetVertexCount()
 {
-	vertexCount = 4 * m_rects.size();
-	indexCount = 6 * m_rects.size();
+	return 4 * m_rects.size();
+}
 
-	// Create the vertex buffer.
-	D3D11_BUFFER_DESC vertexBufferDesc =
-	{
-		sizeof(VertexColorType) * vertexCount,
-		D3D11_USAGE_DYNAMIC,
-		D3D11_BIND_VERTEX_BUFFER,
-		D3D11_CPU_ACCESS_WRITE
-	};
-	D3D11_SUBRESOURCE_DATA vertexData = { std::vector<VertexColorType>(vertexCount).data() };
-	ThrowIfFailed(
-		device->CreateBuffer(&vertexBufferDesc, &vertexData, vertexBuffer.GetAddressOf()),
-		"Could not create the vertex buffer."
-	);
+size_t LargeBitmap::GetIndexCount()
+{
+	return 6 * m_rects.size();
+}
 
-	D3D11_BUFFER_DESC indexBufferDesc =
-	{
-		sizeof(unsigned long) * indexCount,
-		D3D11_USAGE_DEFAULT,
-		D3D11_BIND_INDEX_BUFFER
-	};
-
+std::vector<unsigned long> LargeBitmap::BuildIndexArray()
+{
 	auto indices = std::vector<unsigned long>(indexCount);
 	for (size_t i = 0, v = 0, iii = 0; i < m_rects.size(); i++, v += 6, iii += 4)
 	{
@@ -104,14 +87,43 @@ void LargeBitmap::CreateBuffers()
 		indices[v + 5] = iii + 2;
 	}
 
-	D3D11_SUBRESOURCE_DATA indexData = { indices.data() };
+	return indices;
+}
+
+void LargeBitmap::CreateBuffers()
+{
+	vertexCount = GetVertexCount();
+	indexCount = GetIndexCount();
+
+	// Create the vertex buffer.
+	D3D11_BUFFER_DESC vertexBufferDesc =
+	{
+		sizeof(VertexColorType) * vertexCount,
+		D3D11_USAGE_DYNAMIC,
+		D3D11_BIND_VERTEX_BUFFER,
+		D3D11_CPU_ACCESS_WRITE
+	};
+	auto verts = std::make_unique<VertexColorType[]>(vertexCount);
+	D3D11_SUBRESOURCE_DATA vertexData = { verts.get() };
+	ThrowIfFailed(
+		device->CreateBuffer(&vertexBufferDesc, &vertexData, vertexBuffer.GetAddressOf()),
+		"Could not create the vertex buffer."
+	);
+
+	D3D11_BUFFER_DESC indexBufferDesc =
+	{
+		sizeof(unsigned long) * indexCount,
+		D3D11_USAGE_DEFAULT,
+		D3D11_BIND_INDEX_BUFFER
+	};
+	auto i = BuildIndexArray();
+	D3D11_SUBRESOURCE_DATA indexData = { i.data() };
 
 	ThrowIfFailed(
 		device->CreateBuffer(&indexBufferDesc, &indexData, indexBuffer.GetAddressOf()),
 		"Could not create the index buffer."
 	);
 }
-
 
 void LargeBitmap::UpdateBuffers()
 {
@@ -131,7 +143,6 @@ void LargeBitmap::UpdateBuffers()
 	// Unlock the vertex buffer.
 	deviceContext->Unmap(vertexBuffer.Get(), 0);
 }
-
 
 void LargeBitmap::BuildVertexArray(void* vertices)
 {
@@ -160,7 +171,6 @@ void LargeBitmap::BuildVertexArray(void* vertices)
 	}
 }
 
-
 void LargeBitmap::RenderBuffers()
 {
 	auto stride = sizeof(VertexColorType), offset = 0u;
@@ -174,7 +184,6 @@ void LargeBitmap::RenderBuffers()
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
-
 
 void LargeBitmap::ResizeBuffers(int screenWidth, int screenHeight)
 {
@@ -237,4 +246,107 @@ void Spritemap::BuildVertexArray(void * vertices)
 		vertexPtr[index++] = { { left, bottom, 0.0f },{ uvleft/2048,uvbottom/2048.f }, position.color }; // Bottom left.
 		vertexPtr[index++] = { { right, bottom, 0.0f },{ uvright/2048,uvbottom/2048.0f }, position.color }; // Bottom right.
 	}
+}
+
+#include <random>
+
+PieChart::PieChart(
+	ID3D11Device * p_device, ID3D11DeviceContext * pdeviceContext, ShaderClass * p_FontShader,
+	int screenWidth, int screenHeight)
+	:
+	LargeBitmap(p_device, pdeviceContext, p_FontShader, screenWidth, screenHeight)
+{
+}
+
+void PieChart::MakeChart(POINT origin, std::vector<float> dataPoints)
+{
+	int max = 10;
+	float h = rand() / RAND_MAX;
+	float s = 0.3f, v = 0.99f;
+	auto c = std::vector<float>(max);
+	std::generate(c.begin(), c.end(), [value = 0]() mutable { return value++; });
+	std::shuffle(c.begin(), c.end(), std::mt19937{1729/* std::random_device{}()*/ });
+	//dataPoints.clear();
+	m_rects.clear();
+	for (int i = 0; i < max; i++) {
+		//dataPoints.emplace_back(00.1f);
+		c[i] = 1.0f / (max + 1) * c[i];
+	}
+	auto radius = 100.0f;
+	auto dangles = std::make_unique<float[]>(dataPoints.size());
+	for (unsigned int i = 0; i < dataPoints.size(); i++)
+	{
+		dangles[i] = Lerp(0, DirectX::XM_2PI, dataPoints[i]);
+		if (i != 0)
+			dangles[i] += dangles[i - 1];
+	}
+	int outerRadius = radius * 2 + 2;
+	float angleStep = 10.0f / radius, prevx = 333, prevy = 222;
+
+	int d = 0;
+	for (float angle = 0; angle < DirectX::XM_2PI; angle += angleStep)
+	{
+		// Use the parametric definition of a circle: http://en.wikipedia.org/wiki/Circle#Cartesian_coordinates
+		float x = 333 + radius * cos(angle);
+		float y = 222 + radius * sin(angle);
+
+		if (angle > dangles[d] && d < dataPoints.size() - 1)
+			d++;
+
+		m_rects.emplace_back(x, y, 0, 0, DirectX::XMFLOAT4{ c[d], 0.7f, 0.99f, 1 });
+		m_rects.emplace_back(333, 222, 0, 0, DirectX::XMFLOAT4{ c[d], 0.6f, 0.99f, 1 } );
+		m_rects.emplace_back(prevx, prevy, 0, 0, DirectX::XMFLOAT4{ c[d], 0.7f, 0.99f, 1 } );
+		prevx = x;
+		prevy = y;
+	}
+	m_rects[m_rects.size() - 3].rect = m_rects[0].rect;
+	CreateBuffers();
+	UpdateBuffers();
+}
+
+size_t PieChart::GetVertexCount()
+{
+	return m_rects.size();
+}
+
+size_t PieChart::GetIndexCount()
+{
+	return m_rects.size();
+}
+
+std::vector<unsigned long> PieChart::BuildIndexArray()
+{
+	auto indices = std::vector<unsigned long>(indexCount);
+	std::iota(indices.begin(), indices.end(), 0);
+
+	return indices;
+}
+
+void PieChart::BuildVertexArray(void* vertices)
+{
+	VertexColorType* vertexPtr = (VertexColorType*)vertices;
+
+	uint32_t index = 0;
+	for (const ColoredRect & position : m_rects)
+	{
+		float
+			left = (float)position.rect.left - (float)(m_screenWidth / 2),
+			top = (float)(m_screenHeight / 2) - (float)position.rect.top;
+
+		vertexPtr[index++] = { { left, top, 0.0f },{ 0.0f, 0.0f }, position.color }; 
+	}
+}
+
+void PieChart::RenderBuffers()
+{
+	auto stride = sizeof(VertexColorType), offset = 0u;
+
+	// Set the vertex buffer to active in the input assembler so it can be rendered.
+	deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
+
+	// Set the index buffer to active in the input assembler so it can be rendered.
+	deviceContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
