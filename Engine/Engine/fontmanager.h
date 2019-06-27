@@ -31,7 +31,7 @@ public:
 		m_deviceContext(p_deviceContext),
 		m_textures(std::make_unique<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>[]>(2))
 	{
-		LoadFontBitmap("data\\Verdana - Copy.dds", "data\\Verdana.dat");
+		LoadFontBitmap("data\\Arial.dds", "data\\Verdana.dat");
 		LoadFontBitmap2("data\\Consolas.dds");
 	}
 	void LoadFontBitmap(const char *, const char *);
@@ -79,5 +79,6 @@ private:
 		std::vector<Character> characters;
 	};
 
+	FontType m_font_Arial;
 	FontType m_font_Consolas;
 };
