@@ -13,7 +13,7 @@ TextClass::TextClass(
 	m_screenWidth(screenWidth),
 	m_screenHeight(screenHeight),
 	m_baseViewMatrix(baseViewMatrix),
-	m_FontShader(device, deviceContext, "SDFPixelShader"),
+	m_FontShader(device, deviceContext, "FontPixelShader"),
 	m_Bitmap(device, deviceContext, p_FontShader, screenWidth, screenHeight),
 	m_FontManager(p_fontManager)
 {
@@ -22,8 +22,8 @@ TextClass::TextClass(
 		try
 		{
 			auto sentence = SentenceType();
-			sentence.texidx = i < 4 ? 1 : 0;
-			InitializeSentence(sentence, 24);
+			sentence.texidx = i < 4 ? 1 : 2;
+			InitializeSentence(sentence, 32);
 			m_sentences.push_back(sentence);
 		}
 		catch (std::exception & e)
@@ -49,7 +49,7 @@ void TextClass::CreateColoredRects()
 		left = (m_screenWidth - width) / 2;
 
 	DirectX::XMFLOAT4 black = { 0, 0, 0, 0.5f };
-	std::vector<ColoredRect> vec;
+	std::vector<Geometry::ColoredRect<int>> vec;
 	vec.emplace_back(ui::ScaleX(30), ui::ScaleX(10), ui::ScaleX(160), ui::ScaleX(95), black);
 	vec.emplace_back(0, top, m_screenWidth, ui::ScaleX(50), black, true);
 	vec.emplace_back(0, top, m_screenWidth, ui::ScaleX(1), Colors::White, true);
@@ -73,14 +73,16 @@ void TextClass::CreateColoredRects()
 
 void TextClass::RenderUI(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & orthoMatrix)
 {
+	int i = 0;
 	m_Bitmap.Render(worldMatrix, orthoMatrix, m_baseViewMatrix);
 	int width = 0;
 	for (auto & sentence : m_sentences)
 	{
-		width = std::max(width, static_cast<int>(m_FontManager->MeasureString2(sentence.text.c_str()).x));
+		if (i++ < 4)
+			width = std::max(width, static_cast<int>(m_FontManager->GetFont(1)->MeasureString(sentence.text.c_str()).x));
 		RenderSentence(sentence, worldMatrix, orthoMatrix);
 	}
-	m_Bitmap.UpdateColoredRect(0, { { ui::ScaleX(10), ui::ScaleX(10), width + ui::ScaleX(30), ui::ScaleX(95) },{ 0, 0, 0, 0.5f } });
+	m_Bitmap.UpdateColoredRect(0, { { ui::ScaleX(10), ui::ScaleX(10), width + ui::ScaleX(10), ui::ScaleX(85) },{ 0, 0, 0, 0.5f } });
 }
 
 
@@ -112,16 +114,7 @@ void TextClass::InitializeSentence(SentenceType & sentence, int maxLength)
 	};
 
 	auto indices = std::vector<unsigned long>(sentence.indexCount);
-	for (int i = 0, v = 0, iii = 0; i < maxLength; i++, v += 6, iii += 4)
-	{
-		indices[v] = iii;
-		indices[v + 1] = iii + 1;
-		indices[v + 2] = iii + 2;
-
-		indices[v + 3] = iii + 1;
-		indices[v + 4] = iii + 3;
-		indices[v + 5] = iii + 2;
-	}
+	std::iota(indices.begin(), indices.end(), 0);
 
 	D3D11_SUBRESOURCE_DATA indexData = { indices.data() };
 
@@ -136,16 +129,20 @@ void TextClass::UpdateSentence(SentenceType & sentence, const char* text,
 	float positionX, float positionY, const DirectX::XMVECTORF32 & color)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	sentence.text.assign(text);
+	static bool hasLoggedError = false;
 
-	// Store the color of the sentence.
 	sentence.color = color;
-
+	sentence.text = text;
+		
 	// Check for possible buffer overflow.
 	if (strlen(text) > sentence.maxLength)
 	{
 		text = std::string(text).substr(0, sentence.maxLength - 1).c_str();
-		//return false;
+		if (!hasLoggedError)
+		{
+			throw std::out_of_range("Buffer overflow");
+			hasLoggedError = true;
+		}
 	}
 
 	// Calculate the X and Y pixel position on the screen to start drawing to.
@@ -162,10 +159,7 @@ void TextClass::UpdateSentence(SentenceType & sentence, const char* text,
 	std::memset(mappedResource.pData, 0, (sizeof(VertexType) * sentence.vertexCount));
 
 	// Use the font class to build the vertex array from the sentence text and sentence draw location.
-	if (sentence.texidx == 0)
-		m_FontManager->BuildVertexArray(mappedResource.pData, text, drawX, drawY);
-	else
-		m_FontManager->BuildVertexArray2(mappedResource.pData, text, drawX, drawY);
+	m_FontManager->GetFont(sentence.texidx)->BuildVertexArray(mappedResource.pData, text, drawX, drawY);
 
 	// Unlock the vertex buffer.
 	deviceContext->Unmap(sentence.vertexBuffer.Get(), 0);
@@ -191,9 +185,8 @@ void TextClass::RenderSentence(
 
 	// Render the text using the font shader.
 	m_FontShader.Render(sentence.indexCount, worldMatrix, m_baseViewMatrix,
-		orthoMatrix, m_FontManager->GetTexture(sentence.texidx), sentence.color);
+		orthoMatrix, m_FontManager->GetFont(sentence.texidx)->GetTexture(), sentence.color);
 }
-
 
 void TextClass::ResizeBuffers(int screenWidth, int screenHeight)
 {
@@ -202,10 +195,10 @@ void TextClass::ResizeBuffers(int screenWidth, int screenHeight)
 	CreateColoredRects();
 }
 
-void TextClass::AddSentence(const char * buf, float x, float y)
+void TextClass::AddSentence(const char * buf, float x, float y, size_t texidx)
 {
 	auto sentence = SentenceType();
-	sentence.texidx = 0;
+	sentence.texidx = texidx;
 	InitializeSentence(sentence, 24);
 	UpdateSentence(sentence, buf, x, y, DirectX::Colors::Black);
 	m_sentences.push_back(sentence);
@@ -233,7 +226,7 @@ void TextClass::SetMousePosition(int mouseX, int mouseY)
 	sprintf_s(buf, 24, msg, mouseX, mouseY);
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[0], buf, ui::ScaleX(20.0f), ui::ScaleX(30.0f), DirectX::Colors::White);
+	UpdateSentence(m_sentences[0], buf, ui::ScaleX(20.0f), ui::ScaleX(25.0f), DirectX::Colors::White);
 }
 
 void TextClass::SetCameraPosition(const DirectX::XMFLOAT3 & p_position)
@@ -243,7 +236,7 @@ void TextClass::SetCameraPosition(const DirectX::XMFLOAT3 & p_position)
 	sprintf_s(buf, 240, msg, p_position.x, p_position.y);
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[1], buf, ui::ScaleX(20.0f), ui::ScaleX(50.0f), DirectX::Colors::White);
+	UpdateSentence(m_sentences[1], buf, ui::ScaleX(20.0f), ui::ScaleX(45.0f), DirectX::Colors::White);
 }
 
 void TextClass::SetFps(int fps, int frameTime)
@@ -262,7 +255,7 @@ void TextClass::SetFps(int fps, int frameTime)
 		: green;
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[2], buf, ui::ScaleX(20.0f), ui::ScaleX(70.0f), color);
+	UpdateSentence(m_sentences[2], buf, ui::ScaleX(20.0f), ui::ScaleX(65.0f), color);
 }
 
 void TextClass::SetCpu(int cpu)
@@ -272,21 +265,21 @@ void TextClass::SetCpu(int cpu)
 	sprintf_s(buf, 24, msg, cpu);
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[3], buf, ui::ScaleX(20.0f), ui::ScaleX(90.0f), { 0.0f, 1.0f, 0.0f });
+	UpdateSentence(m_sentences[3], buf, ui::ScaleX(20.0f), ui::ScaleX(85.0f), { 0.0f, 1.0f, 0.0f });
 }
 
 void TextClass::SetPausedState(bool isGamePaused)
 {
 	auto buf = isGamePaused ? "Game Paused" : "";
-	int
-		width = static_cast<int>(m_FontManager->MeasureString(buf).x),
-		height = ui::ScaleX(50),
+	POINT size = m_FontManager->GetFont(2)->MeasureString(buf);
+	float
+		height = ui::ScaleX(50.0f),
 		top = (m_screenHeight - height) / 3,
-		left = (m_screenWidth - width) / 2;
+		left = (m_screenWidth - size.x) / 2;
 
 	for (int i = 1; i < 4; i++)
 		m_Bitmap.UpdateColoredRect(i, !isGamePaused);
 
 	// Update the sentence vertex buffer with the new string information.
-	UpdateSentence(m_sentences[4], buf, left, top + ui::ScaleX(30.0f), DirectX::Colors::White);
+	UpdateSentence(m_sentences[4], buf, left, top + size.y / 2 + ui::ScaleX(25.0f), DirectX::Colors::White);
 }

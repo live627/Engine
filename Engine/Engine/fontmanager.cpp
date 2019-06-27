@@ -4,144 +4,168 @@
 #include "fontmanager.h"
 
 
-void Fonts::LoadFontBitmap(const char* p_texfilename, const char* p_datfilename)
+void Fonts::LoadFonts(const char* filename)
 {
-	TextureClass tex(m_device, p_texfilename);
-	m_textures[0] = tex.GetTexture();
-
-	std::ifstream file(p_datfilename, std::ios::binary);
+	std::ifstream file(filename, std::ios::binary);
 	file.exceptions(std::fstream::failbit | std::fstream::badbit);
 	BinaryReader reader(file);
 	int32_t numFonts = reader.Get<int32_t>();
-	m_chars = std::make_unique<CharRecord[]>(numFonts);
+	m_fonts = std::make_unique<Font[]>(numFonts);
 
-  	for (int i = 0; i < 255; i++)
+  	for (int i = 0; i < numFonts; i++)
 	{
-		auto nn = reader.Get<int32_t>();
-		m_chars[nn] =
-		{
-			reader.Get<float>(),
-			reader.Get<float>(),
-			reader.Get<float>(),
-			reader.Get<float>(),
-			reader.Get<float>(),
-			reader.Get<float>(),
-			reader.Get<float>(),
-		};
+		int32_t fontLength = reader.Get<int32_t>();
+		auto buffer = std::make_unique<FT_Byte[]>(fontLength);
+		reader.Read(buffer.get(), fontLength);
+		LoadFont(buffer.get(), fontLength, i);
 	}
 
 	file.close();
 }
 
 
-void Fonts::LoadFontBitmap2(const char* p_texfilename)
+void Fonts::LoadFont(FT_Byte* m_buffer, int32_t m_length, int p_idx)
 {
-	TextureClass tex(m_device, p_texfilename);
-	m_textures[1] = tex.GetTexture();
+	try
+	{
+		Font font(m_device, m_deviceContext);
 
-	std::vector<Character> characters_Consolas({
-		{ ' ', 402, 239, 12, 12, 6, 6 },
-		{ '!', 107, 76, 21, 57, -7, 50 },
-		{ '"', 181, 239, 31, 27, -2, 50 },
-		{ '#', 93, 133, 45, 53, 5, 47 },
-		{ '$', 284, 0, 40, 66, 3, 53 },
-		{ '%', 448, 0, 46, 57, 5, 51 },
-		{ '&', 128, 76, 46, 56, 4, 49 },
-		{ '\'', 212, 239, 19, 27, -8, 50 },
-		{ '(', 17, 0, 30, 72, -3, 52 },
-		{ ')', 47, 0, 30, 72, -2, 52 },
-		{ '*', 37, 239, 37, 39, 1, 50 },
-		{ '+', 750, 186, 42, 43, 3, 38 },
-		{ ',', 74, 239, 28, 33, -1, 16 },
-		{ '-', 324, 239, 31, 18, -2, 26 },
-		{ '.', 274, 239, 23, 23, -6, 16 },
-		{ '/', 370, 0, 39, 63, 2, 50 },
-		{ '0', 288, 76, 42, 54, 3, 47 },
-		{ '1', 638, 133, 39, 53, 2, 47 },
-		{ '2', 677, 133, 39, 53, 1, 47 },
-		{ '3', 615, 76, 38, 54, 1, 47 },
-		{ '4', 138, 133, 45, 53, 5, 47 },
-		{ '5', 653, 76, 37, 54, 0, 47 },
-		{ '6', 495, 76, 40, 54, 2, 47 },
-		{ '7', 438, 133, 40, 53, 2, 47 },
-		{ '8', 535, 76, 40, 54, 2, 47 },
-		{ '9', 478, 133, 40, 53, 3, 47 },
-		{ ':', 406, 186, 22, 45, -7, 38 },
-		{ ';', 217, 76, 27, 55, -2, 38 },
-		{ '<', 177, 186, 37, 47, 2, 40 },
-		{ '=', 142, 239, 39, 28, 2, 31 },
-		{ '>', 214, 186, 36, 47, -1, 40 },
-		{ '?', 75, 76, 32, 57, -3, 50 },
-		{ '@', 77, 0, 47, 70, 6, 51 },
-		{ 'A', 690, 76, 47, 53, 6, 47 },
-		{ 'B', 716, 133, 39, 53, 1, 47 },
-		{ 'C', 372, 76, 41, 54, 3, 47 },
-		{ 'D', 272, 133, 42, 53, 3, 47 },
-		{ 'E', 73, 186, 35, 53, 0, 47 },
-		{ 'F', 108, 186, 35, 53, 0, 47 },
-		{ 'G', 330, 76, 42, 54, 4, 47 },
-		{ 'H', 356, 133, 41, 53, 3, 47 },
-		{ 'I', 0, 186, 37, 53, 1, 47 },
-		{ 'J', 143, 186, 34, 53, 0, 47 },
-		{ 'K', 518, 133, 40, 53, 1, 47 },
-		{ 'L', 37, 186, 36, 53, -1, 47 },
-		{ 'M', 228, 133, 44, 53, 4, 47 },
-		{ 'N', 558, 133, 40, 53, 2, 47 },
-		{ 'O', 244, 76, 44, 54, 4, 47 },
-		{ 'P', 755, 133, 39, 53, 1, 47 },
-		{ 'Q', 324, 0, 46, 65, 4, 47 },
-		{ 'R', 598, 133, 40, 53, 1, 47 },
-		{ 'S', 575, 76, 40, 54, 3, 47 },
-		{ 'T', 314, 133, 42, 53, 3, 47 },
-		{ 'U', 413, 76, 41, 54, 3, 47 },
-		{ 'V', 737, 76, 47, 53, 6, 47 },
-		{ 'W', 183, 133, 45, 53, 5, 47 },
-		{ 'X', 47, 133, 46, 53, 5, 47 },
-		{ 'Y', 0, 133, 47, 53, 6, 47 },
-		{ 'Z', 397, 133, 41, 53, 3, 47 },
-		{ '[', 229, 0, 28, 70, -5, 51 },
-		{ '\\', 409, 0, 39, 63, 1, 50 },
-		{ ']', 257, 0, 27, 70, -3, 51 },
-		{ '^', 102, 239, 40, 32, 2, 47 },
-		{ '_', 355, 239, 47, 17, 6, -2 },
-		{ '`', 297, 239, 27, 20, 0, 50 },
-		{ 'a', 332, 186, 38, 45, 2, 38 },
-		{ 'b', 618, 0, 39, 57, 1, 50 },
-		{ 'c', 508, 186, 37, 44, 1, 38 },
-		{ 'd', 657, 0, 39, 57, 3, 50 },
-		{ 'e', 292, 186, 40, 45, 2, 38 },
-		{ 'f', 494, 0, 42, 57, 3, 51 },
-		{ 'g', 536, 0, 42, 57, 3, 38 },
-		{ 'h', 38, 76, 37, 57, 1, 50 },
-		{ 'i', 774, 0, 38, 57, 1, 51 },
-		{ 'j', 124, 0, 35, 70, 2, 51 },
-		{ 'k', 578, 0, 40, 57, 0, 50 },
-		{ 'l', 0, 76, 38, 57, 1, 50 },
-		{ 'm', 428, 186, 42, 44, 3, 38 },
-		{ 'n', 545, 186, 37, 44, 1, 38 },
-		{ 'o', 250, 186, 42, 45, 3, 38 },
-		{ 'p', 696, 0, 39, 57, 1, 38 },
-		{ 'q', 735, 0, 39, 57, 3, 38 },
-		{ 'r', 470, 186, 38, 44, 0, 38 },
-		{ 's', 370, 186, 36, 45, 0, 38 },
-		{ 't', 454, 76, 41, 54, 4, 47 },
-		{ 'u', 582, 186, 37, 44, 1, 37 },
-		{ 'v', 664, 186, 43, 43, 4, 37 },
-		{ 'w', 619, 186, 45, 43, 5, 37 },
-		{ 'x', 707, 186, 43, 43, 4, 37 },
-		{ 'y', 174, 76, 43, 56, 4, 37 },
-		{ 'z', 0, 239, 37, 43, 1, 37 },
-		{ '{', 159, 0, 35, 70, 1, 51 },
-		{ '|', 0, 0, 17, 76, -9, 57 },
-		{ '}', 194, 0, 35, 70, -1, 51 },
-		{ '~', 231, 239, 43, 25, 4, 30 },
-	});
+		if (!font.LoadTTF(m_library, m_buffer, static_cast<FT_Long>(m_length)))
+		{
+			throw std::runtime_error(
+				FormatString(
+					"Could not load font %d", p_idx
+				).data()
+			);
+		}
 
-	m_font_Consolas = { "Consolas", 64, 0, 0, 812, 282, 95, characters_Consolas };
+		m_fonts[p_idx] = std::move(font);
+	}
+	catch (std::exception & e)
+	{
+		throw std::runtime_error(
+			FormatString(
+				"%s\n\nCould not load font %d",
+				e.what(), p_idx
+			).data()
+		);
+	}
 }
 
 
-void Fonts::BuildVertexArray(void* vertices, const char* sentence, float drawX, float drawY)
+bool Font::LoadTTF(FT_Library p_library, FT_Byte* m_buffer, FT_Long m_length)
+{
+	if (FT_New_Memory_Face(p_library, m_buffer, m_length, 0, &m_face))
+		return false;
+
+	if (FT_Set_Pixel_Sizes(m_face, 0, ui::ScaleX(16)))
+		return false;
+
+	uint32_t x = 0, y = 0, sx = 1, sy = 1;
+	height = m_face->height;
+	max_advance_width = m_face->max_advance_width;
+	m_glyphSlots = std::make_unique<GlyphInfo[]>(m_numGlyphs);
+	auto glyphBuffers = std::make_unique<std::byte *[]>(m_numGlyphs);
+	for (uint32_t i = 32; i < 127; i++) 
+	{
+		FT_UInt glyph_index = FT_Get_Char_Index(m_face, i);
+		// Have to use FT_LOAD_RENDER.
+		// If use FT_LOAD_DEFAULT, the actual glyph bitmap won't be loaded,
+		// thus bitmap->rows will be incorrect, causing insufficient max_height.
+		auto ret = FT_Load_Glyph(m_face, glyph_index, FT_LOAD_RENDER | FT_LOAD_COMPUTE_METRICS);
+		if (ret != 0)
+		{
+			throw std::runtime_error(
+				FormatString(
+					"Could not load glyph %d (%c)", i, i
+				).data()
+			);
+		}
+		auto glyphInfo = GlyphInfo();
+
+		// Advance is in 1/64 pixels, so bitshift by 6 to get value in pixels (2^6 = 64).
+		glyphInfo.ax = m_face->glyph->advance.x >> 6;
+		glyphInfo.ay = m_face->glyph->advance.y >> 6;
+
+		glyphInfo.bw = m_face->glyph->bitmap.width;
+		glyphInfo.bh = m_face->glyph->bitmap.rows;
+
+		int bl = m_face->glyph->bitmap_left;
+		int bt = m_face->glyph->bitmap_top;
+
+		std::byte * tempRow = (std::byte *)malloc(glyphInfo.bw * glyphInfo.bh * sizeof(std::byte));
+		memcpy(
+			tempRow,
+			m_face->glyph->bitmap.buffer,
+			glyphInfo.bw * glyphInfo.bh * sizeof(std::byte)
+		);
+		glyphBuffers[i - 32] = tempRow;
+
+		FT_Glyph aglyph;
+		FT_Get_Glyph(m_face->glyph, &aglyph);
+		FT_Glyph_Get_CBox(aglyph, ft_glyph_bbox_pixels, &glyphInfo.bbox);
+		FT_Done_Glyph(aglyph);
+		glyphInfo.x = bl + x;
+		glyphInfo.left = static_cast<float>(bl + x);
+		glyphInfo.y = bt;
+		x += (glyphInfo.ax) * sx;
+		y += (glyphInfo.ay) * sy;
+		m_width = x + glyphInfo.bw;
+		m_height = std::max<int32_t>(m_height, glyphInfo.bbox.yMax - glyphInfo.bbox.yMin);
+		glyphInfo.right = static_cast<float>(glyphInfo.x + glyphInfo.bw);
+		m_glyphSlots[i - 32] = glyphInfo;
+	}
+
+	auto charmap = std::make_unique<std::byte[]>(m_width * m_height);
+
+	for (uint32_t j = 0; j < 127-32; j++)
+	{
+		StitchGlyph(
+			glyphBuffers[j],
+			m_glyphSlots[j],
+			m_glyphSlots[j].x,
+			0, 
+			charmap.get()
+		);
+		m_glyphSlots[j].left /= m_width;
+		m_glyphSlots[j].right /= m_width;
+	}
+
+	{
+		std::ofstream f("test.pgm", std::ios_base::out
+			| std::ios_base::binary
+			| std::ios_base::trunc
+		);
+
+		int maxColorValue = 255;
+		f << "P5\n" << m_width << " " << m_height << "\n" << maxColorValue << "\n";
+		f.write(reinterpret_cast<const char*>(charmap.get()), m_width * m_height);
+	}
+	TextureClass tex(m_device, m_width, m_height, m_width, charmap.get(), DXGI_FORMAT_R8_UNORM);
+	m_texture = tex.GetTexture();
+
+	FT_Done_Face(m_face);
+
+ 	return true;
+}
+
+
+void Font::StitchGlyph(
+	const std::byte * b,
+	const GlyphInfo & g,
+	uint32_t px,
+	uint32_t py,
+	std::byte * charmap)
+{
+	if (px + g.bw > m_width || py + g.bh > m_height)
+		return; 
+
+	for (uint32_t y = 0u; y < g.bh; y++)
+		for (uint32_t x = 0u; x < g.bw; x++)
+			charmap[(py + y) * m_width + (px + x)] = b[y * g.bw + x];
+}
+
+void Font::BuildVertexArray(void* vertices, const char* sentence, float drawX, float drawY)
 {
 	VertexType* vertexPtr = (VertexType*)vertices;
 
@@ -149,75 +173,39 @@ void Fonts::BuildVertexArray(void* vertices, const char* sentence, float drawX, 
 	uint32_t index = 0;
 	for (uint32_t i = 0; i < strlen(sentence); i++)
 	{
-		auto cr = m_chars[sentence[i]];
-		auto Scale = ui::ScaleX(0.3f), x = drawX + (cr.xoffset * Scale), y = drawY + (cr.yoffset * Scale);
-			vertexPtr[index] = { { x, y, 0 },{ cr.X / 1024.0f, cr.Y / 1024 } }; // Top left.
-			index++;
+		uint32_t letter = static_cast<uint32_t>(sentence[i]) - 32;
+		/*
+		if (letter > m_glyphSlots.size())
+		continue;
+		*/
+		auto glyphSlot = m_glyphSlots[letter];
 
-			vertexPtr[index] = { { x + cr.Width * Scale, y, 0 },{ cr.X / 1024.0f + cr.Width / 1024.0f, cr.Y / 1024 } }; // Top right.
-			index++;
+		// If the letter is a space then just move over three pixels.
+		if (letter != 0)
+		{
+			auto y = drawY + glyphSlot.y;
+			vertexPtr[index++] = { { drawX, y, 0 },{ glyphSlot.left, 0 } }; // Top left.
+			vertexPtr[index++] = { { (drawX + glyphSlot.bw), (y - m_height), 0 },{ glyphSlot.right, 1 } }; // Bottom right.
+			vertexPtr[index++] = { { drawX, (y - m_height), 0 },{ glyphSlot.left, 1 } }; // Bottom left.
+			vertexPtr[index++] = { { drawX, y, 0 },{ glyphSlot.left, 0 } }; // Top left.
+			vertexPtr[index++] = { { drawX + glyphSlot.bw, y, 0 },{ glyphSlot.right, 0 } }; // Top right.
+			vertexPtr[index++] = { { (drawX + glyphSlot.bw), (y - m_height), 0 },{ glyphSlot.right, 1 } }; // Bottom right.
+		}
 
-			vertexPtr[index] = { { x, (y - cr.Height * Scale), 0 },{ cr.X / 1024.0f, cr.Y / 1024 + cr.Height / 1024 } }; // Bottom left.
-			index++;
-
-			vertexPtr[index] = { { (x + cr.Width * Scale), (y - cr.Height * Scale), 0 },{ cr.X / 1024.0f + cr.Width / 1024.0f, cr.Y / 1024 + cr.Height / 1024 } }; // Bottom right.
-			index++;
-
-		drawX += cr.xadvance * Scale;
+		drawX += glyphSlot.ax;
 	}
 }
 
-
-POINT && Fonts::MeasureString(const char* sentence)
+POINT && Font::MeasureString(const char* sentence)
 {
-	POINT index = { 0, 0 };
-	for (uint32_t i = 0; i < strlen(sentence); i++)
+	POINT index = { 0, height >> 6 };
+	for (auto i = 0u; i < strlen(sentence); i++)
 	{
-		auto cr = m_chars[sentence[i]];
-		auto Scale = ui::ScaleX(0.3f);
-		index.x += cr.xadvance * Scale;
+		auto glyphSlot = m_glyphSlots[sentence[i] - 32u];
+		index.x += glyphSlot.ax;
+		if (i == strlen(sentence) - 1)
+			index.x += glyphSlot.bw;
 	}
 
 	return std::move(index);
-}
-
-
-POINT && Fonts::MeasureString2(const char* sentence)
-{
-	POINT index = { 0, 0 };
-	for (uint32_t i = 0; i < strlen(sentence); i++)
-	{
-		auto cr = m_font_Consolas.characters[sentence[i] - 32];
-		auto Scale = ui::ScaleX(0.25f);
-		index.x += cr.Width * Scale;
-	}
-
-	return std::move(index);
-}
-
-
-void Fonts::BuildVertexArray2(void* vertices, const char* sentence, float drawX, float drawY)
-{
-	VertexType* vertexPtr = (VertexType*)vertices;
-
-	// Draw each letter onto a quad.
-	uint32_t index = 0;
-	for (uint32_t i = 0; i < strlen(sentence); i++)
-	{
-		auto cr = m_font_Consolas.characters[sentence[i] - 32];
-		auto Scale = ui::ScaleX(0.25f), x = drawX + (cr.xoffset * Scale), y = drawY + (cr.yoffset * Scale);
-			vertexPtr[index] = { { x, y, 0 },{ cr.X / m_font_Consolas.width, cr.Y / m_font_Consolas.height } }; // Top left.
-			index++;
-
-			vertexPtr[index] = { { x + cr.Width * Scale, y, 0 },{ cr.X / m_font_Consolas.width + cr.Width / m_font_Consolas.width, cr.Y / m_font_Consolas.height } }; // Top right.
-			index++;
-
-			vertexPtr[index] = { { x, (y - cr.Height * Scale), 0 },{ cr.X / m_font_Consolas.width, cr.Y / m_font_Consolas.height + cr.Height / m_font_Consolas.height } }; // Bottom left.
-			index++;
-
-			vertexPtr[index] = { { (x + cr.Width * Scale), (y - cr.Height * Scale), 0 },{ cr.X / m_font_Consolas.width + cr.Width / m_font_Consolas.width, cr.Y / m_font_Consolas.height + cr.Height / m_font_Consolas.height } }; // Bottom right.
-			index++;
-
-		drawX += cr.Width * Scale;
-	}
 }

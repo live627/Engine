@@ -45,8 +45,7 @@ void ShaderClass::InitializeShader()
 		std::ifstream infile("VertexShader.hlsl");
 		std::string lines((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
 		result = D3DCompile(lines.c_str(), lines.size(), NULL, NULL, NULL,
-			"TextureVertexShader", "vs_5_0", flags, 0,
-			&vertexShaderBuffer, &errorMessage);
+			"TextureVertexShader", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
 		if (FAILED(result) && errorMessage)
 		{
 			// Pop a message up on the screen to notify the user to check the text file for compile errors.
@@ -65,8 +64,7 @@ void ShaderClass::InitializeShader()
 		std::ifstream infile("PixelShader.hlsl");
 		std::string lines((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
 		result = D3DCompile(lines.c_str(), lines.size(), NULL, NULL, NULL,
-			strlen(m_psentrypoint) > 0 ? m_psentrypoint : psentrypoint, "ps_5_0", flags, 0,
-			&pixelShaderBuffer, &errorMessage);
+			m_psentrypoint, "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage);
 		if (FAILED(result) && errorMessage)
 		{
 			// Pop a message up on the screen to notify the user to check the text file for compile errors.

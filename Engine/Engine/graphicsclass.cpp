@@ -31,7 +31,7 @@ GraphicsClass::GraphicsClass(CameraClass * p_Camera,
 		m_D3D.GetDevice(), m_D3D.GetDeviceContext(),
 		screenWidth, screenHeight, "../Engine/data/seafloor.dds"
 	),
-	m_FontShader(m_D3D.GetDevice(), m_D3D.GetDeviceContext(), "FontPixelShader"),
+	m_FontShader(m_D3D.GetDevice(), m_D3D.GetDeviceContext(), "RGBPixelShader"),
 	m_Bitmap2(
 		m_D3D.GetDevice(), m_D3D.GetDeviceContext(), &m_Shader2,
 		screenWidth, screenHeight

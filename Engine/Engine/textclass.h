@@ -16,6 +16,7 @@
 // INCLUDES //
 //////////////
 #include <DirectXColors.h>
+#include <numeric>
 
 
 ///////////////////////
@@ -53,7 +54,7 @@ public:
 	void SetPausedState(bool);
 	void ResizeBuffers(int, int);
 
-	void AddSentence(const char *, float, float);
+	void AddSentence(const char *, float, float, size_t);
 	void PopSentence();
 	void RemoveSentences(
 		std::vector<SentenceType>::iterator,

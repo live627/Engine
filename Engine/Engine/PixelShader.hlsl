@@ -26,12 +26,17 @@ float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 	return shaderTexture.Sample(SampleType, input.tex);
 }
 
-float4 FontPixelShader(PixelInputType input) : SV_TARGET
+float4 RGBPixelShader(PixelInputType input) : SV_TARGET
 {
 	return input.Color;
 }
 
+float4 FontPixelShader(PixelInputType input) : SV_TARGET
+{
+	return shaderTexture.Sample(SampleType, input.tex).r * pixelColor;
+}
+
 float4 SDFPixelShader(PixelInputType input) : SV_TARGET
 {
-	return smoothstep(0.3, 0.7, shaderTexture.Sample(SampleType, input.tex).r) * pixelColor;
+	return smoothstep(0.1, 0.9, shaderTexture.Sample(SampleType, input.tex).r) * pixelColor;
 }
