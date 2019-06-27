@@ -89,6 +89,12 @@
     <ClInclude Include="game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tiles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LargeBitmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>

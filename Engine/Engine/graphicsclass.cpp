@@ -19,7 +19,14 @@ GraphicsClass::GraphicsClass(CameraClass * p_Camera,
 		m_D3D.GetDepthStencilView(), screenWidth * scale, screenHeight * scale
 	),
 	m_Font(m_D3D.GetDevice(), m_D3D.GetDeviceContext()),
-	m_Shader(m_D3D.GetDevice(), m_D3D.GetDeviceContext()),
+	m_Shader(m_D3D.GetDevice(), m_D3D.GetDeviceContext(), "TexturePixelShader"),
+	m_Shader2(m_D3D.GetDevice(), m_D3D.GetDeviceContext(), "HSV2RGBPixelShader"),
+	tiles(
+		m_D3D.GetDevice(), m_D3D.GetDeviceContext(), &m_Shader,
+		p_Camera, p_settings,
+		screenWidth, screenHeight,55,55,50,6,8,8,1// width, height, chanceToStartAlive, smoothingIterations,
+		//octaves, freq, seed
+	),
 	m_Bitmap(
 		m_D3D.GetDevice(), m_D3D.GetDeviceContext(),
 		screenWidth, screenHeight, "../Engine/data/seafloor.dds"

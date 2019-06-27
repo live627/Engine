@@ -97,6 +97,7 @@
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="textclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
+    <ClCompile Include="tiles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitmapclass.h" />
@@ -113,6 +114,7 @@
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="textclass.h" />
     <ClInclude Include="textureclass.h" />
+    <ClInclude Include="tiles.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />
