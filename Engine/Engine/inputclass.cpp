@@ -4,7 +4,7 @@
 #include "inputclass.h"
 
 
-InputClass::InputClass(HINSTANCE hinstance, HWND hwnd)
+InputClass::InputClass(HINSTANCE hinstance, HWND hwnd) : m_keys(256)
 {
 	this->hinstance = hinstance;
 	this->hwnd = hwnd;
@@ -17,6 +17,16 @@ void InputClass::Frame()
 	GetCursorPos(&cursor);
 	ScreenToClient(hwnd, &cursor);
 	this->cursor = cursor;
+}
+
+
+POINT InputClass::GetMousePosition()
+{
+	POINT cursor;
+	GetCursorPos(&cursor);
+	ScreenToClient(hwnd, &cursor);
+
+	return cursor;
 }
 
 
@@ -40,7 +50,11 @@ void InputClass::GetMousePositionForDebug(int & mouseX, int & mouseY)
 
 void InputClass::WndMouse(UINT message, WPARAM wParam)
 {
-	if (message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN || message == WM_MBUTTONDOWN || message == WM_XBUTTONDOWN)
+	if (
+		message == WM_LBUTTONDOWN
+		|| message == WM_RBUTTONDOWN
+		|| message == WM_MBUTTONDOWN
+		|| message == WM_XBUTTONDOWN)
 	{
 		SetCapture(hwnd);
 

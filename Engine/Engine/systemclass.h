@@ -95,7 +95,7 @@ private:
 	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;
-
+	Settings m_Settings;
 	InputClass* m_Input;
 	GraphicsClass* m_Graphics;
 	std::vector<IGameObject *> m_gameObjects;

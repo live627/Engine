@@ -8,6 +8,7 @@
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
+#include <array>
 #include "game.h"
 
 
@@ -21,17 +22,19 @@ public:
 	void Frame();
 
 	POINT GetMousePositionDelta();
+	POINT GetMousePosition();
 	void GetMousePositionForDebug(int & mouseX, int & mouseY);
 	void WndMouse(UINT, WPARAM);
 	void WndMouseWheel(WPARAM delta) { wheel = delta; }
 
 	bool IsKeyDown(uint8_t key) const { return m_keys[key]; }
 	void WndKey(UINT, WPARAM, LPARAM);
+	const std::vector<bool> GetKeys() const { return m_keys; }
 
 private:
 	HINSTANCE hinstance;
 	HWND hwnd;
-	bool m_keys[256] = {};
+	std::vector<bool> m_keys;
 	unsigned char wheel = 0;
 	POINT cursor = {};
 };

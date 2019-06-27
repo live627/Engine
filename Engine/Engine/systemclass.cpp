@@ -248,6 +248,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 	case WM_XBUTTONDOWN:
 	case WM_XBUTTONUP:
 		m_Input->WndMouse(umsg, wparam);
+		m_Graphics->Click(m_Input->GetKeys(), m_Input->GetMousePosition());
 		break;
 
 	case WM_MOUSEWHEEL:
