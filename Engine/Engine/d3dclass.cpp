@@ -64,6 +64,7 @@ void D3DClass::FillDisplayModes()
 	
 	// Get the adapter (video card) description.
 	result = adapter->GetDesc(&m_adapterDesc);
+	ThrowIfFailed(result, "Failed to get the adapter (video card) description");
 } 
 
 
@@ -102,8 +103,8 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 	swapChainDesc.OutputWindow = m_hwnd;
 
 	// Turn multisampling off.
-	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
+	swapChainDesc.SampleDesc.Count = 8;
+	swapChainDesc.SampleDesc.Quality = D3D11_STANDARD_MULTISAMPLE_PATTERN;
 
 	// Set to full screen or windowed mode.
 	swapChainDesc.Windowed = !fullscreen;
@@ -133,13 +134,13 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
 
 	// Set up the description of the depth buffer.
-	depthBufferDesc.Width = m_screenWidth;
-	depthBufferDesc.Height = m_screenHeight;
+	depthBufferDesc.Width = m_screenWidth*m_scale;
+	depthBufferDesc.Height = m_screenHeight*m_scale;
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthBufferDesc.SampleDesc.Count = 1;
-	depthBufferDesc.SampleDesc.Quality = 0;
+	depthBufferDesc.SampleDesc.Count = 8;
+	depthBufferDesc.SampleDesc.Quality = D3D11_STANDARD_MULTISAMPLE_PATTERN;
 	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthBufferDesc.CPUAccessFlags = 0;
@@ -185,7 +186,7 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 
 	// Set up the depth stencil view description.
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	// Create the depth stencil view.
@@ -198,14 +199,14 @@ void D3DClass::Initialize(bool fullscreen, float screenDepth, float screenNear)
 	m_deviceContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
-	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.AntialiasedLineEnable = true;
 	rasterDesc.CullMode = D3D11_CULL_BACK;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
+	rasterDesc.MultisampleEnable = true;
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
