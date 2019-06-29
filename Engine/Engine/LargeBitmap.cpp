@@ -29,7 +29,7 @@ LargeBitmap::LargeBitmap(
 }
 
 
-void LargeBitmap::UpdateColoredRects(const std::vector<ColoredRect> && coloredRects)
+void LargeBitmap::UpdateColoredRects(const std::vector<Geometry::ColoredRect<int>> && coloredRects)
 {
 	m_rects = coloredRects;
 
@@ -39,7 +39,7 @@ void LargeBitmap::UpdateColoredRects(const std::vector<ColoredRect> && coloredRe
 }
 
 
-void LargeBitmap::UpdateColoredRect(int i, const ColoredRect & coloredRect)
+void LargeBitmap::UpdateColoredRect(int i, const Geometry::ColoredRect<int> & coloredRect)
 {
 	m_rects[i] = coloredRect;
 	UpdateBuffers();
@@ -149,7 +149,7 @@ void LargeBitmap::BuildVertexArray(void* vertices)
 	VertexColorType* vertexPtr = (VertexColorType*)vertices;
 
 	uint32_t index = 0;
-	for (const ColoredRect & position : m_rects)
+	for (const Geometry::ColoredRect<int> & position : m_rects)
 	{
 		if (position.hidden)
 		{
@@ -221,7 +221,7 @@ void Spritemap::BuildVertexArray(void * vertices)
 	VertexColorType* vertexPtr = (VertexColorType*)vertices;
 
 	uint32_t index = 0;
-	for (int i = 0; i < m_rects.size(); i++)
+	for (size_t i = 0u; i < m_rects.size(); i++)
 	{
 		auto position = m_rects[i];
 		if (position.hidden || m_uvrectmap[i] > m_uvrects.size() - 1)
@@ -280,7 +280,6 @@ void PieChart::MakeChart(POINT origin, std::vector<float> dataPoints)
 		if (i != 0)
 			dangles[i] += dangles[i - 1];
 	}
-	int outerRadius = radius * 2 + 2;
 	float angleStep = 10.0f / radius, prevx = 333, prevy = 222;
 
 	int d = 0;
@@ -327,7 +326,7 @@ void PieChart::BuildVertexArray(void* vertices)
 	VertexColorType* vertexPtr = (VertexColorType*)vertices;
 
 	uint32_t index = 0;
-	for (const ColoredRect & position : m_rects)
+	for (const Geometry::ColoredRect<int> & position : m_rects)
 	{
 		float
 			left = (float)position.rect.left - (float)(m_screenWidth / 2),

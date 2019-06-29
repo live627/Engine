@@ -5,7 +5,6 @@
 #include "fontmanager.h"
 #include "fontshaderclass.h"
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: LargeBitmap
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,8 +15,8 @@ private:
 public:
 	LargeBitmap(ID3D11Device *, ID3D11DeviceContext *, ShaderClass *, int, int, const char *);
 	LargeBitmap(ID3D11Device *, ID3D11DeviceContext *, ShaderClass *, int, int);
-	void UpdateColoredRects(const std::vector<ColoredRect> &&);
-	void UpdateColoredRect(int, const ColoredRect &);
+	void UpdateColoredRects(const std::vector<Geometry::ColoredRect<int>> &&);
+	void UpdateColoredRect(int, const Geometry::ColoredRect<int> &);
 	void UpdateColoredRect(int, RECT);
 	void UpdateColoredRect(int, bool);
 	void Render(const DirectX::XMMATRIX &, const DirectX::XMMATRIX &, const DirectX::XMMATRIX &);
@@ -36,7 +35,7 @@ protected:
 	ID3D11DeviceContext * deviceContext;
 	ShaderClass * m_FontShader;
 	int m_screenWidth, m_screenHeight;
-	std::vector<ColoredRect> m_rects;
+	std::vector<Geometry::ColoredRect<int>> m_rects;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer, indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 	size_t vertexCount, indexCount;

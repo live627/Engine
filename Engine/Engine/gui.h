@@ -7,11 +7,11 @@
 	class BasicPanel
 	{
 	protected:
-		RectangleI rect;
+		Geometry::Rectangle<int> rect;
 		DirectX::XMFLOAT4 backgroundColor;
 		DirectX::XMFLOAT4 borderColor;
 
-		BasicPanel(RectangleI rect, DirectX::XMFLOAT4 backgroundColor, DirectX::XMFLOAT4 borderColor)
+		BasicPanel(Geometry::Rectangle<int> rect, DirectX::XMFLOAT4 backgroundColor, DirectX::XMFLOAT4 borderColor)
 			:
 			rect(rect),
 			backgroundColor(backgroundColor),
@@ -20,12 +20,12 @@
 			BuildPanel(rect, backgroundColor, borderColor);
 		}
 
-		void BuildPanel(RectangleI rect, DirectX::XMFLOAT4 backgroundColor)
+		void BuildPanel(Geometry::Rectangle<int> rect, DirectX::XMFLOAT4 backgroundColor)
 		{
 			sprites.emplace_back(rect, backgroundColor);
 		}
 
-		void BuildPanel(RectangleI rect, DirectX::XMFLOAT4 backgroundColor, DirectX::XMFLOAT4 borderColor)
+		void BuildPanel(Geometry::Rectangle<int> rect, DirectX::XMFLOAT4 backgroundColor, DirectX::XMFLOAT4 borderColor)
 		{
 			sprites.emplace_back(rect, backgroundColor);
 			sprites.emplace_back(rect.left - 1, rect.Top, 1, rect.Height, borderColor); // left
@@ -34,7 +34,7 @@
 			sprites.emplace_back(rect.left, rect.Bottom, rect.Width, 1, borderColor); // Bottom
 		}
 
-		void BuildTopPanel(RectangleI rect, DirectX::XMFLOAT4 backgroundColor,
+		void BuildTopPanel(Geometry::Rectangle<int> rect, DirectX::XMFLOAT4 backgroundColor,
 			DirectX::XMFLOAT4 borderColor, int height, int padding)
 		{
 			sprites.emplace_back(
@@ -45,7 +45,7 @@
 				rect.Width, 1, borderColor);
 		}
 
-		void BuildBottomPanel(RectangleI rect, DirectX::XMFLOAT4 backgroundColor,
+		void BuildBottomPanel(Geometry::Rectangle<int> rect, DirectX::XMFLOAT4 backgroundColor,
 			DirectX::XMFLOAT4 borderColor, int height)
 		{
 			sprites.emplace_back(
@@ -63,8 +63,8 @@
 		}
 
 		virtual void Frame(DirectX::XMFLOAT3 &) = 0;
-		virtual std::vector<ColoredRect> GetSprites() = 0;
-		std::vector<ColoredRect> sprites;
+		virtual std::vector<Geometry::ColoredRect<int>> GetSprites() = 0;
+		std::vector<Geometry::ColoredRect<int>> sprites;
 	};
 
 	class Button : BasicPanel
@@ -73,7 +73,7 @@
 		DirectX::XMFLOAT4 hoverColor = Colors::Wheat;
 
 	public:
-		Button(RectangleI rect, DirectX::XMFLOAT4 backgroundColor,
+		Button(Geometry::Rectangle<int> rect, DirectX::XMFLOAT4 backgroundColor,
 			DirectX::XMFLOAT4 borderColor, const char * text)
 			:
 			BasicPanel(rect, backgroundColor, borderColor)
@@ -92,7 +92,7 @@
 	{
 		DirectX::XMFLOAT4 color = Colors::White;
 		DirectX::XMFLOAT4 hoverColor = Colors::Wheat;
-		std::vector<RectangleI> rc;
+		std::vector<Geometry::Rectangle<int>> rc;
 		std::vector<std::tuple<const char *, float, float>> txtPos;
 		int selectedIndex = INT16_MAX, totalItemHeight = 0;
 		int scrollbarHeight;
@@ -103,30 +103,30 @@
 		bool scrollDrag;
 
 	public:
-		ListView(RectangleI rect, DirectX::XMFLOAT4 backgroundColor,
+		ListView(Geometry::Rectangle<int> rect, DirectX::XMFLOAT4 backgroundColor,
 			DirectX::XMFLOAT4 borderColor)
 			:
 			BasicPanel(rect, backgroundColor, borderColor)
 		{}
 
-		std::vector<ColoredRect> GetSprites()
+		std::vector<Geometry::ColoredRect<int>> GetSprites()
 		{
 			return sprites;
 		}
 
-		auto UpdateItems(std::vector<const char *> items, Fonts * fonts)
+		auto UpdateItems(std::vector<const char *> items, Font * font)
 		{
 			int scrollbarWidth = ui::ScaleX(18);
-			for (int i = 0; i < items.size(); i++)
+			for (size_t i = 0u; i < items.size(); i++)
 			{
-				auto size = fonts->MeasureString(items[i]);
+				auto size = font->MeasureString(items[i]);
 				int itemHeight = size.y + size.y / 2;
 				rc.emplace_back(rect.left, rect.Top + totalItemHeight, rect.Width - scrollbarWidth, itemHeight);
 				totalItemHeight += itemHeight;
 				float y1 = rc[i].Top + ((rc[i].Height - size.y) / 2.0f);
 				txtPos.emplace_back(std::make_tuple(items[i], rc[i].left + 10.0f, y1));
 			}
-			for (int i = 0; i < items.size(); i++)
+			for (size_t i = 0u; i < items.size(); i++)
 			{
 				int w = rc[i].Width;
 				if (totalItemHeight < rect.Height)
@@ -149,7 +149,7 @@
 
 		void Frame(DirectX::XMFLOAT3 & transformedMousePosition)
 		{
-			for (int i = 0; i < rc.size(); i++)
+			for (size_t i = 0u; i < rc.size(); i++)
 			{
 				// Is an item just now clicked? Select it!
 				if (
@@ -172,7 +172,7 @@
 
 			// Dragging the scrollbar
 			if (
-				sprites2[2].RectangleI.Value.Contains(inputManager.MousePosition.ToVector2())
+				sprites2[2].Geometry::Rectangle<int>.Value.Contains(inputManager.MousePosition.ToVector2())
 				&& inputManager.IsHeld(MouseInput.leftButton)
 				)
 				scrollDrag = true;

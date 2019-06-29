@@ -30,11 +30,11 @@ class Tiles : public IGameObject
 	class Tile
 	{
 	public:
-		Tile(const RectangleI position, uint8_t texidx, int index) : position(position), texidx(texidx), index(index)
+		Tile(const Geometry::Rectangle<int> position, uint8_t texidx, int index) : position(position), texidx(texidx), index(index)
 		{
 		}
 
-		RectangleI position;
+		Geometry::Rectangle<int> position;
 		uint8_t texidx;
 		int index;
 	};

@@ -13,7 +13,7 @@ void Tiles::LoadTiles(const char* filename)
 		//BinaryReader reader(file);
 		int32_t numTiles = 1;//reader.Get<int32_t>();
 		m_tiles.reserve(numTiles);
-		std::vector<ColoredRect> coloredRects;
+		std::vector<Geometry::ColoredRect<int>> coloredRects;
 		coloredRects.reserve(size);
 		std::vector<int> uvrectmap;
 		uvrectmap.reserve(size);
@@ -27,7 +27,7 @@ void Tiles::LoadTiles(const char* filename)
 				//reader.Read(buffer.get(), tileLength);
 				int x = (i / width), y = (i % height);
 				byte mappedTexture = 0;
-				RectangleI rectangle(x * TileSize, y * TileSize, TileSize, TileSize);
+				Geometry::Rectangle<int> rectangle(x * TileSize, y * TileSize, TileSize, TileSize);
 
 				// the sky
 				if (y < 6)
@@ -180,7 +180,7 @@ void Tiles::Load(BinaryReader & reader)
 	height = reader.Get<int>();
 	std::vector<uint8_t> data(size);
 	reader.Read(data.data(), data.capacity());
-	std::vector<ColoredRect> coloredRects;
+	std::vector<Geometry::ColoredRect<int>> coloredRects;
 	coloredRects.reserve(size);
 	std::vector<int> uvrectmap;
 	uvrectmap.reserve(size);
@@ -190,7 +190,7 @@ void Tiles::Load(BinaryReader & reader)
 		int x = (index / width) * TileSize, y = (index % height) * TileSize;
 		int v = data[index] == 255 ? 0 : data[index];
 		uint8_t mappedTexture = data[index];
-		RectangleI rectangle(x, y, textureMap[v].right, textureMap[v].bottom);
+		Geometry::Rectangle<int> rectangle(x, y, textureMap[v].right, textureMap[v].bottom);
 		m_tiles.emplace_back(rectangle, mappedTexture, index);
 		coloredRects.emplace_back(rectangle);
 		uvrectmap.emplace_back(mappedTexture);

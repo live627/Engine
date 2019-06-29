@@ -57,12 +57,12 @@ void TextClass::CreateColoredRects()
 	vec.emplace_back(0, m_screenHeight - height, m_screenWidth, ui::ScaleX(50), black);
 	vec.emplace_back(0, m_screenHeight - height, m_screenWidth, ui::ScaleX(1), Colors::White);
 	std::vector<const char *> items({ "test", "testt2", "test3" });
-	RectangleI rect(0, m_screenHeight - ui::ScaleX(301), ui::ScaleX(200), ui::ScaleX(250));
+	Geometry::Rectangle<int> rect(0, m_screenHeight - ui::ScaleX(301), ui::ScaleX(200), ui::ScaleX(250));
 	listView = std::make_unique<ListView>(rect, Colors::AntiqueWhite, Colors::DarkSlateGray);
-	auto txtPos = listView->UpdateItems(std::move(items), m_FontManager);
+	auto txtPos = listView->UpdateItems(std::move(items), m_FontManager->GetFont(2u));
 	for (size_t i = 0; i < txtPos->size(); i++) 
 		AddSentence(std::get<0>(txtPos->at(i)), std::get<1>(txtPos->at(i)),
-			std::get<2>(txtPos->at(i)) + ui::ScaleX(15.0f));
+			std::get<2>(txtPos->at(i)) + ui::ScaleX(15.0f), 2u);
 	for (auto & sprite : listView->GetSprites())
 	{
 		vec.push_back(sprite);
